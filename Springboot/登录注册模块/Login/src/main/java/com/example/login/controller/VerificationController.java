@@ -1,7 +1,8 @@
 package com.example.login.controller;
 
 
-import com.example.login.service.Interface.VerificationCodeService;
+
+import com.example.login.service.VerificationCodeService;
 import com.example.login.utility.DataValidationUtil;
 import com.example.login.utility.RandomCodeUtil;
 import org.apache.logging.log4j.LogManager;

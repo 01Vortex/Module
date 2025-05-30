@@ -89,7 +89,7 @@ public class LoginController {
     }
 
 
-    // 重置密码 开启跨域接收不到请求
+    // 重置密码 开启跨域接收不到请求  密码未校验
     @PostMapping("/reset-password")
     public String resetPassword(@RequestParam String email, @RequestParam String code, @RequestParam String newPassword) {
         //  数据验证 函数一般返回合法即true  !函数返回false

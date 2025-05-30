@@ -2,7 +2,7 @@ package com.example.login.config;
 
 
 
-import com.example.login.service.UserServiceImpl;
+import com.example.login.service.Impl.UserServiceImpl;
 import com.example.login.utility.RandomCodeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
