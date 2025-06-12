@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>主页</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+<h2>欢迎来到主页</h2>
+<div id="userInfo">
+    <p>用户名：<span id="username"></span></p>
+    <p>昵称：<span id="nickname"></span></p>
+    <p>性别：<span id="gender"></span></p>
+    <button onclick="logout()">退出登录</button>
+</div>
+
+<script>
+    $(document).ready(function () {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html'; // 未登录跳转到登录页
+            return;
+        }
+
+        // 模拟获取用户信息（实际中应该通过接口从后端获取）
+        fetchUserInfo(token);
+    });
+
+    function fetchUserInfo(token) {
+        // 假设有一个获取用户信息的接口 /api/auth/userinfo
+        $.ajax({
+            url: '/api/auth/userinfo',
+            method: 'GET',
+            headers: {
+                'Authorization': token
+            },
+            success: function (response) {
+                $('#username').text(response.username);
+                $('#nickname').text(response.nickname || '暂无昵称');
+                $('#gender').text(response.gender || '未知');
+            },
+            error: function (xhr, status, error) {
+                alert('获取用户信息失败，请重新登录');
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        });
+    }
+
+    function logout() {
+        localStorage.removeItem('token'); // 清除 Token
+        window.location.href = 'login.html'; // 跳转回登录页
+    }
+</script>
+</body>
+</html>
