@@ -40,13 +40,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     /**
      * 创建新用户
-     * @param user
-     * @return void
      */
     @Override
     public void createAccount(User user) {
         // 检查用户名是否已存在
-        if (userMapper.findByUsername(user.getUsername()) != null) {
+        if (userMapper.loadUserByUsername(user.getUsername()) != null) {
             throw new IllegalArgumentException("该用户名已被占用，请选择其他用户名");
         } else if (!DataValidationUtil.isValidUsername(user.getUsername())) {
             throw new IllegalArgumentException("用户名格式不正确");
@@ -76,33 +74,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     /**
      * 根据邮箱/手机号修改密码
-     * @param email_phone
-     * @param newPassword
-     * @return void
      */
     @Override
     public void resetPassword(String email_phone, String newPassword){
         // 判断是邮箱还是手机号
         if(email_phone.contains("@")){
             userMapper.updatePasswordByEmail(email_phone,passwordEncoder.encode(newPassword));
-            logger.info("邮箱 {} 的密码已重置", email_phone);
+            logger.info("邮箱为:{}的用户的密码已重置", email_phone);
         }
         else{
             userMapper.updatePasswordByPhone(email_phone,passwordEncoder.encode(newPassword));
-            logger.info("手机号 {} 的密码已重置", email_phone);
+            logger.info("手机号为:{}的用户的密码已重置", email_phone);
         }
     }
 
     /**
      * 实现SpringSecurity的获取取用户的详细信息，包括权限列表
-     * @param username
-     * @return UserDetails
-     * @throws UsernameNotFoundException
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.info("正在加载UserDetails对象...");
-        User user = userMapper.findByUsername(username);
+        logger.info("加载用户信息...");
+        User user = userMapper.loadUserByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("用户不存在");
         }
@@ -110,19 +102,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.getUsername(),
                 user.getPassword(),
                 // 创建权限列表
-                AuthorityUtils.createAuthorityList(user.getRole()) // 角色转为 GrantedAuthority
+                AuthorityUtils.createAuthorityList(user.getRole())// 角色转为 GrantedAuthority
         );
     }
 
 
     /**
      * 获取用户信息
-     * @param username
-     * @return User
      */
     @Override
     public User loadUserInfoByUsername(String username) {
-        return userMapper.loadUserInfoByUsername(username);
+        return userMapper.loadUserByUsername(username);
     }
 
 

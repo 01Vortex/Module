@@ -13,22 +13,6 @@ import java.util.ArrayList;
 
 public class JwtFilter extends OncePerRequestFilter {
     /**
-     * 过滤器处理逻辑
-     */
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-        throws ServletException, java.io.IOException {
-        String token = extractToken(request);
-        if (token != null) {
-            String username = JwtUtil.parseToken(token);
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                username, null, new ArrayList<>());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
-        filterChain.doFilter(request, response);
-    }
-
-    /**
      * 从请求头中提取 token
      */
     private String extractToken(HttpServletRequest request) {
@@ -40,6 +24,26 @@ public class JwtFilter extends OncePerRequestFilter {
         }
         return null;
     }
+
+    /**
+     * 过滤器处理
+     */
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, java.io.IOException {
+        String token = extractToken(request);
+        // 有token
+        if (token != null) {
+            String username = JwtUtil.parseToken(token);
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                username, null, new ArrayList<>());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
+        // 将请求交给下一个过滤器或对应过滤器处理
+        filterChain.doFilter(request, response);
+    }
+
+
 
 
 

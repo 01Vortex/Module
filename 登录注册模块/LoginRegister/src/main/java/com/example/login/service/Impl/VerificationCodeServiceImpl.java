@@ -59,8 +59,6 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     /**
      * 发送验证码(根据邮箱)
-     * @param email
-     * @param random_code
      */
     public void sendVerificationCodeWithEmail(String email, String random_code) {
         try {
@@ -91,8 +89,6 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     /**
      * 发送验证码(根据手机号)
-     * @param phoneNumber
-     * @param random_code
      */
     @Override
     public void sendVerificationCodeWithPhone(String phoneNumber, String random_code) {
@@ -101,8 +97,6 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     /**
      * 存储验证码到Redis
-     * @param email_phone
-     * @param random_code
      * 设置有效期为3分钟, 设置键值对  键:"VerificationCodeWithEmail:" + email_phone  值:random_code
      */
     @Override
@@ -117,9 +111,6 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
 
     /**
      * 验证验证码
-     * @param email_phone
-     * @param input_code
-     * @return true/false
      */
     @Override
     public boolean validateVerificationCode(String email_phone, String input_code) {
@@ -134,7 +125,7 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     }
 
     redisTemplate.delete(VERIFICATION_CODE_PREFIX + email_phone);
-    logger.info("账号:{}验证成功", email_phone);
+    logger.info("邮箱为:{}的用户验证成功", email_phone);
     return true;
 }
 

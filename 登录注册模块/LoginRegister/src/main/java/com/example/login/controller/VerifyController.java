@@ -36,10 +36,10 @@ public class VerifyController {
                 String code = RandomCodeUtil.generateNumericCode(6);
                 verificationCodeService.sendVerificationCodeWithEmail(email, code);
                 verificationCodeService.storeVerificationCodeToRedis(email, code);
-                return ResponseEntity.ok(new ApiResponse(true, "验证码已发送", null));
+                return ResponseEntity.ok(new ApiResponse<>(true, null, "验证码已发送"));  //等价于 ResponseEntity.status(200).body(new ApiResponse<>());
             } catch (Exception e) {
                 logger.error("验证码发送失败: {}", e.getMessage());
-                return ResponseEntity.status(400).body("验证码错误");
+                return ResponseEntity.status(500).body("验证码发送失败");
             }
     }
 

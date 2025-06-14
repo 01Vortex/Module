@@ -2,6 +2,7 @@ package com.example.login.mapper;
 
 import com.example.login.model.User;
 import org.apache.ibatis.annotations.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Mapper
 public interface UserMapper {
@@ -15,9 +16,7 @@ public interface UserMapper {
     @Update("UPDATE user SET password = #{password} WHERE phoneNumber = #{phone}")
     void updatePasswordByPhone(String phone, String password);
 
-    @Select("SELECT * FROM user WHERE username = #{username}")
-    User findByUsername(String username);
-
+    // 有返回值 说明有数据 该email的用户存在
     @Select("SELECT * FROM user WHERE email = #{email}")
     User findByEmail(String email);
 
@@ -28,8 +27,10 @@ public interface UserMapper {
     // 可能为空
     Boolean checkEmailAndUsernameExist(String username, String email);
 
+    // 加载用户信息
     @Select("SELECT * FROM user WHERE username = #{username}")
-    User loadUserInfoByUsername(String username);
+    User loadUserByUsername(String username);
+
 
 
 

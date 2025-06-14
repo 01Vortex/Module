@@ -20,11 +20,25 @@ public class DataValidationUtil {
       }
 
     /**
+     * 校验密码格式
+     * 密码不能为 null,且必须包含大小写字母、数字和特殊字符，且长度不少于8位
+     */
+    public static boolean isValidPassword(String password) {
+        if (password == null || password.isEmpty()) {
+            return false;
+        }
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*+=]).{8,}$";
+        Pattern pattern = Pattern.compile(passwordRegex);
+        return pattern.matcher(password).matches();
+    }
+
+
+    /**
      * 判断字符串是否为空
      * @param input
      * @return 如果字符串为 null 或空则返回 true，否则返回 false
      */
-    public static boolean ValidStringEmpty(String input) {
+    public static boolean isValidStringEmpty(String input) {
           return input == null || input.trim().isEmpty();
     }
 
@@ -34,7 +48,7 @@ public class DataValidationUtil {
      * @param obj
      * @return 如果对象为 null 或空则返回 true，否则返回 false
      */
-    public static boolean ValidObjectEmpty(Object obj) {
+    public static boolean isValidObjectEmpty(Object obj) {
           if (obj == null) {
             return true;
           }
@@ -45,7 +59,6 @@ public class DataValidationUtil {
     /**
      * 校验手机号格式（这里以中国大陆手机号为例）
      * @param phoneNumber
-     * @return
      */
 
         public static boolean isValidPhoneNumber(String phoneNumber) {
@@ -56,17 +69,13 @@ public class DataValidationUtil {
             Pattern pattern = Pattern.compile(phoneRegex);
             return pattern.matcher(phoneNumber).matches();
         }
-        public static boolean isValidPassword(String password) {
-            if (password == null || password.isEmpty()) {
-                return false;
-            }
-            String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*+=]).{8,}$";
-            Pattern pattern = Pattern.compile(passwordRegex);
-            return pattern.matcher(password).matches();
-        }
 
-        // 校验用户名格式
-        public static boolean isValidUsername(String username) {
+
+    /**
+     * 校验用户名格式
+     */
+    public static boolean isValidUsername(String username) {
+             // 检查用户名是否为 null 或空字符串
             if (username == null || username.isEmpty()) {
                 return false;
             }

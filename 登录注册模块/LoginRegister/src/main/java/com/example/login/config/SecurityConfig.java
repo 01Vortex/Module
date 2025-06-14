@@ -97,57 +97,51 @@ public class SecurityConfig {
 
 
     /**
-     * 创建 SecurityFilterChain，用于处理用户认证和授权
+     * 定义 Spring Security 的安全策略配置(认证 授权 过滤器链 会话管理  异常处理)
+     * @ param HttpSecurity http (构建安全策略的 DSL 工具类，用于配置各种安全规则)
+     * @return securityFilterChain (Spring Security 的安全过滤器链对象)
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, UserServiceImpl userServiceImpl) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
-             //   .csrf(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable()) // 禁用 CSRF 保护
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/login","/api/auth/login","/api/auth/register", "/api/auth/reset-password", "/api/verify/send-code-email", "/api/verify/send-code-phone").permitAll()
-                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/auth/login","/api/auth/register", "/api/auth/reset-password").permitAll() // 允许登录和注册
+                        .requestMatchers("/api/verify/send-code-email","/api/verify/send-code-phone").permitAll()          //  允许发送验证码
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()                                  // 允许访问 swagger-ui 和 api-docs
+                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")                                             // 允许访问 /admin 路径下的资源，需要具有 ROLE_ADMIN 权限
+                        .anyRequest().authenticated()                                                                          // 其他任何请求都需要经过身份验证
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))
-                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)
 
-
-
+                //
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessHandler((request, response, authentication) -> {
-                            response.setStatus(HttpServletResponse.SC_OK);
-                            response.getWriter().write("{\"message\": \"登出成功\"}");
+                        .logoutUrl("/logout")                                                   // 自定义登出 URL
+                        .logoutSuccessHandler((request, response, authentication) -> { //
+                            response.setStatus(HttpServletResponse.SC_OK);                      // 设置响应状态码为 200
+                            response.getWriter().write("{\"message\": \"登出成功\"}");         // 响应内容
                         })
-                        .deleteCookies("JSESSIONID")
-                        .invalidateHttpSession(true)
-                        .permitAll()
+                        .deleteCookies("JSESSIONID")                          // 删除客户端的 JSESSIONID
+                        .invalidateHttpSession(true)                                            // 使会话无效
                 )
 
 
-                .logout(logout -> logout
-                        .logoutUrl("/logout")
-                        .logoutSuccessUrl("/login")
-                        .invalidateHttpSession(true)
-                        .deleteCookies("JSESSIONID")
-                        .permitAll()
-                )
+
                 .rememberMe(remember -> remember
-                        .rememberMeCookieName("remember-me")
-                        .tokenRepository(rememberMeTokenRepository()) // 使用数据库存储
-                        .key(RandomCodeUtil.generateAlphaNumericKey(20)) // 可选：自定义 key，默认使用安全随机生成的 key
-                        .tokenValiditySeconds(15)  // 设置 token 有效时间（秒），默认为 14 天（1209600 秒） 86400 1天
-                        .userDetailsService(userDetailsService) // 用于加载用户信息
-                        .rememberMeParameter("remember-me")   // 前端 checkbox 的 name 属性值
-                        .alwaysRemember(false)                // 是否始终记住（忽略前端 checkbox）
+                        .rememberMeCookieName("remember-me")                         //  设置记住我 cookie 名称
+                        .tokenRepository(rememberMeTokenRepository())                // 使用数据库存储
+                        .key(RandomCodeUtil.generateAlphaNumericKey(20))      // 可选：自定义 key，默认使用安全随机生成的 key
+                        .tokenValiditySeconds(15)                                    // 设置 token 有效时间（秒），默认为 14 天（1209600 秒） 86400 1天
+                        .userDetailsService(userDetailsService)                      // 用于加载用户信息
+                        .rememberMeParameter("remember-me")                          // 前端 checkbox 的 name 属性值
+                        .alwaysRemember(false)                                       // 是否始终记住（忽略前端 checkbox）
                 )
                 .sessionManagement(session -> session
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false)
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)      //  禁用 session ,会话策略为无状态（STATELESS），不创建或使用HTTP会话
                 )
-                .authenticationProvider(authenticationProvider()); // 启用自定义 provider
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthEntryPoint))  // 指定认证失败时的入口类 JwtAuthEntryPoint。
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class)           // 将你自定义的 JwtFilter 插入到 UsernamePasswordAuthenticationFilter 之前执行
+                .authenticationProvider(authenticationProvider());                                      // 启用自定义 provider
 
 
         return http.build();
