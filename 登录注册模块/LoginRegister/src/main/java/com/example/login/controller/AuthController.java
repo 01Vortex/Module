@@ -11,8 +11,6 @@ import com.example.login.service.UserService;
 import com.example.login.util.DataValidationUtil;
 import com.example.login.util.JwtUtil;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,7 +29,6 @@ public class AuthController {
     private final UserService userService;
     private final VerificationCodeService verificationCodeService;
     private final UserMapper userMapper;
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     private AuthenticationManager authenticationManager ;
 
     @Autowired
