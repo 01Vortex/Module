@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="WARN">
 
+     <!--配置日志输出-->
     <Appenders>
-        <!-- 控制台输出，并支持颜色高亮 -->
+        <!--控制台输出，使用颜色样式-->
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
             <!-- 使用 ANSI 颜色样式 -->
@@ -11,12 +12,13 @@
             </StyleSelector>
         </Console>
 
-        <!-- 文件输出，不使用颜色 -->
+        <!--文件输出 不使用颜色-->
         <File name="LogFile" fileName="logs/app.log">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
         </File>
     </Appenders>
 
+     <!--配置日志记录器-->
     <Loggers>
         <!-- 设置日志级别为 DEBUG -->
         <Root level="DEBUG">
@@ -24,4 +26,10 @@
             <AppenderRef ref="LogFile"/>
         </Root>
     </Loggers>
+
+    <!-- 屏蔽 Spring 异常解析器的 WARN 日志 -->
+    <logger name="org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver"
+            level="ERROR"/>
+
+
 </Configuration>

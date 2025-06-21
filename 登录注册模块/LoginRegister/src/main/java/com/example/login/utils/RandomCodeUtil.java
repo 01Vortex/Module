@@ -1,4 +1,4 @@
-package com.example.login.util;
+package com.example.login.utils;
 
 
 import java.security.SecureRandom;

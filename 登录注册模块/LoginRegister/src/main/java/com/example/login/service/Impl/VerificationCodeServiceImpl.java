@@ -4,8 +4,8 @@ package com.example.login.service.Impl;
 
 
 
+import com.example.login.exception.RedisOperationException;
 import com.example.login.service.VerificationCodeService;
-import com.example.login.util.DataValidationUtil;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -100,14 +100,20 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
      * 设置有效期为3分钟, 设置键值对  键:"VerificationCodeWithEmail:" + email_phone  值:random_code
      */
     @Override
-    public void storeVerificationCodeToRedis(String email_phone, String random_code){
-        redisTemplate.opsForValue().set(
-                VERIFICATION_CODE_PREFIX + email_phone,
-                random_code,
-                300, TimeUnit.SECONDS
-        );
-        logger.info("用户:{}    验证码:{} 已存储到Redis", email_phone,random_code);
+    public void storeVerificationCodeToRedis(String email_phone, String random_code) {
+        try {
+            redisTemplate.opsForValue().set(
+                    VERIFICATION_CODE_PREFIX + email_phone,
+                    random_code,
+                    300, TimeUnit.SECONDS
+            );
+            logger.info("用户:{} 验证码:{} 已存储到Redis", email_phone, random_code);
+        } catch (Exception e) {
+            logger.error("用户:{} 的验证码未存储到Redis", email_phone);
+            throw new RedisOperationException("验证码存储失败",e);
+        }
     }
+
 
     /**
      * 验证验证码
@@ -115,11 +121,14 @@ public class VerificationCodeServiceImpl implements VerificationCodeService {
     @Override
     public boolean validateVerificationCode(String email_phone, String input_code) {
     //根据VERIFICATION_CODE_PREFIX + email_phone组成的唯一键取出对应的值
-    Object storedCodeObject = redisTemplate.opsForValue().get(VERIFICATION_CODE_PREFIX + email_phone);
-    String storedCodeString = storedCodeObject.toString();
+        Object storedCodeObject = redisTemplate.opsForValue().get(VERIFICATION_CODE_PREFIX + email_phone);
+        String storedCodeString = storedCodeObject.toString();
 
 
-    if (!storedCodeString.equals(input_code)) {
+
+
+
+        if (!storedCodeString.equals(input_code)) {
         logger.warn("验证码错误");
         return false;
     }

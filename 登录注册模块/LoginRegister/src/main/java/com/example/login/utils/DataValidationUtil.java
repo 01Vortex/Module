@@ -1,4 +1,4 @@
-package com.example.login.util;
+package com.example.login.utils;
 
 import java.util.regex.Pattern;
 
@@ -27,7 +27,7 @@ public class DataValidationUtil {
         if (password == null || password.isEmpty()) {
             return false;
         }
-        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*+=]).{8,}$";
+        String passwordRegex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*+=.]).{8,}$";
         Pattern pattern = Pattern.compile(passwordRegex);
         return pattern.matcher(password).matches();
     }

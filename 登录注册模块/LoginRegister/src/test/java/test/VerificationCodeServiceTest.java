@@ -3,7 +3,7 @@ package test;
 
 import com.example.login.LoginApplication;
 import com.example.login.service.VerificationCodeService;
-import com.example.login.util.RandomCodeUtil;
+import com.example.login.utils.RandomCodeUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

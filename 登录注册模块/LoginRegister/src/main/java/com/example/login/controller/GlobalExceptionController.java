@@ -1,5 +1,6 @@
 package com.example.login.controller;
 
+import com.example.login.exception.RedisOperationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -36,11 +37,7 @@ public class GlobalExceptionController {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    /*@ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleAllExceptions(Exception ex) {
-        logger.warn("发生未知异常: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("服务器内部错误");
-    }*/
+
 
     @ExceptionHandler(SQLNonTransientConnectionException.class)
     public ResponseEntity<String> handleDatabaseConnectionException(SQLNonTransientConnectionException ex) {
@@ -51,7 +48,7 @@ public class GlobalExceptionController {
     @ExceptionHandler(NullPointerException.class)
     public ResponseEntity<String> handleNullPointerException(NullPointerException ex) {
         logger.error("发生空指针异常: ", ex);
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("系统错误：空指针异常");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("系统错误");
     }
 
     @ExceptionHandler(NoSuchElementException.class)
@@ -72,6 +69,14 @@ public class GlobalExceptionController {
     public ResponseEntity<String> handleHttpClientOrServerException(Exception ex) {
         logger.error("调用第三方服务异常: ", ex);
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("调用外部服务失败");
+    }
+
+
+    @ExceptionHandler(RedisOperationException.class)
+    public ResponseEntity<String> handleRedisOperationFail(RedisOperationException ex) {
+        logger.error("未连接到Redis");
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body("验证码服务出错了");
     }
 }
 

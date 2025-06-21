@@ -4,8 +4,7 @@ package com.example.login.config;
 
 import com.example.login.jwt.JwtAuthEntryPoint;
 import com.example.login.jwt.JwtFilter;
-import com.example.login.service.Impl.UserServiceImpl;
-import com.example.login.util.RandomCodeUtil;
+import com.example.login.utils.RandomCodeUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -109,7 +108,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login","/api/auth/register", "/api/auth/reset-password").permitAll() // 允许登录和注册
                         .requestMatchers("/api/verify/send-code-email","/api/verify/send-code-phone").permitAll()          //  允许发送验证码
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()                                  // 允许访问 swagger-ui 和 api-docs
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")                                             // 允许访问 /admin 路径下的资源，需要具有 ROLE_ADMIN 权限
                         .anyRequest().authenticated()                                                                          // 其他任何请求都需要经过身份验证
                 )

@@ -1,6 +1,6 @@
 package com.example.login.jwt;
 
-import com.example.login.util.JwtUtil;
+import com.example.login.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
