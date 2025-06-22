@@ -16,11 +16,12 @@
 
 
 
+
 	<groupId>com.example</groupId>
-	<artifactId>Login</artifactId>
+	<artifactId>login</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
-	<name>Login</name>
-	<description>Login</description>
+	<name>LoginRegister</name>
+	<description>LoginRegister</description>
 
 
 

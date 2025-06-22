@@ -2,7 +2,6 @@ package com.example.login.mapper;
 
 import com.example.login.model.User;
 import org.apache.ibatis.annotations.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Mapper
 public interface UserMapper {

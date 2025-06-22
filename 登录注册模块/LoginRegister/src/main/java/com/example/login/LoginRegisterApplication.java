@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan("com.example.login.mapper")
-public class LoginApplication {
+public class LoginRegisterApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(LoginApplication.class, args);
+		SpringApplication.run(LoginRegisterApplication.class, args);
 	}
 }
      

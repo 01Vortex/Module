@@ -1,11 +1,6 @@
 package com.example.login.service;
 
 import com.example.login.model.User;
-import org.springframework.security.core.GrantedAuthority;
-
-
-import java.util.Collection;
-
 
 
 public interface UserService {

@@ -1,7 +1,7 @@
 package test;
 
 
-import com.example.login.LoginApplication;
+import com.example.login.LoginRegisterApplication;
 import com.example.login.service.VerificationCodeService;
 import com.example.login.utils.RandomCodeUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest(classes = LoginApplication.class)
+@SpringBootTest(classes = LoginRegisterApplication.class)
 public class VerificationCodeServiceTest {
 
 
