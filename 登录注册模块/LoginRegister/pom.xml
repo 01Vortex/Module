@@ -182,6 +182,12 @@
 			<version>2.8.9</version>
 		</dependency>
 
+		<!-- Spring Security OAuth2 Client -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-oauth2-client</artifactId>
+		</dependency>
+
 
 
 
