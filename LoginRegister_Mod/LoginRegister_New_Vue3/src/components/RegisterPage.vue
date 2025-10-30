@@ -255,10 +255,10 @@ const validateEmailOrPhone = async () => {
       console.error('检查邮箱失败:', error)
     }
   } else {
-    // 手机号验证
-    const phonePattern = /^1[3-9]\d{9}$/
+    // 手机号验证（11位纯数字）
+    const phonePattern = /^\d{11}$/
     if (!phonePattern.test(value)) {
-      errors.emailOrPhone = '请输入有效的手机号（11位）'
+      errors.emailOrPhone = '请输入有效的手机号（11位数字）'
       return
     }
   }
@@ -433,49 +433,27 @@ const showMessage = (text, type = 'info') => {
 }
 
 // 生成随机二维码图案
-const generateQRCode = () => {
+const generateQRCode = async () => {
   if (!qrCanvas.value) return
-  
-  const canvas = qrCanvas.value
-  const ctx = canvas.getContext('2d')
-  const size = 160
-  const gridSize = 8
-  const cellSize = size / gridSize
-  
-  ctx.fillStyle = 'white'
-  ctx.fillRect(0, 0, size, size)
-  
-  ctx.fillStyle = '#2196f3'
-  
-  for (let i = 0; i < gridSize; i++) {
-    for (let j = 0; j < gridSize; j++) {
-      const isCorner = 
-        (i < 3 && j < 3) || 
-        (i < 3 && j >= gridSize - 3) || 
-        (i >= gridSize - 3 && j < 3)
-      
-      if (isCorner) {
-        ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize)
-        if ((i === 1 && j === 1) || 
-            (i === 1 && j === gridSize - 2) || 
-            (i === gridSize - 2 && j === 1)) {
-          ctx.fillStyle = 'white'
-          ctx.fillRect(j * cellSize + cellSize * 0.25, i * cellSize + cellSize * 0.25, 
-                      cellSize * 0.5, cellSize * 0.5)
-          ctx.fillStyle = '#2196f3'
-        }
-      } else {
-        if (Math.random() > 0.5) {
-          ctx.fillRect(j * cellSize, i * cellSize, cellSize, cellSize)
-        }
-      }
+
+  // 真实二维码内容：使用当前页面 URL + 时间戳，保证每次刷新内容变化
+  const content = `${window.location.origin}/register?t=${Date.now()}`
+
+  const QRCode = (await import('qrcode')).default
+  await QRCode.toCanvas(qrCanvas.value, content, {
+    width: 120,
+    margin: 1,
+    color: {
+      dark: '#2196f3',      // 蓝色深色模块
+      light: '#ffffffff'    // 纯白背景
     }
-  }
+  })
 }
 
 onMounted(() => {
   generateQRCode()
-  setInterval(generateQRCode, 10000)
+  // 每15秒更新一次二维码
+  setInterval(generateQRCode, 15000)
 })
 </script>
 
@@ -634,6 +612,9 @@ onMounted(() => {
   margin: 0 0 12px 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .qr-code:hover {
@@ -641,9 +622,10 @@ onMounted(() => {
 }
 
 .qr-code canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .qr-hint {

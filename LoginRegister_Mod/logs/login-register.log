@@ -2273,3 +2273,210 @@ java.lang.RuntimeException: 邮件发送失败: Domain contains illegal characte
 2025-10-31 00:59:58.340 [tomcat-handler-17] INFO  c.v.loginregister_new.controller.AuthController - 验证码登录请求: 2901449366@qq.com
 2025-10-31 00:59:58.368 [tomcat-handler-17] INFO  c.v.loginregister_new.controller.AuthController - 用户 2901449366@qq.com 通过验证码登录成功
 2025-10-31 00:59:58.371 [tomcat-handler-17] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 01:03:45.409 [tomcat-handler-19] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /auth/send-code
+2025-10-31 01:03:45.410 [tomcat-handler-19] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /auth/send-code
+2025-10-31 01:03:45.412 [tomcat-handler-19] INFO  c.v.loginregister_new.controller.AuthController - 发送验证码请求: send-code-btn
+2025-10-31 01:03:45.413 [tomcat-handler-19] INFO  c.v.loginregister_new.controller.AuthController - 验证码已生成并存储到Redis: 925238 (用户: send-code-btn, 有效期: 5分钟)
+2025-10-31 01:03:45.415 [tomcat-handler-19] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 01:04:05.474 [tomcat-handler-20] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /auth/send-code
+2025-10-31 01:04:05.477 [tomcat-handler-20] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /auth/send-code
+2025-10-31 01:04:05.478 [tomcat-handler-20] INFO  c.v.loginregister_new.controller.AuthController - 发送验证码请求: 2901449366@qq.com
+2025-10-31 01:04:05.479 [tomcat-handler-20] INFO  c.v.loginregister_new.controller.AuthController - 验证码已生成并存储到Redis: 187719 (用户: 2901449366@qq.com, 有效期: 5分钟)
+2025-10-31 01:04:06.450 [tomcat-handler-20] INFO  c.v.l.service.impl.EmailServiceImpl - 验证码邮件发送成功，收件人: 2901449366@qq.com
+2025-10-31 01:04:06.450 [tomcat-handler-20] INFO  c.v.loginregister_new.controller.AuthController - ✅ 验证码邮件已发送到: 2901449366@qq.com，验证码: 187719
+2025-10-31 01:04:06.451 [tomcat-handler-20] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 01:06:38.623 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 1 deletion, 0 modifications)
+2025-10-31 01:06:38.754 [Thread-11] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 01:06:38.757 [Thread-11] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 01:06:38.885 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 57564 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 01:06:38.885 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 01:06:38.885 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 01:06:39.333 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 01:06:39.333 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 01:06:39.340 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 7 ms. Found 0 Redis repository interfaces.
+2025-10-31 01:06:39.494 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 01:06:39.509 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 01:06:39.511 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 01:06:39.511 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 01:06:39.613 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 01:06:39.614 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 725 ms
+2025-10-31 01:06:39.773 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 01:06:39.781 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@65164ecf
+2025-10-31 01:06:39.781 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 01:06:39.826 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 01:06:39.826 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 01:06:39.826 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 01:06:39.827 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 01:06:40.334 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - ✅ 邮箱服务器连接成功！
+2025-10-31 01:06:40.334 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮件服务已就绪，可以正常发送邮件
+2025-10-31 01:06:40.334 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 01:06:40.367 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: da5242a6-d164-4c5f-9607-1129f8c4ff5e
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 01:06:40.458 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 01:06:40.473 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7483ba5a, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1d555876, org.springframework.security.web.context.SecurityContextHolderFilter@c7d0af1, org.springframework.security.web.header.HeaderWriterFilter@8ca90bf, org.springframework.web.filter.CorsFilter@3f14d946, org.springframework.security.web.authentication.logout.LogoutFilter@4dce6127, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@343ff17a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7593e501, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6f6edbeb, org.springframework.security.web.access.ExceptionTranslationFilter@4a516783, org.springframework.security.web.access.intercept.AuthorizationFilter@7dd5afe0]
+2025-10-31 01:06:40.478 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 01:06:40.478 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 01:06:40.594 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 01:06:40.610 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 01:06:40.615 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 1.789 seconds (process running for 2064.211)
+2025-10-31 01:06:40.617 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 01:06:42.009 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (1 addition, 0 deletions, 0 modifications)
+2025-10-31 01:06:42.016 [Thread-15] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 01:06:42.017 [Thread-15] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 01:06:42.083 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 57564 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 01:06:42.083 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 01:06:42.083 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 01:06:42.305 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 01:06:42.305 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 01:06:42.309 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 4 ms. Found 0 Redis repository interfaces.
+2025-10-31 01:06:42.372 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 01:06:42.378 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 01:06:42.379 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 01:06:42.379 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 01:06:42.424 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 01:06:42.424 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 339 ms
+2025-10-31 01:06:42.493 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 01:06:42.497 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@6be67c6e
+2025-10-31 01:06:42.498 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 01:06:42.527 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 01:06:42.528 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 01:06:42.528 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 01:06:42.528 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 01:06:42.994 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - ✅ 邮箱服务器连接成功！
+2025-10-31 01:06:42.994 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮件服务已就绪，可以正常发送邮件
+2025-10-31 01:06:42.994 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 01:06:43.010 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 172833a4-41e0-4e2f-ba26-7cc7faa268a0
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 01:06:43.078 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 01:06:43.091 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@2982a54e, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@da21ce5, org.springframework.security.web.context.SecurityContextHolderFilter@4ead6d82, org.springframework.security.web.header.HeaderWriterFilter@711161aa, org.springframework.web.filter.CorsFilter@4224138b, org.springframework.security.web.authentication.logout.LogoutFilter@2901b0b3, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4a902dfb, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@76833e8b, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@22f835fb, org.springframework.security.web.access.ExceptionTranslationFilter@24c30d97, org.springframework.security.web.access.intercept.AuthorizationFilter@dadb236]
+2025-10-31 01:06:43.094 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 01:06:43.095 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 01:06:43.169 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 01:06:43.192 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 01:06:43.196 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 1.137 seconds (process running for 2066.791)
+2025-10-31 01:06:43.197 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 01:22:38.691 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 16 class path changes (0 additions, 16 deletions, 0 modifications)
+2025-10-31 01:22:38.703 [Thread-19] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 01:22:38.706 [Thread-19] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 01:22:38.837 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 57564 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 01:22:38.837 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 01:22:38.837 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 01:22:39.332 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 01:22:39.332 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 01:22:39.333 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 1 ms. Found 0 Redis repository interfaces.
+2025-10-31 01:22:39.410 [restartedMain] WARN  org.mybatis.spring.mapper.ClassPathMapperScanner - No MyBatis mapper was found in '[com.vortex.loginregister_new.mapper]' package. Please check your configuration.
+2025-10-31 01:22:39.535 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 01:22:39.538 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 01:22:39.538 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 01:22:39.653 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 01:22:39.653 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 814 ms
+2025-10-31 01:22:39.955 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sqlSessionFactory' defined in class path resource [com/baomidou/mybatisplus/autoconfigure/MybatisPlusAutoConfiguration.class]: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Factory method 'sqlSessionFactory' threw exception with message: Failed to parse mapping resource: 'file [D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes\mapper\UserMapper.xml]'
+2025-10-31 01:22:39.957 [restartedMain] INFO  org.apache.catalina.core.StandardService - Stopping service [Tomcat]
+2025-10-31 01:22:39.969 [restartedMain] INFO  o.s.b.a.logging.ConditionEvaluationReportLogger - 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2025-10-31 01:22:39.998 [restartedMain] ERROR org.springframework.boot.SpringApplication - Application run failed
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'sqlSessionFactory' defined in class path resource [com/baomidou/mybatisplus/autoconfigure/MybatisPlusAutoConfiguration.class]: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Factory method 'sqlSessionFactory' threw exception with message: Failed to parse mapping resource: 'file [D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes\mapper\UserMapper.xml]'
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:648)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiateUsingFactoryMethod(ConstructorResolver.java:636)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.instantiateUsingFactoryMethod(AbstractAutowireCapableBeanFactory.java:1335)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBeanInstance(AbstractAutowireCapableBeanFactory.java:1165)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:562)
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:522)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:326)
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:324)
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:200)
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:975)
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:962)
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:624)
+	at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:146)
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:754)
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:456)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:334)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354)
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343)
+	at com.vortex.loginregister_new.LoginRegisterNewApplication.main(LoginRegisterNewApplication.java:19)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:50)
+Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.apache.ibatis.session.SqlSessionFactory]: Factory method 'sqlSessionFactory' threw exception with message: Failed to parse mapping resource: 'file [D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes\mapper\UserMapper.xml]'
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:177)
+	at org.springframework.beans.factory.support.ConstructorResolver.instantiate(ConstructorResolver.java:644)
+	... 22 common frames omitted
+Caused by: java.io.IOException: Failed to parse mapping resource: 'file [D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes\mapper\UserMapper.xml]'
+	at com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean.buildSqlSessionFactory(MybatisSqlSessionFactoryBean.java:564)
+	at com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean.afterPropertiesSet(MybatisSqlSessionFactoryBean.java:437)
+	at com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean.getObject(MybatisSqlSessionFactoryBean.java:595)
+	at com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration.sqlSessionFactory(MybatisPlusAutoConfiguration.java:224)
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580)
+	at org.springframework.beans.factory.support.SimpleInstantiationStrategy.instantiate(SimpleInstantiationStrategy.java:140)
+	... 23 common frames omitted
+Caused by: org.apache.ibatis.builder.BuilderException: Error parsing Mapper XML. The XML location is 'file [D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes\mapper\UserMapper.xml]'. Cause: org.apache.ibatis.builder.BuilderException: Error resolving class. Cause: org.apache.ibatis.type.TypeException: Could not resolve type alias 'com.vortex.loginregister_new.entity.User'.  Cause: java.lang.ClassNotFoundException: Cannot find class: com.vortex.loginregister_new.entity.User
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement(XMLMapperBuilder.java:127)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.parse(XMLMapperBuilder.java:100)
+	at com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean.buildSqlSessionFactory(MybatisSqlSessionFactoryBean.java:562)
+	... 29 common frames omitted
+Caused by: org.apache.ibatis.builder.BuilderException: Error resolving class. Cause: org.apache.ibatis.type.TypeException: Could not resolve type alias 'com.vortex.loginregister_new.entity.User'.  Cause: java.lang.ClassNotFoundException: Cannot find class: com.vortex.loginregister_new.entity.User
+	at org.apache.ibatis.builder.BaseBuilder.resolveClass(BaseBuilder.java:103)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.resultMapElement(XMLMapperBuilder.java:269)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.resultMapElement(XMLMapperBuilder.java:261)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.resultMapElements(XMLMapperBuilder.java:253)
+	at org.apache.ibatis.builder.xml.XMLMapperBuilder.configurationElement(XMLMapperBuilder.java:123)
+	... 31 common frames omitted
+Caused by: org.apache.ibatis.type.TypeException: Could not resolve type alias 'com.vortex.loginregister_new.entity.User'.  Cause: java.lang.ClassNotFoundException: Cannot find class: com.vortex.loginregister_new.entity.User
+	at org.apache.ibatis.type.TypeAliasRegistry.resolveAlias(TypeAliasRegistry.java:128)
+	at org.apache.ibatis.builder.BaseBuilder.resolveAlias(BaseBuilder.java:132)
+	at org.apache.ibatis.builder.BaseBuilder.resolveClass(BaseBuilder.java:101)
+	... 35 common frames omitted
+Caused by: java.lang.ClassNotFoundException: Cannot find class: com.vortex.loginregister_new.entity.User
+	at org.apache.ibatis.io.ClassLoaderWrapper.classForName(ClassLoaderWrapper.java:226)
+	at org.apache.ibatis.io.ClassLoaderWrapper.classForName(ClassLoaderWrapper.java:103)
+	at org.apache.ibatis.io.Resources.classForName(Resources.java:322)
+	at org.apache.ibatis.type.TypeAliasRegistry.resolveAlias(TypeAliasRegistry.java:124)
+	... 37 common frames omitted
+2025-10-31 01:22:42.980 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 57564 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 01:22:42.980 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 01:22:42.980 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 01:22:43.278 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 01:22:43.278 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 01:22:43.283 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 4 ms. Found 0 Redis repository interfaces.
+2025-10-31 01:22:43.379 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 01:22:43.393 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 01:22:43.397 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 01:22:43.397 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 01:22:43.453 [restartedMain] INFO  o.a.c.c.C.[Tomcat-1].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 01:22:43.453 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 471 ms
+2025-10-31 01:22:43.528 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 01:22:43.533 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@637f6116
+2025-10-31 01:22:43.535 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 01:22:43.578 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 01:22:43.578 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 01:22:43.578 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 01:22:43.578 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 01:22:44.032 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - ✅ 邮箱服务器连接成功！
+2025-10-31 01:22:44.033 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮件服务已就绪，可以正常发送邮件
+2025-10-31 01:22:44.033 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 01:22:44.057 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: b54346c2-947f-45b8-81e5-1d0704883275
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 01:22:44.182 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 01:22:44.207 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@6598909c, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@2d71a8b5, org.springframework.security.web.context.SecurityContextHolderFilter@386d6914, org.springframework.security.web.header.HeaderWriterFilter@5f79a59c, org.springframework.web.filter.CorsFilter@3e0f2034, org.springframework.security.web.authentication.logout.LogoutFilter@1d02aac5, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3eaccdc9, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5c335489, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@439ee033, org.springframework.security.web.access.ExceptionTranslationFilter@5466c366, org.springframework.security.web.access.intercept.AuthorizationFilter@67f343ed]
+2025-10-31 01:22:44.213 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 01:22:44.215 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 01:22:44.373 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 01:22:44.399 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 01:22:44.405 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 1.515 seconds (process running for 3028.0)
+2025-10-31 01:22:44.407 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
