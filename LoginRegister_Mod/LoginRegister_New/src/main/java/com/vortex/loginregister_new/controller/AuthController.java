@@ -358,5 +358,154 @@ public class AuthController {
         }
         return ip;
     }
+
+    /**
+     * 发送重置密码验证码
+     */
+    @PostMapping("/forgot-password/send-code")
+    public Map<String, Object> sendResetPasswordCode(@RequestBody Map<String, String> data) {
+        String emailOrPhone = data.get("emailOrPhone");
+        
+        log.info("发送重置密码验证码请求: {}", emailOrPhone);
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        if (emailOrPhone == null || emailOrPhone.trim().isEmpty()) {
+            result.put("code", 400);
+            result.put("message", "邮箱或手机号不能为空");
+            return result;
+        }
+        
+        try {
+            // 查找用户
+            User user = null;
+            if (emailOrPhone.contains("@")) {
+                user = userService.findByEmail(emailOrPhone);
+            } else {
+                user = userService.findByPhone(emailOrPhone);
+            }
+            
+            if (user == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                return result;
+            }
+            
+            // 生成6位数字验证码
+            String code = String.format("%06d", new Random().nextInt(1000000));
+            
+            // Redis 存储验证码（15分钟有效）
+            String redisKey = "reset_password_code:" + emailOrPhone;
+            redisService.set(redisKey, code, 15, TimeUnit.MINUTES);
+            
+            log.info("重置密码验证码已生成并存储到Redis: {} (用户: {}, 有效期: 15分钟)", code, emailOrPhone);
+            
+            // 判断是邮箱还是手机号
+            if (emailOrPhone.contains("@")) {
+                // 邮箱：发送邮件验证码
+                try {
+                    emailService.sendResetPasswordCode(emailOrPhone, code);
+                    result.put("code", 200);
+                    result.put("message", "验证码已发送到邮箱，请查收");
+                    log.info("✅ 重置密码验证码邮件已发送到: {}，验证码: {}", emailOrPhone, code);
+                } catch (Exception e) {
+                    log.error("❌ 邮件发送失败: ", e);
+                    result.put("code", 500);
+                    result.put("message", "邮件发送失败: " + e.getMessage());
+                    // 删除 Redis 中的验证码
+                    redisService.delete(redisKey);
+                }
+            } else {
+                // 手机号：暂不支持
+                result.put("code", 400);
+                result.put("message", "暂不支持手机号重置密码");
+                // 删除 Redis 中的验证码
+                redisService.delete(redisKey);
+            }
+            
+        } catch (Exception e) {
+            log.error("发送重置密码验证码失败: ", e);
+            result.put("code", 500);
+            result.put("message", "发送失败: " + e.getMessage());
+        }
+        
+        return result;
+    }
+
+    /**
+     * 重置密码
+     */
+    @PostMapping("/forgot-password/reset")
+    public Map<String, Object> resetPassword(@RequestBody Map<String, String> data) {
+        String emailOrPhone = data.get("emailOrPhone");
+        String code = data.get("code");
+        String newPassword = data.get("newPassword");
+        
+        log.info("重置密码请求: {}", emailOrPhone);
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        if (emailOrPhone == null || code == null || newPassword == null) {
+            result.put("code", 400);
+            result.put("message", "参数不完整");
+            return result;
+        }
+        
+        if (newPassword.length() < 6) {
+            result.put("code", 400);
+            result.put("message", "密码长度至少为6位");
+            return result;
+        }
+        
+        try {
+            // 验证验证码
+            String redisKey = "reset_password_code:" + emailOrPhone;
+            String storedCode = redisService.get(redisKey);
+            
+            if (storedCode == null) {
+                result.put("code", 400);
+                result.put("message", "验证码已过期或不存在");
+                return result;
+            }
+            
+            if (!storedCode.equals(code)) {
+                result.put("code", 400);
+                result.put("message", "验证码错误");
+                return result;
+            }
+            
+            // 查找用户
+            User user = null;
+            if (emailOrPhone.contains("@")) {
+                user = userService.findByEmail(emailOrPhone);
+            } else {
+                user = userService.findByPhone(emailOrPhone);
+            }
+            
+            if (user == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                return result;
+            }
+            
+            // 更新密码
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userService.updateById(user);
+            
+            // 清除 Redis 中的验证码
+            redisService.delete(redisKey);
+            
+            result.put("code", 200);
+            result.put("message", "密码重置成功");
+            log.info("用户 {} 密码重置成功", emailOrPhone);
+            
+        } catch (Exception e) {
+            log.error("重置密码失败: ", e);
+            result.put("code", 500);
+            result.put("message", "重置失败: " + e.getMessage());
+        }
+        
+        return result;
+    }
 }
 

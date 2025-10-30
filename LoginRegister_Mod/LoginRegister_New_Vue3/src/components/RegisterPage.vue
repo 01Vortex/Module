@@ -64,7 +64,7 @@
             <div class="form-group">
               <input 
                 v-model="formData.password" 
-                type="password" 
+                type="password"
                 placeholder="密码（至少6位）"
                 :disabled="loading"
                 required
@@ -78,7 +78,7 @@
             <div class="form-group">
               <input 
                 v-model="formData.confirmPassword" 
-                type="password" 
+                type="password"
                 placeholder="确认密码"
                 :disabled="loading"
                 required

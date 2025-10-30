@@ -76,3 +76,23 @@ export async function checkEmail(email) {
   return request(`/user/check/email/${email}`)
 }
 
+/**
+ * 发送重置密码验证码
+ */
+export async function sendResetPasswordCode(emailOrPhone) {
+  return request('/auth/forgot-password/send-code', {
+    method: 'POST',
+    body: JSON.stringify({ emailOrPhone }),
+  })
+}
+
+/**
+ * 重置密码
+ */
+export async function resetPassword(emailOrPhone, code, newPassword) {
+  return request('/auth/forgot-password/reset', {
+    method: 'POST',
+    body: JSON.stringify({ emailOrPhone, code, newPassword }),
+  })
+}
+

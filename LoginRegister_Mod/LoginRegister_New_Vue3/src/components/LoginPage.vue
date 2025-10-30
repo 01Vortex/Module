@@ -58,7 +58,7 @@
           <div class="form-group" v-if="loginType === 'password'">
             <input 
               v-model="password" 
-              type="password" 
+              type="password"
               placeholder="输入密码"
               :disabled="loading"
               required
@@ -156,7 +156,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['switch-to-register'])
+const emit = defineEmits(['switch-to-register', 'switch-to-forgot-password'])
 
 const loginType = ref('password')
 const username = ref('')
@@ -239,8 +239,7 @@ const handleRegister = () => {
 }
 
 const handleForgotPassword = () => {
-  console.log('跳转到忘记密码页面')
-  showMessage('忘记密码功能开发中...', 'info')
+  emit('switch-to-forgot-password')
 }
 
 const sendCode = async () => {

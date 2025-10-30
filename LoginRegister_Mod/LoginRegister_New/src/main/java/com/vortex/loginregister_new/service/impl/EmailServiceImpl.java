@@ -101,5 +101,43 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("邮件发送失败: " + e.getMessage());
         }
     }
+    
+    @Override
+    public void sendResetPasswordCode(String to, String code) {
+        String subject = "【Sun】重置密码验证码";
+        
+        String htmlContent = String.format(
+            "<div style='padding: 20px; background-color: #f5f5f5;'>" +
+            "<div style='max-width: 600px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);'>" +
+            "<h2 style='color: #ff5722; margin-bottom: 20px; text-align: center;'>🔐 Sun - 密码重置</h2>" +
+            "<p style='color: #333; font-size: 16px; line-height: 1.6;'>您好，</p>" +
+            "<p style='color: #333; font-size: 16px; line-height: 1.6;'>您正在尝试重置密码，验证码是：</p>" +
+            "<div style='background: linear-gradient(135deg, #ff6b6b 0%%, #feca57 100%%); padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;'>" +
+            "<span style='font-size: 36px; font-weight: bold; color: white; letter-spacing: 8px;'>%s</span>" +
+            "</div>" +
+            "<p style='color: #666; font-size: 14px; line-height: 1.6;'>验证码 <strong>15分钟</strong> 内有效，请勿告知他人。</p>" +
+            "<p style='color: #ff5722; font-size: 14px; line-height: 1.6;'><strong>⚠️ 如果您没有申请重置密码，请忽略此邮件。</strong></p>" +
+            "<p style='color: #999; font-size: 12px; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;'>此邮件由系统自动发送，请勿回复。</p>" +
+            "</div>" +
+            "</div>",
+            code
+        );
+        
+        MimeMessage message = mailSender.createMimeMessage();
+        
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setFrom(from);
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            
+            mailSender.send(message);
+            log.info("重置密码验证码邮件发送成功，收件人: {}", to);
+        } catch (MessagingException e) {
+            log.error("重置密码验证码邮件发送失败，收件人: {}", to, e);
+            throw new RuntimeException("邮件发送失败: " + e.getMessage());
+        }
+    }
 }
 

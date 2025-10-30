@@ -2,8 +2,9 @@
 import { ref } from 'vue'
 import LoginPage from './components/LoginPage.vue'
 import RegisterPage from './components/RegisterPage.vue'
+import ForgotPasswordPage from './components/ForgotPasswordPage.vue'
 
-const currentPage = ref('login') // 'login' 或 'register'
+const currentPage = ref('login') // 'login', 'register' 或 'forgot-password'
 const prefilledData = ref(null)
 
 const switchToRegister = () => {
@@ -18,6 +19,10 @@ const switchToLogin = (data) => {
   }
 }
 
+const switchToForgotPassword = () => {
+  currentPage.value = 'forgot-password'
+}
+
 const handleRegisterSuccess = (data) => {
   prefilledData.value = data
 }
@@ -28,11 +33,16 @@ const handleRegisterSuccess = (data) => {
     v-if="currentPage === 'login'" 
     :prefilled-data="prefilledData"
     @switch-to-register="switchToRegister"
+    @switch-to-forgot-password="switchToForgotPassword"
   />
   <RegisterPage 
-    v-else 
+    v-else-if="currentPage === 'register'"
     @switch-to-login="switchToLogin"
     @register-success="handleRegisterSuccess"
+  />
+  <ForgotPasswordPage 
+    v-else-if="currentPage === 'forgot-password'"
+    @switch-to-login="switchToLogin"
   />
 </template>
 
