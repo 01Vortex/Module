@@ -1,0 +1,31 @@
+# 开发环境配置
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/login_register_new?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 193510
+
+  # Redis 配置（开发环境）
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+
+  devtools:
+    restart:
+      enabled: true
+
+# MyBatis Plus 日志（开发环境）
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    root: INFO
+    com.vortex: DEBUG
+    com.vortex.loginregister_new.mapper: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.security: DEBUG
+
