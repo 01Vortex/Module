@@ -48,6 +48,57 @@ spring:
       aggressive-lazy-loading: false
       log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
+  # Redis 配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 
+      database: 0
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+
+  # 邮件配置 (QQ邮箱 - 使用465端口SSL)
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: isvoid2077@qq.com
+    password: zpizplxofnqtdeei  # 临时测试密码，实际请填入16位授权码
+    default-encoding: UTF-8
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+          socketFactory:
+            class: javax.net.ssl.SSLSocketFactory
+            port: 465
+          timeout: 5000
+          connectiontimeout: 5000
+
+  # Jackson 配置
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+  # DevTools 配置
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java
+    livereload:
+      enabled: true
+
 # MyBatis Plus 配置
 mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
@@ -66,37 +117,6 @@ mybatis-plus:
       logic-not-delete-value: 0
       update-strategy: not_null
     banner: false
-
-  # Redis 配置
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: 
-      database: 0
-      timeout: 10000
-      lettuce:
-        pool:
-          max-active: 8
-          max-wait: -1
-          max-idle: 8
-          min-idle: 0
-
-  # Jackson 配置
-  jackson:
-    time-zone: Asia/Shanghai
-    date-format: yyyy-MM-dd HH:mm:ss
-    default-property-inclusion: non_null
-    serialization:
-      write-dates-as-timestamps: false
-
-  # DevTools 配置
-  devtools:
-    restart:
-      enabled: true
-      additional-paths: src/main/java
-    livereload:
-      enabled: true
 
 # JWT 配置
 jwt:
@@ -137,6 +157,8 @@ management:
       enabled: true
     db:
       enabled: true
+    mail:
+      enabled: false  # 禁用邮件健康检查，避免启动时连接失败
 
 # Spring Doc API 文档配置（可选）
 springdoc:

@@ -26,12 +26,20 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### 4. 发送验证码
+### 4. 发送验证码 (用户名)
 POST {{baseUrl}}/auth/send-code
 Content-Type: application/json
 
 {
   "username": "testuser"
+}
+
+### 4.1 发送验证码 (邮箱)
+POST {{baseUrl}}/auth/send-code
+Content-Type: application/json
+
+{
+  "username": "isvoid2077@qq.com"
 }
 
 ### 5. 验证码登录 (使用上面返回的验证码)

@@ -3,7 +3,6 @@ package com.vortex.loginregister_new;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 
 /**
  * 登录注册模块主应用类
@@ -12,7 +11,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
  * @author Vortex
  * @since 2024
  */
-@SpringBootApplication(exclude = {RedisAutoConfiguration.class})
+@SpringBootApplication
 @MapperScan("com.vortex.loginregister_new.mapper")
 public class LoginRegisterNewApplication {
 

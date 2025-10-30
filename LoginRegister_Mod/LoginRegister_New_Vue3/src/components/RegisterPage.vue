@@ -298,6 +298,9 @@ const validateConfirmPassword = () => {
 
 // 发送验证码
 const sendCode = async () => {
+  console.log('=== 开始发送验证码流程 ===')
+  console.log('邮箱/手机号:', formData.emailOrPhone)
+  
   if (!formData.emailOrPhone) {
     showMessage('请先输入邮箱或手机号', 'error')
     return
@@ -306,21 +309,25 @@ const sendCode = async () => {
   // 验证邮箱或手机号格式
   await validateEmailOrPhone()
   if (errors.emailOrPhone) {
+    console.log('验证失败:', errors.emailOrPhone)
     showMessage(errors.emailOrPhone, 'error')
     return
   }
   
   if (countdown.value > 0) {
+    console.log('倒计时中，剩余:', countdown.value)
     return
   }
   
   try {
+    console.log('调用 sendVerificationCode API...')
     const result = await sendVerificationCode(formData.emailOrPhone)
+    console.log('API 返回结果:', result)
     
-    if (result.code === 200) {
+    if (result && result.code === 200) {
       // 开发环境显示验证码
       if (result.verificationCode) {
-        console.log('验证码:', result.verificationCode)
+        console.log('✅ 验证码:', result.verificationCode)
         showMessage(`验证码已发送！验证码: ${result.verificationCode}`, 'success')
       } else {
         showMessage('验证码已发送，请查收', 'success')
@@ -337,12 +344,15 @@ const sendCode = async () => {
         }
       }, 1000)
     } else {
-      showMessage(result.message || '发送失败', 'error')
+      console.log('❌ 发送失败:', result)
+      showMessage(result?.message || '发送失败', 'error')
     }
   } catch (error) {
-    console.error('发送验证码错误:', error)
+    console.error('❌ 发送验证码异常:', error)
     showMessage('网络错误，请稍后重试', 'error')
   }
+  
+  console.log('=== 发送验证码流程结束 ===')
 }
 
 // 处理注册

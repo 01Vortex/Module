@@ -1,6 +1,8 @@
 package com.vortex.loginregister_new.controller;
 
 import com.vortex.loginregister_new.entity.User;
+import com.vortex.loginregister_new.service.EmailService;
+import com.vortex.loginregister_new.service.RedisService;
 import com.vortex.loginregister_new.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 认证控制器 - 处理登录、注册等认证相关功能
@@ -28,9 +30,11 @@ public class AuthController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final RedisService redisService;
+    private final EmailService emailService;
     
-    // 临时存储验证码（生产环境应使用Redis）
-    private final Map<String, String> verificationCodes = new ConcurrentHashMap<>();
+    // Redis Key 前缀
+    private static final String VERIFICATION_CODE_PREFIX = "verification_code:";
 
     /**
      * 用户登录（密码方式）
@@ -125,8 +129,10 @@ public class AuthController {
             // 判断是邮箱注册还是手机号注册
             String identifier = email != null ? email : phone;
             
-            // 验证验证码
-            String storedCode = verificationCodes.get(identifier);
+            // 从 Redis 验证验证码
+            String redisKey = VERIFICATION_CODE_PREFIX + identifier;
+            String storedCode = redisService.get(redisKey);
+            
             if (storedCode == null) {
                 result.put("code", 400);
                 result.put("message", "验证码已过期或不存在");
@@ -153,9 +159,9 @@ public class AuthController {
             user.setEmail(email);
             user.setPhone(phone);
             
-            // 生成随机昵称: Sun + 7位随机数字字母组合
-            String randomSuffix = generateRandomCode(7);
-            user.setNickname("Sun" + randomSuffix);
+            // 生成随机昵称: 用户 + 10位随机纯数字
+            String randomSuffix = generateRandomNumber(10);
+            user.setNickname("用户" + randomSuffix);
             
             // 设置默认状态
             user.setStatus(1);
@@ -164,8 +170,8 @@ public class AuthController {
             boolean saved = userService.register(user);
             
             if (saved) {
-                // 清除已使用的验证码
-                verificationCodes.remove(identifier);
+                // 清除 Redis 中已使用的验证码
+                redisService.delete(redisKey);
                 
                 user.setPassword(null);
                 result.put("code", 200);
@@ -187,14 +193,15 @@ public class AuthController {
     }
     
     /**
-     * 生成随机字符串（数字和字母组合）
+     * 生成随机纯数字字符串
+     * @param length 数字长度
+     * @return 纯数字字符串
      */
-    private String generateRandomCode(int length) {
-        String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private String generateRandomNumber(int length) {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            sb.append(chars.charAt(random.nextInt(chars.length())));
+            sb.append(random.nextInt(10));
         }
         return sb.toString();
     }
@@ -212,34 +219,44 @@ public class AuthController {
         
         if (username == null || username.trim().isEmpty()) {
             result.put("code", 400);
-            result.put("message", "用户名或邮箱不能为空");
+            result.put("message", "用户名或邮箱/手机号不能为空");
             return result;
         }
         
         try {
-            // 生成6位验证码
+            // 生成6位数字验证码
             String code = String.format("%06d", new Random().nextInt(1000000));
             
-            // 存储验证码（5分钟有效）
-            verificationCodes.put(username, code);
+            // Redis 存储验证码（5分钟有效）
+            String redisKey = VERIFICATION_CODE_PREFIX + username;
+            redisService.set(redisKey, code, 5, TimeUnit.MINUTES);
             
-            // 实际应用中这里应该发送邮件或短信
-            // 这里仅作演示，返回验证码（生产环境不应该这样做）
-            log.info("验证码: {} (用户: {})", code, username);
+            log.info("验证码已生成并存储到Redis: {} (用户: {}, 有效期: 5分钟)", code, username);
             
-            result.put("code", 200);
-            result.put("message", "验证码已发送");
-            result.put("verificationCode", code); // 仅用于开发测试
-            
-            // 5分钟后自动清除
-            new Thread(() -> {
+            // 判断是邮箱还是手机号
+            if (username.contains("@")) {
+                // 邮箱：发送邮件验证码
                 try {
-                    Thread.sleep(5 * 60 * 1000);
-                    verificationCodes.remove(username);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    emailService.sendVerificationCode(username, code);
+                    result.put("code", 200);
+                    result.put("message", "验证码已发送到邮箱，请查收");
+                    // 开发环境：在响应中返回验证码（生产环境应移除）
+                    result.put("verificationCode", code);
+                    log.info("✅ 验证码邮件已发送到: {}，验证码: {}", username, code);
+                } catch (Exception e) {
+                    log.error("❌ 邮件发送失败: ", e);
+                    result.put("code", 500);
+                    result.put("message", "邮件发送失败: " + e.getMessage());
+                    // 删除 Redis 中的验证码
+                    redisService.delete(redisKey);
                 }
-            }).start();
+            } else {
+                // 手机号：暂不支持
+                result.put("code", 400);
+                result.put("message", "暂不支持手机号注册/登录");
+                // 删除 Redis 中的验证码
+                redisService.delete(redisKey);
+            }
             
         } catch (Exception e) {
             log.error("发送验证码失败: ", e);
@@ -269,8 +286,10 @@ public class AuthController {
         }
         
         try {
-            // 验证验证码
-            String storedCode = verificationCodes.get(username);
+            // 从 Redis 验证验证码
+            String redisKey = VERIFICATION_CODE_PREFIX + username;
+            String storedCode = redisService.get(redisKey);
+            
             if (storedCode == null) {
                 result.put("code", 400);
                 result.put("message", "验证码已过期或不存在");
@@ -306,8 +325,8 @@ public class AuthController {
             String clientIp = getClientIp(request);
             userService.updateLastLoginInfo(user.getId(), clientIp);
             
-            // 清除已使用的验证码
-            verificationCodes.remove(username);
+            // 清除 Redis 中已使用的验证码
+            redisService.delete(redisKey);
             
             // 返回用户信息
             user.setPassword(null);

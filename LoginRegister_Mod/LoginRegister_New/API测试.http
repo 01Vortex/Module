@@ -1,0 +1,92 @@
+### ============================================
+### 后端 API 测试文件
+### 使用 REST Client 插件或 IntelliJ IDEA HTTP Client
+### ============================================
+
+### 变量配置
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### ============================================
+### 1. 检查用户名是否可用
+### ============================================
+POST {{baseUrl}}/auth/check-username
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser"
+}
+
+### ============================================
+### 2. 检查邮箱是否可用
+### ============================================
+POST {{baseUrl}}/auth/check-email
+Content-Type: {{contentType}}
+
+{
+  "email": "test@qq.com"
+}
+
+### ============================================
+### 3. 发送验证码到邮箱
+### ============================================
+POST {{baseUrl}}/auth/send-code
+Content-Type: {{contentType}}
+
+{
+  "username": "test@qq.com"
+}
+
+### ============================================
+### 4. 用户注册（邮箱注册）
+### ============================================
+POST {{baseUrl}}/auth/register
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "email": "test@qq.com",
+  "password": "123456",
+  "verifyCode": "123456"
+}
+
+### ============================================
+### 5. 密码登录
+### ============================================
+POST {{baseUrl}}/auth/login
+Content-Type: {{contentType}}
+
+{
+  "username": "testuser",
+  "password": "123456"
+}
+
+### ============================================
+### 6. 发送验证码（用于验证码登录）
+### ============================================
+POST {{baseUrl}}/auth/send-code
+Content-Type: {{contentType}}
+
+{
+  "username": "test@qq.com"
+}
+
+### ============================================
+### 7. 验证码登录
+### ============================================
+POST {{baseUrl}}/auth/login/code
+Content-Type: {{contentType}}
+
+{
+  "username": "test@qq.com",
+  "code": "123456"
+}
+
+### ============================================
+### Redis 验证码查询（使用 redis-cli）
+### ============================================
+# redis-cli
+# get verification_code:test@qq.com
+# ttl verification_code:test@qq.com
+# keys verification_code:*
+
