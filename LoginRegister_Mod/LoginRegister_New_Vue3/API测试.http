@@ -1,0 +1,54 @@
+### 登录注册模块 API 测试文件
+### 使用 VS Code 的 REST Client 插件或其他 HTTP 客户端测试
+
+@baseUrl = http://localhost:8080/api
+
+### 1. 测试后端连接
+GET {{baseUrl}}/user/test
+
+### 2. 用户注册
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "123456",
+  "email": "test@example.com",
+  "nickname": "测试用户"
+}
+
+### 3. 密码登录
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "password": "123456"
+}
+
+### 4. 发送验证码
+POST {{baseUrl}}/auth/send-code
+Content-Type: application/json
+
+{
+  "username": "testuser"
+}
+
+### 5. 验证码登录 (使用上面返回的验证码)
+POST {{baseUrl}}/auth/login/code
+Content-Type: application/json
+
+{
+  "username": "testuser",
+  "code": "123456"
+}
+
+### 6. 检查用户名是否存在
+GET {{baseUrl}}/user/check/username/testuser
+
+### 7. 检查邮箱是否存在
+GET {{baseUrl}}/user/check/email/test@example.com
+
+### 8. 查询用户列表
+GET {{baseUrl}}/user/list?page=1&size=10
+

@@ -1,0 +1,273 @@
+2025-10-30 21:52:37.725 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 39960 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-30 21:52:37.727 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-30 21:52:37.728 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-30 21:52:37.766 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-10-30 21:52:37.766 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-10-30 21:52:38.997 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-30 21:52:39.048 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-30 21:52:39.058 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-30 21:52:39.058 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-30 21:52:39.130 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-30 21:52:39.130 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1364 ms
+2025-10-30 21:52:39.465 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-30 21:52:39.608 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@32ddfdca
+2025-10-30 21:52:39.610 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-30 21:52:39.703 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: f49f2d86-bd7b-49ce-83cd-9e73cd4afb00
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-30 21:52:39.993 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-30 21:52:40.034 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@63a3d366, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@78582f2d, org.springframework.security.web.context.SecurityContextHolderFilter@57ff03ed, org.springframework.security.web.header.HeaderWriterFilter@9af5aa3, org.springframework.web.filter.CorsFilter@34177c68, org.springframework.security.web.authentication.logout.LogoutFilter@2e2a5908, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@1aab67e9, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2ac6bf1c, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4a16ad8d, org.springframework.security.web.access.ExceptionTranslationFilter@1fc013ad, org.springframework.security.web.access.intercept.AuthorizationFilter@1421f83f]
+2025-10-30 21:52:40.046 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-30 21:52:40.048 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-30 21:52:40.256 [restartedMain] WARN  o.s.b.d.autoconfigure.OptionalLiveReloadServer - Unable to start LiveReload server
+2025-10-30 21:52:40.314 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-30 21:52:40.323 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 3.061 seconds (process running for 3.867)
+2025-10-30 21:52:40.894 [RMI TCP Connection(3)-192.168.1.5] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-30 21:52:40.894 [RMI TCP Connection(3)-192.168.1.5] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-10-30 21:52:40.897 [RMI TCP Connection(3)-192.168.1.5] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-10-30 21:53:01.989 [tomcat-handler-0] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:53:07.140 [tomcat-handler-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:53:28.611 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 0 deletions, 2 modifications)
+2025-10-30 21:53:28.647 [Thread-1] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-30 21:53:28.662 [Thread-1] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-30 21:53:28.793 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 39960 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-30 21:53:28.793 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-30 21:53:28.793 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-30 21:53:29.201 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-30 21:53:29.213 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-30 21:53:29.214 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-30 21:53:29.214 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-30 21:53:29.265 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-30 21:53:29.266 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 471 ms
+2025-10-30 21:53:29.353 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-30 21:53:29.369 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@9a22a66
+2025-10-30 21:53:29.370 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-30 21:53:29.416 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 09efbb9d-8c5d-488a-9d11-93518aabdbc3
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-30 21:53:29.525 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-30 21:53:29.541 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@7df313fa, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@47c48b79, org.springframework.security.web.context.SecurityContextHolderFilter@4cab49d5, org.springframework.security.web.header.HeaderWriterFilter@1b7c54c5, org.springframework.web.filter.CorsFilter@729bd25c, org.springframework.security.web.authentication.logout.LogoutFilter@5b9c2227, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@66e481fb, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@344c9f8e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@15147b71, org.springframework.security.web.access.ExceptionTranslationFilter@11787051, org.springframework.security.web.access.intercept.AuthorizationFilter@49d5d7a1]
+2025-10-30 21:53:29.546 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-30 21:53:29.546 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-30 21:53:29.630 [restartedMain] WARN  o.s.b.d.autoconfigure.OptionalLiveReloadServer - Unable to start LiveReload server
+2025-10-30 21:53:29.647 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-30 21:53:29.653 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.896 seconds (process running for 53.196)
+2025-10-30 21:53:29.655 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-30 21:54:30.015 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (0 additions, 2 deletions, 0 modifications)
+2025-10-30 21:54:30.047 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-30 21:54:30.052 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-30 21:54:30.203 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 39960 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-30 21:54:30.203 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-30 21:54:30.204 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-30 21:54:30.958 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-30 21:54:30.970 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-30 21:54:30.971 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-30 21:54:30.971 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-30 21:54:31.036 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-30 21:54:31.036 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 830 ms
+2025-10-30 21:54:31.153 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-30 21:54:31.160 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@5a623a74
+2025-10-30 21:54:31.161 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-30 21:54:31.186 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-30 21:54:31.188 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-30 21:54:31.371 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: a3c6440d-03f7-4551-80c8-0a82c0a8b1e0
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-30 21:54:31.397 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-30 21:54:31.411 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@31270221, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7a97267f, org.springframework.security.web.context.SecurityContextHolderFilter@696dd2b, org.springframework.security.web.header.HeaderWriterFilter@7ec589ef, org.springframework.web.filter.CorsFilter@1aa25c77, org.springframework.security.web.csrf.CsrfFilter@34878e9c, org.springframework.security.web.authentication.logout.LogoutFilter@1e2476e6, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@4b1cc98c, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@463284cd, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@66001f9d, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@202b8eb0, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@eed500b, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@146aed5e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@6fbf2f76, org.springframework.security.web.access.ExceptionTranslationFilter@3d54e929, org.springframework.security.web.access.intercept.AuthorizationFilter@526b519f]
+2025-10-30 21:54:31.437 [restartedMain] WARN  o.s.b.d.autoconfigure.OptionalLiveReloadServer - Unable to start LiveReload server
+2025-10-30 21:54:31.456 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-30 21:54:31.460 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 1.3 seconds (process running for 115.004)
+2025-10-30 21:54:31.464 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+   ManagementWebSecurityAutoConfiguration matched:
+      - found 'session' scope (OnWebApplicationCondition)
+      - AllNestedConditions 2 matched 0 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) did not find any beans; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration matched:
+      - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+      - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) did not find any beans (OnBeanCondition)
+
+
+Negative matches:
+-----------------
+
+    None
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2025-10-30 21:54:32.864 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 2 class path changes (2 additions, 0 deletions, 0 modifications)
+2025-10-30 21:54:32.869 [Thread-9] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-30 21:54:32.871 [Thread-9] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-30 21:54:32.933 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 39960 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-30 21:54:32.934 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-30 21:54:32.934 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-30 21:54:33.197 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-30 21:54:33.207 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-30 21:54:33.208 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-30 21:54:33.208 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-30 21:54:33.253 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-30 21:54:33.253 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 318 ms
+2025-10-30 21:54:33.323 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-30 21:54:33.327 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@3c8e665
+2025-10-30 21:54:33.328 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-30 21:54:33.364 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: abe94d87-a579-495c-bcca-147c9d9c6ac7
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-30 21:54:33.447 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-30 21:54:33.463 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@3a26f31b, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@339d6c1f, org.springframework.security.web.context.SecurityContextHolderFilter@32a15f34, org.springframework.security.web.header.HeaderWriterFilter@f188f94, org.springframework.web.filter.CorsFilter@1b8dc3f3, org.springframework.security.web.authentication.logout.LogoutFilter@22656afa, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3d829f5f, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@512a9fff, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@33527530, org.springframework.security.web.access.ExceptionTranslationFilter@3a9acbc3, org.springframework.security.web.access.intercept.AuthorizationFilter@ee4d260]
+2025-10-30 21:54:33.467 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-30 21:54:33.467 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-30 21:54:33.546 [restartedMain] WARN  o.s.b.d.autoconfigure.OptionalLiveReloadServer - Unable to start LiveReload server
+2025-10-30 21:54:33.571 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-30 21:54:33.575 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.667 seconds (process running for 117.119)
+2025-10-30 21:54:33.577 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation delta:
+
+
+==========================
+CONDITION EVALUATION DELTA
+==========================
+
+
+Positive matches:
+-----------------
+
+    None
+
+
+Negative matches:
+-----------------
+
+   ManagementWebSecurityAutoConfiguration:
+      Did not match:
+         - AllNestedConditions 1 matched 1 did not; NestedCondition on DefaultWebSecurityCondition.Beans @ConditionalOnMissingBean (types: org.springframework.security.web.SecurityFilterChain; SearchStrategy: all) found beans of type 'org.springframework.security.web.SecurityFilterChain' filterChain; NestedCondition on DefaultWebSecurityCondition.Classes @ConditionalOnClass found required classes 'org.springframework.security.web.SecurityFilterChain', 'org.springframework.security.config.annotation.web.builders.HttpSecurity' (DefaultWebSecurityCondition)
+      Matched:
+         - found 'session' scope (OnWebApplicationCondition)
+
+   SpringBootWebSecurityConfiguration.WebSecurityEnablerConfiguration:
+      Did not match:
+         - @ConditionalOnMissingBean (names: springSecurityFilterChain; SearchStrategy: all) found beans named springSecurityFilterChain (OnBeanCondition)
+      Matched:
+         - @ConditionalOnClass found required class 'org.springframework.security.config.annotation.web.configuration.EnableWebSecurity' (OnClassCondition)
+
+
+Exclusions:
+-----------
+
+    None
+
+
+Unconditional classes:
+----------------------
+
+    None
+
+
+
+2025-10-30 21:56:17.715 [tomcat-handler-0] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-30 21:56:17.718 [tomcat-handler-0] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-10-30 21:56:17.734 [tomcat-handler-0] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 16 ms
+2025-10-30 21:56:17.742 [tomcat-handler-0] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:21.565 [tomcat-handler-1] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:23.284 [tomcat-handler-2] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:24.658 [tomcat-handler-3] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:26.971 [tomcat-handler-4] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:28.271 [tomcat-handler-5] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:31.207 [tomcat-handler-6] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:31.923 [tomcat-handler-7] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:35.441 [tomcat-handler-8] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:56:39.615 [tomcat-handler-9] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:57:54.004 [tomcat-handler-11] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:57:56.861 [tomcat-handler-12] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 21:57:58.075 [tomcat-handler-13] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-30 22:19:04.372 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-30 22:19:04.390 [Thread-13] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-30 22:19:04.395 [Thread-13] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-30 22:19:04.515 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 39960 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-30 22:19:04.515 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-30 22:19:04.515 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-30 22:19:04.817 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-30 22:19:04.824 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-30 22:19:04.826 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-30 22:19:04.826 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-30 22:19:04.871 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-30 22:19:04.871 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 355 ms
+2025-10-30 22:19:04.940 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-30 22:19:04.945 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@d0f572f
+2025-10-30 22:19:04.945 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-30 22:19:04.978 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 852a872a-3fe8-4ff4-9cc2-d0aa110670cd
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-30 22:19:05.065 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-30 22:19:05.081 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@73d67bdf, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@5c31e2a, org.springframework.security.web.context.SecurityContextHolderFilter@780d7dea, org.springframework.security.web.header.HeaderWriterFilter@6c619320, org.springframework.web.filter.CorsFilter@4d578c60, org.springframework.security.web.authentication.logout.LogoutFilter@c6b6ff0, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@f842e2a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@7f02c797, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@4d112629, org.springframework.security.web.access.ExceptionTranslationFilter@704006d3, org.springframework.security.web.access.intercept.AuthorizationFilter@56eac596]
+2025-10-30 22:19:05.085 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-30 22:19:05.086 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-30 22:19:05.159 [restartedMain] WARN  o.s.b.d.autoconfigure.OptionalLiveReloadServer - Unable to start LiveReload server
+2025-10-30 22:19:05.173 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-30 22:19:05.177 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.7 seconds (process running for 1588.721)
+2025-10-30 22:19:05.178 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-30 22:21:26.178 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-30 22:21:26.183 [Thread-17] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-30 22:21:26.184 [Thread-17] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-30 22:21:26.241 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 39960 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-30 22:21:26.241 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-30 22:21:26.241 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-30 22:21:26.505 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-30 22:21:26.510 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-30 22:21:26.510 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-30 22:21:26.512 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-30 22:21:26.566 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-30 22:21:26.566 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 324 ms
+2025-10-30 22:21:26.628 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-30 22:21:26.632 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@181e880f
+2025-10-30 22:21:26.632 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-30 22:21:26.661 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: d1137625-accc-44cb-9d95-e107222d505a
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-30 22:21:26.733 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-30 22:21:26.751 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@256e72d8, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@669f3f78, org.springframework.security.web.context.SecurityContextHolderFilter@2be7bde, org.springframework.security.web.header.HeaderWriterFilter@21db3e3e, org.springframework.web.filter.CorsFilter@f8f27f7, org.springframework.security.web.authentication.logout.LogoutFilter@29ed4bf6, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7212290b, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@20ae5b49, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@7a81a34, org.springframework.security.web.access.ExceptionTranslationFilter@22fe1202, org.springframework.security.web.access.intercept.AuthorizationFilter@18f20bb1]
+2025-10-30 22:21:26.754 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-30 22:21:26.755 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-30 22:21:26.818 [restartedMain] WARN  o.s.b.d.autoconfigure.OptionalLiveReloadServer - Unable to start LiveReload server
+2025-10-30 22:21:26.840 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-30 22:21:26.844 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.623 seconds (process running for 1730.388)
+2025-10-30 22:21:26.846 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged

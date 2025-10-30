@@ -1,9 +1,39 @@
 <script setup>
+import { ref } from 'vue'
 import LoginPage from './components/LoginPage.vue'
+import RegisterPage from './components/RegisterPage.vue'
+
+const currentPage = ref('login') // 'login' 或 'register'
+const prefilledData = ref(null)
+
+const switchToRegister = () => {
+  currentPage.value = 'register'
+}
+
+const switchToLogin = (data) => {
+  currentPage.value = 'login'
+  if (data) {
+    // 注册成功后自动填充用户名和密码
+    prefilledData.value = data
+  }
+}
+
+const handleRegisterSuccess = (data) => {
+  prefilledData.value = data
+}
 </script>
 
 <template>
-  <LoginPage />
+  <LoginPage 
+    v-if="currentPage === 'login'" 
+    :prefilled-data="prefilledData"
+    @switch-to-register="switchToRegister"
+  />
+  <RegisterPage 
+    v-else 
+    @switch-to-login="switchToLogin"
+    @register-success="handleRegisterSuccess"
+  />
 </template>
 
 <style>

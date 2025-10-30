@@ -49,7 +49,8 @@
             <input 
               v-model="username" 
               type="text" 
-              placeholder="输入用户名或邮箱"
+              placeholder="输入邮箱或手机号"
+              :disabled="loading"
               required
             />
           </div>
@@ -59,6 +60,7 @@
               v-model="password" 
               type="password" 
               placeholder="输入密码"
+              :disabled="loading"
               required
             />
           </div>
@@ -69,9 +71,15 @@
                 v-model="verifyCode" 
                 type="text" 
                 placeholder="输入验证码"
+                :disabled="loading"
                 required
               />
-              <button type="button" class="send-code-btn" @click="sendCode">
+              <button 
+                type="button" 
+                class="send-code-btn" 
+                @click="sendCode"
+                :disabled="countdown > 0 || loading"
+              >
                 {{ codeButtonText }}
               </button>
             </div>
@@ -87,7 +95,18 @@
             </a>
           </div>
 
-          <button type="submit" class="login-btn">登录/注册</button>
+          <!-- 用户协议 -->
+          <div class="agreement">
+            <label>
+              <input type="checkbox" v-model="agreedToTerms" required>
+              <span>我已阅读并同意 <a href="#" @click.prevent="handleTerms">用户协议</a> 和 <a href="#" @click.prevent="handlePrivacy">隐私政策</a></span>
+            </label>
+          </div>
+
+          <button type="submit" class="login-btn" :disabled="loading || !agreedToTerms">
+            <span v-if="!loading">登录/注册</span>
+            <span v-else>登录中...</span>
+          </button>
         </form>
 
         <div class="divider">
@@ -111,18 +130,33 @@
             </svg>
           </button>
         </div>
-
-        <div class="privacy-notice">
-          <p>登录代表同意<a href="#" @click.prevent="handlePrivacy">隐私政策</a></p>
-        </div>
       </div>
     </div>
     </div>
   </div>
+  
+  <!-- 消息弹窗 -->
+  <MessageBox 
+    :show="showMessageBox" 
+    :message="messageText" 
+    :type="messageType"
+    @close="showMessageBox = false"
+  />
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { login, loginWithCode, sendVerificationCode } from '../api/auth'
+import MessageBox from './MessageBox.vue'
+
+const props = defineProps({
+  prefilledData: {
+    type: Object,
+    default: null
+  }
+})
+
+const emit = defineEmits(['switch-to-register'])
 
 const loginType = ref('password')
 const username = ref('')
@@ -131,29 +165,87 @@ const verifyCode = ref('')
 const codeButtonText = ref('发送验证码')
 const countdown = ref(0)
 const qrCanvas = ref(null)
+const loading = ref(false)
+const agreedToTerms = ref(false)
 
-const handleLogin = () => {
-  if (loginType.value === 'password') {
-    console.log('密码登录:', { username: username.value, password: password.value })
-  } else {
-    console.log('验证码登录:', { username: username.value, code: verifyCode.value })
+// 消息弹窗
+const showMessageBox = ref(false)
+const messageText = ref('')
+const messageType = ref('info')
+
+// 监听预填充数据
+watch(() => props.prefilledData, (data) => {
+  if (data) {
+    username.value = data.username || ''
+    password.value = data.password || ''
+    loginType.value = 'password'
   }
-  alert('登录功能待实现')
+}, { immediate: true })
+
+const handleLogin = async () => {
+  if (!username.value) {
+    showMessage('请输入用户名或邮箱', 'error')
+    return
+  }
+  
+  if (!agreedToTerms.value) {
+    showMessage('请阅读并同意用户协议和隐私政策', 'error')
+    return
+  }
+  
+  loading.value = true
+  
+  try {
+    let result
+    
+    if (loginType.value === 'password') {
+      if (!password.value) {
+        showMessage('请输入密码', 'error')
+        loading.value = false
+        return
+      }
+      result = await login(username.value, password.value)
+    } else {
+      if (!verifyCode.value) {
+        showMessage('请输入验证码', 'error')
+        loading.value = false
+        return
+      }
+      result = await loginWithCode(username.value, verifyCode.value)
+    }
+    
+    if (result.code === 200) {
+      console.log('登录成功:', result.data)
+      showMessage('登录成功！', 'success')
+      // 保存用户信息到localStorage
+      localStorage.setItem('user', JSON.stringify(result.data))
+      // 跳转到主页或其他页面
+      // setTimeout(() => {
+      //   window.location.href = '/dashboard'
+      // }, 1000)
+    } else {
+      showMessage(result.message || '登录失败', 'error')
+    }
+  } catch (error) {
+    console.error('登录错误:', error)
+    showMessage('网络错误，请稍后重试', 'error')
+  } finally {
+    loading.value = false
+  }
 }
 
 const handleRegister = () => {
-  console.log('跳转到注册页面')
-  alert('注册功能待实现')
+  emit('switch-to-register')
 }
 
 const handleForgotPassword = () => {
   console.log('跳转到忘记密码页面')
-  alert('忘记密码功能待实现')
+  showMessage('忘记密码功能开发中...', 'info')
 }
 
-const sendCode = () => {
+const sendCode = async () => {
   if (!username.value) {
-    alert('请先输入用户名或邮箱')
+    showMessage('请先输入用户名或邮箱', 'error')
     return
   }
   
@@ -161,28 +253,57 @@ const sendCode = () => {
     return
   }
   
-  console.log('发送验证码到:', username.value)
-  alert('验证码已发送')
-  
-  countdown.value = 60
-  const timer = setInterval(() => {
-    countdown.value--
-    codeButtonText.value = `${countdown.value}秒后重发`
-    if (countdown.value <= 0) {
-      clearInterval(timer)
-      codeButtonText.value = '发送验证码'
+  try {
+    const result = await sendVerificationCode(username.value)
+    
+    if (result.code === 200) {
+      // 开发环境显示验证码
+      if (result.verificationCode) {
+        console.log('验证码:', result.verificationCode)
+        showMessage(`验证码已发送！验证码: ${result.verificationCode}`, 'success')
+      } else {
+        showMessage('验证码已发送，请查收', 'success')
+      }
+      
+      // 开始倒计时
+      countdown.value = 60
+      const timer = setInterval(() => {
+        countdown.value--
+        codeButtonText.value = `${countdown.value}秒后重发`
+        if (countdown.value <= 0) {
+          clearInterval(timer)
+          codeButtonText.value = '发送验证码'
+        }
+      }, 1000)
+    } else {
+      showMessage(result.message || '发送失败', 'error')
     }
-  }, 1000)
+  } catch (error) {
+    console.error('发送验证码错误:', error)
+    showMessage('网络错误，请稍后重试', 'error')
+  }
 }
 
 const handleSocialLogin = (platform) => {
   console.log('使用', platform, '登录')
-  alert(`${platform}登录功能待实现`)
+  showMessage(`${platform}登录功能开发中...`, 'info')
+}
+
+const handleTerms = () => {
+  console.log('查看用户协议')
+  showMessage('用户协议页面开发中...', 'info')
 }
 
 const handlePrivacy = () => {
   console.log('查看隐私政策')
-  alert('隐私政策页面待实现')
+  showMessage('隐私政策页面开发中...', 'info')
+}
+
+// 统一的消息提示函数
+const showMessage = (text, type = 'info') => {
+  messageText.value = text
+  messageType.value = type
+  showMessageBox.value = true
 }
 
 // 生成随机二维码图案
@@ -526,8 +647,14 @@ onMounted(() => {
   transition: all 0.3s;
 }
 
-.send-code-btn:hover {
+.send-code-btn:hover:not(:disabled) {
   background: #e8e8e8;
+}
+
+.send-code-btn:disabled {
+  background: #f5f5f5;
+  color: #ccc;
+  cursor: not-allowed;
 }
 
 .forgot-password {
@@ -561,8 +688,13 @@ onMounted(() => {
   transition: background 0.3s;
 }
 
-.login-btn:hover {
+.login-btn:hover:not(:disabled) {
   background: #1976d2;
+}
+
+.login-btn:disabled {
+  background: #90caf9;
+  cursor: not-allowed;
 }
 
 .divider {
@@ -642,18 +774,31 @@ onMounted(() => {
   color: white;
 }
 
-.privacy-notice {
-  text-align: center;
+/* 用户协议 */
+.agreement {
+  margin: 16px 0;
   font-size: 13px;
-  color: #999;
 }
 
-.privacy-notice a {
+.agreement label {
+  display: flex;
+  align-items: flex-start;
+  cursor: pointer;
+  color: #666;
+}
+
+.agreement input[type="checkbox"] {
+  margin-right: 8px;
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.agreement a {
   color: #2196f3;
   text-decoration: none;
 }
 
-.privacy-notice a:hover {
+.agreement a:hover {
   text-decoration: underline;
 }
 
