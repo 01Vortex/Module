@@ -56,13 +56,10 @@ export async function register(userData) {
  * 发送验证码
  */
 export async function sendVerificationCode(emailOrPhone) {
-  console.log('发送验证码请求 - 接收者:', emailOrPhone)
-  const result = await request('/auth/send-code', {
+  return request('/auth/send-code', {
     method: 'POST',
     body: JSON.stringify({ username: emailOrPhone }),
   })
-  console.log('发送验证码响应:', result)
-  return result
 }
 
 /**

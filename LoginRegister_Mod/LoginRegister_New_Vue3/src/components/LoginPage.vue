@@ -661,7 +661,7 @@ onMounted(() => {
   text-align: right;
   margin-bottom: 12px;
   margin-top: -4px;
-  min-height: 20px;
+  height: 20px;
 }
 
 .forgot-password a {

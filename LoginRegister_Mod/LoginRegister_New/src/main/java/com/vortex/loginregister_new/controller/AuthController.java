@@ -240,8 +240,7 @@ public class AuthController {
                     emailService.sendVerificationCode(username, code);
                     result.put("code", 200);
                     result.put("message", "验证码已发送到邮箱，请查收");
-                    // 开发环境：在响应中返回验证码（生产环境应移除）
-                    result.put("verificationCode", code);
+                    // 开发环境：在日志中显示验证码（查看后端日志）
                     log.info("✅ 验证码邮件已发送到: {}，验证码: {}", username, code);
                 } catch (Exception e) {
                     log.error("❌ 邮件发送失败: ", e);
