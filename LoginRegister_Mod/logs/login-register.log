@@ -2812,3 +2812,358 @@ This generated password is for development use only. Your security configuration
 2025-10-31 01:57:18.162 [tomcat-handler-28] INFO  c.v.loginregister_new.controller.AuthController - 用户登录请求: 2055314849@qq.com
 2025-10-31 01:57:18.241 [tomcat-handler-28] INFO  c.v.loginregister_new.controller.AuthController - 用户 2055314849@qq.com 登录成功
 2025-10-31 01:57:18.244 [tomcat-handler-28] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 02:03:59.344 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-31 02:03:59.473 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 02:03:59.479 [Thread-5] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 02:03:59.593 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 40512 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 02:03:59.593 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 02:03:59.593 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 02:03:59.877 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 02:03:59.877 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 02:03:59.881 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 4 ms. Found 0 Redis repository interfaces.
+2025-10-31 02:03:59.975 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 02:03:59.985 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 02:03:59.986 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 02:03:59.986 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 02:04:00.034 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 02:04:00.034 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 438 ms
+2025-10-31 02:04:00.118 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 02:04:00.123 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@2738b834
+2025-10-31 02:04:00.123 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 02:04:00.160 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:00.160 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 02:04:00.160 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 02:04:00.160 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - ❌ 邮箱服务器连接失败！
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 错误信息: 502 Invalid input from 117.183.48.236 to newxmesmtplogicsvrsza36-0.qq.com
+
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 请检查以下配置:
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   1. 邮箱服务器地址和端口是否正确
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   2. 用户名和授权码是否正确（QQ邮箱需要使用16位授权码，不是密码）
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   3. 网络连接是否正常
+2025-10-31 02:04:00.481 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   4. 防火墙是否拦截了邮件端口
+2025-10-31 02:04:00.481 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:00.507 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: ad1b026d-8495-439e-b20e-052b1c0a24cf
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 02:04:00.596 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 02:04:00.613 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@17825eba, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1f017efb, org.springframework.security.web.context.SecurityContextHolderFilter@7984e0ab, org.springframework.security.web.header.HeaderWriterFilter@30ac832, org.springframework.web.filter.CorsFilter@4f3fe8be, org.springframework.security.web.authentication.logout.LogoutFilter@54c261b, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4bb376b0, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@e8d06c1, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@3f5e8f9b, org.springframework.security.web.access.ExceptionTranslationFilter@38afaa85, org.springframework.security.web.access.intercept.AuthorizationFilter@14ac97bd]
+2025-10-31 02:04:00.617 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 02:04:00.618 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 02:04:00.717 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 02:04:00.731 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 02:04:00.736 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 1.205 seconds (process running for 1278.362)
+2025-10-31 02:04:00.738 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 02:04:20.945 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-31 02:04:20.954 [Thread-7] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 02:04:20.955 [Thread-7] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 02:04:21.019 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 40512 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 02:04:21.019 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 02:04:21.020 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 02:04:21.220 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 02:04:21.220 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 02:04:21.223 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
+2025-10-31 02:04:21.313 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 02:04:21.320 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 02:04:21.320 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 02:04:21.320 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 02:04:21.382 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 02:04:21.382 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 361 ms
+2025-10-31 02:04:21.449 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 02:04:21.454 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@24b55f81
+2025-10-31 02:04:21.454 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 02:04:21.487 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:21.487 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 02:04:21.488 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 02:04:21.488 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 02:04:21.699 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - ❌ 邮箱服务器连接失败！
+2025-10-31 02:04:21.700 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 错误信息: 502 Invalid input from 117.183.48.236 to newxmesmtplogicsvrsza63-0.qq.com
+
+2025-10-31 02:04:21.700 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 请检查以下配置:
+2025-10-31 02:04:21.700 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   1. 邮箱服务器地址和端口是否正确
+2025-10-31 02:04:21.700 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   2. 用户名和授权码是否正确（QQ邮箱需要使用16位授权码，不是密码）
+2025-10-31 02:04:21.700 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   3. 网络连接是否正常
+2025-10-31 02:04:21.700 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   4. 防火墙是否拦截了邮件端口
+2025-10-31 02:04:21.700 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:21.721 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: aeeb2f5d-eea8-493a-a7dd-e1e2a71f3854
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 02:04:21.806 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 02:04:21.822 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@47f59728, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@c8f704d, org.springframework.security.web.context.SecurityContextHolderFilter@6e6ed8c, org.springframework.security.web.header.HeaderWriterFilter@dc3df60, org.springframework.web.filter.CorsFilter@4d4fe7c0, org.springframework.security.web.authentication.logout.LogoutFilter@7487e6d5, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@4cb676f8, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@5697040e, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2c664b8a, org.springframework.security.web.access.ExceptionTranslationFilter@683e50b0, org.springframework.security.web.access.intercept.AuthorizationFilter@65a09d0e]
+2025-10-31 02:04:21.826 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 02:04:21.826 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 02:04:21.905 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 02:04:21.919 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 02:04:21.923 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.929 seconds (process running for 1299.55)
+2025-10-31 02:04:21.924 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 02:04:23.345 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-31 02:04:23.352 [Thread-11] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 02:04:23.354 [Thread-11] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 02:04:23.425 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 40512 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 02:04:23.426 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 02:04:23.426 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 02:04:23.638 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 02:04:23.638 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 02:04:23.643 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 4 ms. Found 0 Redis repository interfaces.
+2025-10-31 02:04:23.724 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 02:04:23.730 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 02:04:23.730 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 02:04:23.730 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 02:04:23.777 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 02:04:23.777 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 351 ms
+2025-10-31 02:04:23.843 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 02:04:23.847 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@27787474
+2025-10-31 02:04:23.847 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 02:04:23.880 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:23.880 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 02:04:23.880 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 02:04:23.880 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - ❌ 邮箱服务器连接失败！
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 错误信息: 502 Invalid input from 117.183.48.236 to newxmesmtplogicsvrsza63-0.qq.com
+
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 请检查以下配置:
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   1. 邮箱服务器地址和端口是否正确
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   2. 用户名和授权码是否正确（QQ邮箱需要使用16位授权码，不是密码）
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   3. 网络连接是否正常
+2025-10-31 02:04:24.158 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   4. 防火墙是否拦截了邮件端口
+2025-10-31 02:04:24.158 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:24.177 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: a9574a21-8af5-4e9a-a023-76e3f132962a
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 02:04:24.250 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 02:04:24.267 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@126d61de, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@21b75e73, org.springframework.security.web.context.SecurityContextHolderFilter@70a209e1, org.springframework.security.web.header.HeaderWriterFilter@74adeaab, org.springframework.web.filter.CorsFilter@35bebe0e, org.springframework.security.web.authentication.logout.LogoutFilter@74c8e424, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@245874f3, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@fa641a1, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@2b2f2e00, org.springframework.security.web.access.ExceptionTranslationFilter@bb40c3d, org.springframework.security.web.access.intercept.AuthorizationFilter@2e460930]
+2025-10-31 02:04:24.270 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 02:04:24.270 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 02:04:24.343 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 02:04:24.357 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 02:04:24.361 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.964 seconds (process running for 1301.989)
+2025-10-31 02:04:24.363 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 02:04:28.832 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-31 02:04:28.839 [Thread-15] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 02:04:28.840 [Thread-15] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 02:04:28.901 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 40512 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 02:04:28.901 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 02:04:28.901 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 02:04:29.115 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 02:04:29.115 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 02:04:29.119 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
+2025-10-31 02:04:29.199 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 02:04:29.215 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 02:04:29.216 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 02:04:29.216 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 02:04:29.264 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 02:04:29.264 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 363 ms
+2025-10-31 02:04:29.335 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 02:04:29.338 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@7a7064a6
+2025-10-31 02:04:29.338 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 02:04:29.375 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:29.375 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 02:04:29.375 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 02:04:29.375 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - ❌ 邮箱服务器连接失败！
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 错误信息: 502 Invalid input from 117.183.48.236 to newxmesmtplogicsvrsza36-0.qq.com
+
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl - 请检查以下配置:
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   1. 邮箱服务器地址和端口是否正确
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   2. 用户名和授权码是否正确（QQ邮箱需要使用16位授权码，不是密码）
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   3. 网络连接是否正常
+2025-10-31 02:04:29.639 [restartedMain] ERROR c.v.l.service.impl.EmailServiceImpl -   4. 防火墙是否拦截了邮件端口
+2025-10-31 02:04:29.639 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:29.658 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 418fbe11-d215-46bd-a00c-2e2766f2af9d
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 02:04:29.736 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 02:04:29.753 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@684cc00, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@7151faa0, org.springframework.security.web.context.SecurityContextHolderFilter@34a4f12f, org.springframework.security.web.header.HeaderWriterFilter@55fae11a, org.springframework.web.filter.CorsFilter@4655e508, org.springframework.security.web.authentication.logout.LogoutFilter@5e8524f4, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3eec5276, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@4f4b4327, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@5d729a21, org.springframework.security.web.access.ExceptionTranslationFilter@54d4a04c, org.springframework.security.web.access.intercept.AuthorizationFilter@17e19bb8]
+2025-10-31 02:04:29.757 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 02:04:29.758 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 02:04:29.828 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 02:04:29.843 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 02:04:29.847 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 0.969 seconds (process running for 1307.475)
+2025-10-31 02:04:29.849 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 02:04:31.254 [File Watcher] INFO  o.s.b.d.a.LocalDevToolsAutoConfiguration$RestartingClassPathChangeChangedEventListener - Restarting due to 1 class path change (0 additions, 0 deletions, 1 modification)
+2025-10-31 02:04:31.261 [Thread-19] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 02:04:31.262 [Thread-19] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 02:04:31.324 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 40512 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 02:04:31.324 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 02:04:31.325 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 02:04:31.538 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 02:04:31.542 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 02:04:31.546 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 3 ms. Found 0 Redis repository interfaces.
+2025-10-31 02:04:31.611 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 02:04:31.618 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 02:04:31.619 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 02:04:31.619 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 02:04:31.673 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 02:04:31.673 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 348 ms
+2025-10-31 02:04:31.760 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 02:04:31.764 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@a7b6c97
+2025-10-31 02:04:31.764 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 02:04:31.799 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:31.800 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 02:04:31.800 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 02:04:31.800 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 02:04:32.256 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - ✅ 邮箱服务器连接成功！
+2025-10-31 02:04:32.256 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮件服务已就绪，可以正常发送邮件
+2025-10-31 02:04:32.256 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 02:04:32.272 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: 993de583-d78e-4c29-a91d-3bbda9f38a7c
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 02:04:32.341 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 02:04:32.358 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@4ed8cd50, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@345186aa, org.springframework.security.web.context.SecurityContextHolderFilter@5ff15756, org.springframework.security.web.header.HeaderWriterFilter@1e91405b, org.springframework.web.filter.CorsFilter@abb7775, org.springframework.security.web.authentication.logout.LogoutFilter@27fbb110, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@3def134a, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@666204e2, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@58e37a7d, org.springframework.security.web.access.ExceptionTranslationFilter@79244e43, org.springframework.security.web.access.intercept.AuthorizationFilter@1478ce59]
+2025-10-31 02:04:32.361 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 02:04:32.361 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 02:04:32.432 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 02:04:32.442 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 02:04:32.447 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 1.147 seconds (process running for 1310.074)
+2025-10-31 02:04:32.448 [restartedMain] INFO  o.s.b.d.a.ConditionEvaluationDeltaLoggingListener - Condition evaluation unchanged
+2025-10-31 02:57:22.111 [LoginRegisterHikariCP housekeeper] WARN  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Thread starvation or clock leap detected (housekeeper delta=52m50s234ms553µs400ns).
+2025-10-31 15:05:56.390 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 20408 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 15:05:56.392 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 15:05:56.392 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 15:05:56.428 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-10-31 15:05:56.428 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-10-31 15:05:57.158 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 15:05:57.159 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 15:05:57.184 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 15 ms. Found 0 Redis repository interfaces.
+2025-10-31 15:05:57.692 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 15:05:57.748 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 15:05:57.759 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 15:05:57.759 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 15:05:57.837 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 15:05:57.838 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1410 ms
+2025-10-31 15:05:58.184 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 15:05:58.324 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@7332dc73
+2025-10-31 15:05:58.326 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 15:05:58.601 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 15:05:58.601 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 15:05:58.601 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 15:05:58.601 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 15:05:59.448 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - ✅ 邮箱服务器连接成功！
+2025-10-31 15:05:59.448 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮件服务已就绪，可以正常发送邮件
+2025-10-31 15:05:59.448 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 15:05:59.501 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: c3a65189-7a56-46ea-abb2-f0dd29757912
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 15:05:59.786 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 15:05:59.828 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@3b9a3782, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@b86aeeb, org.springframework.security.web.context.SecurityContextHolderFilter@401a59b2, org.springframework.security.web.header.HeaderWriterFilter@24e1eefc, org.springframework.web.filter.CorsFilter@1f8cc2c8, org.springframework.security.web.authentication.logout.LogoutFilter@34fc89c7, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@246f7bb8, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@9f0a3f4, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@487a4684, org.springframework.security.web.access.ExceptionTranslationFilter@36db860e, org.springframework.security.web.access.intercept.AuthorizationFilter@7b3962b8]
+2025-10-31 15:05:59.842 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 15:05:59.843 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 15:06:00.097 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 15:06:00.155 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 15:06:00.164 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 4.188 seconds (process running for 4.9)
+2025-10-31 15:06:00.353 [RMI TCP Connection(3)-192.168.1.5] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-31 15:06:00.354 [RMI TCP Connection(3)-192.168.1.5] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-10-31 15:06:00.355 [RMI TCP Connection(3)-192.168.1.5] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-10-31 15:06:00.652 [loomBoundedElastic-1] WARN  o.s.b.a.data.redis.RedisReactiveHealthIndicator - Redis health check failed
+org.springframework.data.redis.RedisConnectionFailureException: Unable to connect to Redis
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$ExceptionTranslatingConnectionProvider.translateException(LettuceConnectionFactory.java:1795)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$ExceptionTranslatingConnectionProvider.getConnection(LettuceConnectionFactory.java:1726)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$SharedConnection.getNativeConnection(LettuceConnectionFactory.java:1528)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$SharedConnection.lambda$getConnection$0(LettuceConnectionFactory.java:1508)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.doInLock(LettuceConnectionFactory.java:1469)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$SharedConnection.getConnection(LettuceConnectionFactory.java:1505)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.getSharedReactiveConnection(LettuceConnectionFactory.java:1216)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.getReactiveConnection(LettuceConnectionFactory.java:1091)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory.getReactiveConnection(LettuceConnectionFactory.java:118)
+	at reactor.core.publisher.MonoSupplier.call(MonoSupplier.java:67)
+	at reactor.core.publisher.FluxSubscribeOnCallable$CallableSubscribeOnSubscription.run(FluxSubscribeOnCallable.java:228)
+	at reactor.core.scheduler.BoundedElasticThreadPerTaskScheduler$SchedulerTask.run(BoundedElasticThreadPerTaskScheduler.java:1013)
+	at java.base/java.lang.VirtualThread.run(VirtualThread.java:329)
+Caused by: org.springframework.data.redis.connection.PoolException: Could not get a resource from the pool
+	at org.springframework.data.redis.connection.lettuce.LettucePoolingConnectionProvider.getConnection(LettucePoolingConnectionProvider.java:104)
+	at org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory$ExceptionTranslatingConnectionProvider.getConnection(LettuceConnectionFactory.java:1724)
+	... 11 common frames omitted
+Caused by: io.lettuce.core.RedisConnectionException: Unable to connect to localhost/<unresolved>:6379
+	at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:78)
+	at io.lettuce.core.RedisConnectionException.create(RedisConnectionException.java:56)
+	at io.lettuce.core.AbstractRedisClient.getConnection(AbstractRedisClient.java:350)
+	at io.lettuce.core.RedisClient.connect(RedisClient.java:215)
+	at org.springframework.data.redis.connection.lettuce.StandaloneConnectionProvider.lambda$getConnection$1(StandaloneConnectionProvider.java:112)
+	at java.base/java.util.Optional.orElseGet(Optional.java:364)
+	at org.springframework.data.redis.connection.lettuce.StandaloneConnectionProvider.getConnection(StandaloneConnectionProvider.java:112)
+	at org.springframework.data.redis.connection.lettuce.LettucePoolingConnectionProvider.lambda$getConnection$0(LettucePoolingConnectionProvider.java:93)
+	at io.lettuce.core.support.ConnectionPoolSupport$RedisPooledObjectFactory.create(ConnectionPoolSupport.java:211)
+	at io.lettuce.core.support.ConnectionPoolSupport$RedisPooledObjectFactory.create(ConnectionPoolSupport.java:201)
+	at org.apache.commons.pool2.BasePooledObjectFactory.makeObject(BasePooledObjectFactory.java:71)
+	at org.apache.commons.pool2.impl.GenericObjectPool.create(GenericObjectPool.java:566)
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:306)
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:233)
+	at io.lettuce.core.support.ConnectionPoolSupport$1.borrowObject(ConnectionPoolSupport.java:122)
+	at io.lettuce.core.support.ConnectionPoolSupport$1.borrowObject(ConnectionPoolSupport.java:117)
+	at org.springframework.data.redis.connection.lettuce.LettucePoolingConnectionProvider.getConnection(LettucePoolingConnectionProvider.java:99)
+	... 12 common frames omitted
+Caused by: io.netty.channel.AbstractChannel$AnnotatedConnectException: Connection refused: getsockopt: localhost/127.0.0.1:6379
+Caused by: java.net.ConnectException: Connection refused: getsockopt
+	at java.base/sun.nio.ch.Net.pollConnect(Native Method)
+	at java.base/sun.nio.ch.Net.pollConnectNow(Net.java:682)
+	at java.base/sun.nio.ch.SocketChannelImpl.finishConnect(SocketChannelImpl.java:973)
+	at io.netty.channel.socket.nio.NioSocketChannel.doFinishConnect(NioSocketChannel.java:337)
+	at io.netty.channel.nio.AbstractNioChannel$AbstractNioUnsafe.finishConnect(AbstractNioChannel.java:339)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKey(NioEventLoop.java:776)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeysOptimized(NioEventLoop.java:724)
+	at io.netty.channel.nio.NioEventLoop.processSelectedKeys(NioEventLoop.java:650)
+	at io.netty.channel.nio.NioEventLoop.run(NioEventLoop.java:562)
+	at io.netty.util.concurrent.SingleThreadEventExecutor$4.run(SingleThreadEventExecutor.java:997)
+	at io.netty.util.internal.ThreadExecutorMap$2.run(ThreadExecutorMap.java:74)
+	at io.netty.util.concurrent.FastThreadLocalRunnable.run(FastThreadLocalRunnable.java:30)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+2025-10-31 15:06:38.851 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown initiated...
+2025-10-31 15:06:38.859 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Shutdown completed.
+2025-10-31 15:06:41.990 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Starting LoginRegisterNewApplication using Java 21.0.7 with PID 16092 (D:\Code\Module\LoginRegister_Mod\LoginRegister_New\target\classes started by 01Vortex in D:\Code\Module\LoginRegister_Mod)
+2025-10-31 15:06:41.991 [restartedMain] DEBUG c.v.loginregister_new.LoginRegisterNewApplication - Running with Spring Boot v3.2.5, Spring v6.1.6
+2025-10-31 15:06:41.992 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - The following 1 profile is active: "prod"
+2025-10-31 15:06:42.030 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2025-10-31 15:06:42.030 [restartedMain] INFO  o.s.b.d.env.DevToolsPropertyDefaultsPostProcessor - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2025-10-31 15:06:42.743 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode
+2025-10-31 15:06:42.745 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data Redis repositories in DEFAULT mode.
+2025-10-31 15:06:42.768 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 14 ms. Found 0 Redis repository interfaces.
+2025-10-31 15:06:43.228 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置 Tomcat 使用虚拟线程
+2025-10-31 15:06:43.280 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-10-31 15:06:43.288 [restartedMain] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-10-31 15:06:43.290 [restartedMain] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.20]
+2025-10-31 15:06:43.357 [restartedMain] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-10-31 15:06:43.357 [restartedMain] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1327 ms
+2025-10-31 15:06:43.696 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Starting...
+2025-10-31 15:06:43.803 [restartedMain] INFO  com.zaxxer.hikari.pool.HikariPool - LoginRegisterHikariCP - Added connection com.mysql.cj.jdbc.ConnectionImpl@18ca6390
+2025-10-31 15:06:43.804 [restartedMain] INFO  com.zaxxer.hikari.HikariDataSource - LoginRegisterHikariCP - Start completed.
+2025-10-31 15:06:44.069 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 15:06:44.069 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 开始测试邮箱服务器连接...
+2025-10-31 15:06:44.069 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮箱服务器: smtp.qq.com:465
+2025-10-31 15:06:44.070 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 发件人账号: isvoid2077@qq.com
+2025-10-31 15:06:44.725 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - ✅ 邮箱服务器连接成功！
+2025-10-31 15:06:44.725 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - 邮件服务已就绪，可以正常发送邮件
+2025-10-31 15:06:44.725 [restartedMain] INFO  c.v.l.service.impl.EmailServiceImpl - =================================================
+2025-10-31 15:06:44.777 [restartedMain] WARN  o.s.b.a.s.s.UserDetailsServiceAutoConfiguration - 
+
+Using generated security password: d0a1d24d-c1dc-4df7-a138-4f2a1c6bca0a
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2025-10-31 15:06:45.058 [restartedMain] INFO  o.s.b.actuate.endpoint.web.EndpointLinksResolver - Exposing 3 endpoint(s) beneath base path '/actuator'
+2025-10-31 15:06:45.101 [restartedMain] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@1e5292ab, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@1de7655a, org.springframework.security.web.context.SecurityContextHolderFilter@6a9122ea, org.springframework.security.web.header.HeaderWriterFilter@784856b4, org.springframework.web.filter.CorsFilter@3100d666, org.springframework.security.web.authentication.logout.LogoutFilter@37422a48, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@45c89755, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@2f234da8, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@66c5df26, org.springframework.security.web.access.ExceptionTranslationFilter@131ffe2d, org.springframework.security.web.access.intercept.AuthorizationFilter@2b651a69]
+2025-10-31 15:06:45.113 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置异步任务执行器使用虚拟线程
+2025-10-31 15:06:45.115 [restartedMain] INFO  c.v.loginregister_new.config.VirtualThreadConfig - 🚀 配置简单异步任务执行器使用虚拟线程
+2025-10-31 15:06:45.366 [restartedMain] INFO  o.s.b.d.autoconfigure.OptionalLiveReloadServer - LiveReload server is running on port 35729
+2025-10-31 15:06:45.435 [restartedMain] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-10-31 15:06:45.444 [restartedMain] INFO  c.v.loginregister_new.LoginRegisterNewApplication - Started LoginRegisterNewApplication in 3.871 seconds (process running for 4.774)
+2025-10-31 15:06:45.962 [RMI TCP Connection(4)-192.168.1.5] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-10-31 15:06:45.963 [RMI TCP Connection(4)-192.168.1.5] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-10-31 15:06:45.964 [RMI TCP Connection(4)-192.168.1.5] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
