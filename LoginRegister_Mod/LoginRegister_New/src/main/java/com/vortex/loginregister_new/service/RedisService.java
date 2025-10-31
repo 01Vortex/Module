@@ -5,7 +5,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Redis 服务接口
  *
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 public interface RedisService {

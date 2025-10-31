@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
  * 3. 高并发：适合 I/O 密集型任务
  * 4. 简单：使用方式与传统线程完全一致
  *
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 @Slf4j

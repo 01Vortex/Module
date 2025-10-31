@@ -8,7 +8,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 登录注册模块主应用类
  * 基于 Spring Boot 3.2.5 + Java 21 + MyBatis Plus
  * 
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 @SpringBootApplication

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 /**
  * MyBatis Plus 配置类
  *
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 @Configuration

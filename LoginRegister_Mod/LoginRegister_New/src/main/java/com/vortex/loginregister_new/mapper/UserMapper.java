@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
  * 用户 Mapper 接口
  * 继承 MyBatis Plus 的 BaseMapper，自动拥有 CRUD 方法
  *
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 @Mapper

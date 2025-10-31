@@ -3,7 +3,7 @@ package com.vortex.loginregister_new.service;
 /**
  * 邮件服务接口
  *
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 public interface EmailService {

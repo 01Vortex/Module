@@ -9,7 +9,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 /**
  * Redis 配置
  *
- * @author Vortex
+ * @author 01Vortex
  * @since 2024
  */
 @Configuration
