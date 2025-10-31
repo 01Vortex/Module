@@ -12,13 +12,12 @@
       <div class="left-section">
         <div class="welcome-content">
           <h1 class="welcome-title">找回密码</h1>
-          <h2 class="module-name">01Vortex的模块</h2>
-          
+
           <div class="qr-code">
             <canvas ref="qrCanvas" width="160" height="160"></canvas>
           </div>
           
-          <p class="qr-hint">使用特定app扫码</p>
+          <p class="qr-hint">遇到问题? 请扫码联系客服</p>
         </div>
         
         <div class="footer-link">
@@ -403,7 +402,7 @@ onMounted(() => {
   background: white;
   border-radius: 12px;
   padding: 10px;
-  margin: 0 0 12px 0;
+  margin: 6vh 0 12px 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s;
   display: flex;
@@ -581,7 +580,7 @@ onMounted(() => {
   }
 
   .left-section {
-    padding: 40px 30px;
+    padding: 30px 20px;
     min-height: auto;
     border-right: none;
     border-bottom: 1px solid #e0e0e0;
@@ -599,6 +598,7 @@ onMounted(() => {
   .qr-code {
     width: 150px;
     height: 150px;
+    margin-top: 4vh;
   }
 
   .footer-link {

@@ -11,14 +11,13 @@
       <!-- 左侧装饰区 -->
       <div class="left-section">
         <div class="welcome-content">
-          <h1 class="welcome-title">欢迎登录</h1>
-          <h2 class="module-name">01Vortex的模块</h2>
+          <h2 class="welcome-title">登录</h2>
           
           <div class="qr-code">
             <canvas ref="qrCanvas" width="160" height="160"></canvas>
           </div>
           
-          <p class="qr-hint">使用特定app扫码</p>
+          <p class="qr-hint">使用app扫码登录</p>
         </div>
         
         <div class="footer-link">
@@ -498,7 +497,7 @@ onMounted(() => {
   background: white;
   border-radius: 12px;
   padding: 10px;
-  margin: 0 0 12px 0;
+  margin: 6vh 0 12px 0;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
   transition: transform 0.3s;
   display: flex;
@@ -884,6 +883,7 @@ onMounted(() => {
   .qr-code {
     width: 130px;
     height: 130px;
+    margin-top: 4vh;
   }
 
   .login-form-wrapper {
