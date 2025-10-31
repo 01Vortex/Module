@@ -383,3 +383,48 @@ This generated password is for development use only. Your security configuration
 2025-10-31 17:38:56.405 [tomcat-handler-43] INFO  c.v.l.service.impl.EmailServiceImpl - 验证码邮件发送成功，收件人: 2055314849@qq.com
 2025-10-31 17:38:56.405 [tomcat-handler-43] INFO  c.v.loginregister_new.controller.AuthController - ✅ 验证码邮件已发送到: 2055314849@qq.com，验证码: 608952
 2025-10-31 17:38:56.406 [tomcat-handler-43] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:41:18.516 [tomcat-handler-45] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /user/check/username/user
+2025-10-31 17:41:18.521 [tomcat-handler-46] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /user/check/username/user
+2025-10-31 17:41:18.522 [tomcat-handler-46] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /user/check/username/user
+2025-10-31 17:41:18.525 [tomcat-handler-46] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:41:29.418 [tomcat-handler-47] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /user/check/username/admin
+2025-10-31 17:41:29.422 [tomcat-handler-48] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /user/check/username/admin
+2025-10-31 17:41:29.424 [tomcat-handler-48] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /user/check/username/admin
+2025-10-31 17:41:29.427 [tomcat-handler-48] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:41:37.993 [tomcat-handler-49] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /user/check/email/2901449366@qq.com
+2025-10-31 17:41:37.997 [tomcat-handler-50] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /user/check/email/2901449366@qq.com
+2025-10-31 17:41:37.998 [tomcat-handler-50] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /user/check/email/2901449366@qq.com
+2025-10-31 17:41:38.002 [tomcat-handler-50] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:41:56.998 [tomcat-handler-51] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /user/check/email/2901449366@qq.com
+2025-10-31 17:41:57.003 [tomcat-handler-52] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /user/check/email/2901449366@qq.com
+2025-10-31 17:41:57.003 [tomcat-handler-52] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /user/check/email/2901449366@qq.com
+2025-10-31 17:41:57.006 [tomcat-handler-52] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:41:57.014 [tomcat-handler-53] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/send-code
+2025-10-31 17:41:57.019 [tomcat-handler-54] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /auth/send-code
+2025-10-31 17:41:57.020 [tomcat-handler-54] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /auth/send-code
+2025-10-31 17:41:57.020 [tomcat-handler-54] INFO  c.v.loginregister_new.controller.AuthController - 发送验证码请求: 2901449366@qq.com
+2025-10-31 17:41:57.021 [tomcat-handler-54] INFO  c.v.loginregister_new.controller.AuthController - 验证码已生成并存储到Redis: 826767 (用户: 2901449366@qq.com, 有效期: 5分钟)
+2025-10-31 17:41:57.965 [tomcat-handler-54] INFO  c.v.l.service.impl.EmailServiceImpl - 验证码邮件发送成功，收件人: 2901449366@qq.com
+2025-10-31 17:41:57.965 [tomcat-handler-54] INFO  c.v.loginregister_new.controller.AuthController - ✅ 验证码邮件已发送到: 2901449366@qq.com，验证码: 826767
+2025-10-31 17:41:57.966 [tomcat-handler-54] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:42:42.820 [tomcat-handler-55] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /user/check/username/admin
+2025-10-31 17:42:42.824 [tomcat-handler-56] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /user/check/username/admin
+2025-10-31 17:42:42.825 [tomcat-handler-56] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /user/check/username/admin
+2025-10-31 17:42:42.828 [tomcat-handler-56] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:42:42.833 [tomcat-handler-57] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /user/check/email/2901449366@qq.com
+2025-10-31 17:42:42.838 [tomcat-handler-58] DEBUG org.springframework.security.web.FilterChainProxy - Securing GET /user/check/email/2901449366@qq.com
+2025-10-31 17:42:42.838 [tomcat-handler-58] DEBUG org.springframework.security.web.FilterChainProxy - Secured GET /user/check/email/2901449366@qq.com
+2025-10-31 17:42:42.841 [tomcat-handler-58] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:42:42.848 [tomcat-handler-59] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/register
+2025-10-31 17:42:42.853 [tomcat-handler-60] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /auth/register
+2025-10-31 17:42:42.854 [tomcat-handler-60] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /auth/register
+2025-10-31 17:42:42.855 [tomcat-handler-60] INFO  c.v.loginregister_new.controller.AuthController - 用户注册请求: admin
+2025-10-31 17:42:42.992 [tomcat-handler-60] INFO  c.v.loginregister_new.service.impl.UserServiceImpl - 用户注册成功: admin
+2025-10-31 17:42:42.999 [tomcat-handler-60] INFO  c.v.loginregister_new.controller.AuthController - 用户 admin 注册成功，昵称: 用户3867964945
+2025-10-31 17:42:43.005 [tomcat-handler-60] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext
+2025-10-31 17:42:51.655 [tomcat-handler-61] DEBUG org.springframework.security.web.FilterChainProxy - Securing OPTIONS /auth/login
+2025-10-31 17:42:51.660 [tomcat-handler-62] DEBUG org.springframework.security.web.FilterChainProxy - Securing POST /auth/login
+2025-10-31 17:42:51.660 [tomcat-handler-62] DEBUG org.springframework.security.web.FilterChainProxy - Secured POST /auth/login
+2025-10-31 17:42:51.660 [tomcat-handler-62] INFO  c.v.loginregister_new.controller.AuthController - 用户登录请求: admin
+2025-10-31 17:42:51.744 [tomcat-handler-62] INFO  c.v.loginregister_new.controller.AuthController - 用户 admin 登录成功
+2025-10-31 17:42:51.744 [tomcat-handler-62] DEBUG o.s.s.w.a.AnonymousAuthenticationFilter - Set SecurityContextHolder to anonymous SecurityContext

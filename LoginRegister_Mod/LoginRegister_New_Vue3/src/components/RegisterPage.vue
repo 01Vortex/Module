@@ -10,7 +10,9 @@
     <div class="register-card">
       <!-- 左侧装饰区 -->
       <div class="left-section">
-        <canvas ref="artCanvas" class="left-art"></canvas>
+        <div class="left-art-wrap">
+          <canvas ref="artCanvas" class="left-art"></canvas>
+        </div>
         <div class="footer-link">
           <p>已有账号？<a href="#" @click.prevent="$emit('switch-to-login')">立即登录</a></p>
         </div>
@@ -461,71 +463,154 @@ const startLeftCanvas = () => {
   resize()
   window.addEventListener('resize', resize)
 
-  const colors = ['#42a5f5', '#90caf9', '#4dd0e1', '#81c784', '#ffd54f']
-  const particles = Array.from({ length: 28 }).map(() => ({
-    x: Math.random() * canvas.clientWidth,
-    y: Math.random() * canvas.clientHeight,
-    r: 3 + Math.random() * 12,
-    vx: -0.4 + Math.random() * 0.8,
-    vy: -0.4 + Math.random() * 0.8,
-    color: colors[(Math.random() * colors.length) | 0],
-    alpha: 0.35 + Math.random() * 0.4
+  // 云朵（漂浮白云）
+  const clouds = Array.from({ length: 5 }).map(() => ({
+    x: Math.random(),
+    y: Math.random(),
+    s: 0.7 + Math.random() * 1.0,   // 缩放
+    v: 0.02 + Math.random() * 0.05, // 速度
+    a: 0.25 + Math.random() * 0.15  // 透明度
   }))
 
-  let rafId = 0
+  let angle = 0
   const draw = () => {
     const w = canvas.clientWidth
     const h = canvas.clientHeight
     ctx.clearRect(0, 0, w, h)
 
-    // 背景淡淡渐变
-    const grad = ctx.createLinearGradient(0, 0, w, h)
-    grad.addColorStop(0, 'rgba(33,150,243,0.08)')
-    grad.addColorStop(1, 'rgba(76,175,80,0.08)')
-    ctx.fillStyle = grad
+    // 天空（白底→浅蓝天）
+    ctx.fillStyle = '#ffffff'
     ctx.fillRect(0, 0, w, h)
+    const sky = ctx.createLinearGradient(0, 0, 0, h * 0.55)
+    sky.addColorStop(0, '#e3f2fd')
+    sky.addColorStop(1, '#ffffff')
+    ctx.fillStyle = sky
+    ctx.fillRect(0, 0, w, h * 0.6)
 
-    // 连接邻近粒子
-    for (let i = 0; i < particles.length; i++) {
-      const p = particles[i]
-      for (let j = i + 1; j < particles.length; j++) {
-        const q = particles[j]
-        const dx = p.x - q.x
-        const dy = p.y - q.y
-        const dist2 = dx * dx + dy * dy
-        if (dist2 < 140 * 140) {
-          const a = 0.06 * (1 - dist2 / (140 * 140))
-          ctx.strokeStyle = `rgba(33,150,243,${a})`
-          ctx.lineWidth = 1
-          ctx.beginPath()
-          ctx.moveTo(p.x, p.y)
-          ctx.lineTo(q.x, q.y)
-          ctx.stroke()
-        }
+    // 太阳
+    const sunX = w * 0.15
+    const sunY = h * 0.18
+    const sunR = Math.min(w, h) * 0.08
+    const sunGrad = ctx.createRadialGradient(sunX, sunY, sunR * 0.2, sunX, sunY, sunR)
+    sunGrad.addColorStop(0, '#fff59d')
+    sunGrad.addColorStop(1, '#ffeb3b')
+    ctx.fillStyle = sunGrad
+    ctx.beginPath(); ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2); ctx.fill()
+    // 太阳光晕
+    const glow = ctx.createRadialGradient(sunX, sunY, sunR, sunX, sunY, sunR * 2.2)
+    glow.addColorStop(0, 'rgba(255,235,59,0.35)')
+    glow.addColorStop(1, 'rgba(255,235,59,0)')
+    ctx.fillStyle = glow
+    ctx.beginPath(); ctx.arc(sunX, sunY, sunR * 2.2, 0, Math.PI * 2); ctx.fill()
+
+    // 云绘制（温和）
+    for (const c of clouds) {
+      const cx = c.x * w
+      const cy = c.y * h
+      const base = Math.min(w, h) * 0.08 * c.s
+      ctx.globalAlpha = c.a
+      ctx.fillStyle = '#e3f2fd'
+      ctx.beginPath(); ctx.ellipse(cx, cy, base * 0.9, base * 0.5, 0, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.ellipse(cx + base * 0.5, cy + base * 0.05, base * 0.7, base * 0.4, 0, 0, Math.PI * 2); ctx.fill()
+      ctx.beginPath(); ctx.ellipse(cx - base * 0.5, cy + base * 0.05, base * 0.7, base * 0.4, 0, 0, Math.PI * 2); ctx.fill()
+      ctx.globalAlpha = 1
+
+      // 漂移
+      c.x += c.v / w * 60  // 速度与画布宽度微调
+      if (c.x - 0.6 > 1) {
+        c.x = -0.2
+        c.y = Math.random()
       }
     }
 
-    // 粒子
-    for (const p of particles) {
-      p.x += p.vx
-      p.y += p.vy
-      if (p.x < -20) p.x = w + 20
-      if (p.x > w + 20) p.x = -20
-      if (p.y < -20) p.y = h + 20
-      if (p.y > h + 20) p.y = -20
-
-      const rad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r)
-      rad.addColorStop(0, p.color)
-      rad.addColorStop(1, 'rgba(255,255,255,0)')
-      ctx.fillStyle = rad
-      ctx.globalAlpha = p.alpha
+    // 远山
+    const drawMountain = (baseY, color, peaks) => {
+      ctx.fillStyle = color
       ctx.beginPath()
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+      ctx.moveTo(0, baseY)
+      const step = w / (peaks.length - 1)
+      peaks.forEach((p, i) => {
+        const x = i * step
+        const y = baseY - p * (h * 0.25)
+        ctx.lineTo(x, y)
+      })
+      ctx.lineTo(w, baseY)
+      ctx.closePath()
       ctx.fill()
-      ctx.globalAlpha = 1
     }
+    drawMountain(h * 0.65, '#c5e1a5', [0.1, 0.35, 0.15, 0.4, 0.2, 0.3, 0.1])
+    drawMountain(h * 0.7, '#aed581', [0.15, 0.25, 0.1, 0.3, 0.22, 0.2, 0.12])
 
-    rafId = requestAnimationFrame(draw)
+    // 田野（分层渐变）
+    const fieldGrad = ctx.createLinearGradient(0, h * 0.6, 0, h)
+    fieldGrad.addColorStop(0, '#dcedc8')
+    fieldGrad.addColorStop(1, '#c5e1a5')
+    ctx.fillStyle = fieldGrad
+    ctx.fillRect(0, h * 0.6, w, h * 0.4)
+
+    // 河流（从左向右弯曲）
+    ctx.fillStyle = '#90caf9'
+    ctx.beginPath()
+    ctx.moveTo(0, h * 0.75)
+    ctx.bezierCurveTo(w * 0.25, h * 0.7, w * 0.35, h * 0.85, w * 0.55, h * 0.82)
+    ctx.bezierCurveTo(w * 0.75, h * 0.79, w * 0.85, h * 0.9, w, h * 0.88)
+    ctx.lineTo(w, h)
+    ctx.lineTo(0, h)
+    ctx.closePath()
+    ctx.fill()
+
+    // 房屋（几何形）
+    const drawHouse = (x, y, s) => {
+      // 屋体
+      ctx.fillStyle = '#fff'
+      ctx.strokeStyle = '#90a4ae'
+      ctx.lineWidth = 2
+      ctx.fillRect(x, y, 40 * s, 28 * s)
+      ctx.strokeRect(x, y, 40 * s, 28 * s)
+      // 屋顶
+      ctx.fillStyle = '#ef5350'
+      ctx.beginPath()
+      ctx.moveTo(x - 4 * s, y)
+      ctx.lineTo(x + 20 * s, y - 16 * s)
+      ctx.lineTo(x + 44 * s, y)
+      ctx.closePath()
+      ctx.fill()
+      // 窗
+      ctx.fillStyle = '#bbdefb'
+      ctx.fillRect(x + 8 * s, y + 8 * s, 10 * s, 8 * s)
+      ctx.fillRect(x + 22 * s, y + 8 * s, 10 * s, 8 * s)
+      // 门
+      ctx.fillStyle = '#8d6e63'
+      ctx.fillRect(x + 17 * s, y + 12 * s, 8 * s, 16 * s)
+    }
+    drawHouse(w * 0.62, h * 0.62, 1)
+    drawHouse(w * 0.76, h * 0.64, 0.9)
+
+    // 小孩（简笔画风）
+    const drawKid = (x, y, t) => {
+      const bounce = Math.sin(t * 3 + x * 0.02) * 2
+      const bodyY = y + bounce
+      // 头
+      ctx.fillStyle = '#ffcc80'
+      ctx.beginPath(); ctx.arc(x, bodyY - 10, 5, 0, Math.PI * 2); ctx.fill()
+      // 身体
+      ctx.strokeStyle = '#424242'; ctx.lineWidth = 2
+      ctx.beginPath(); ctx.moveTo(x, bodyY - 5); ctx.lineTo(x, bodyY + 10); ctx.stroke()
+      // 手
+      ctx.beginPath(); ctx.moveTo(x, bodyY + 0); ctx.lineTo(x - 6, bodyY + 6); ctx.moveTo(x, bodyY + 0); ctx.lineTo(x + 6, bodyY + 6); ctx.stroke()
+      // 腿（跑动）
+      const leg = Math.sin(t * 6 + x) * 4
+      ctx.beginPath(); ctx.moveTo(x, bodyY + 10); ctx.lineTo(x - 5, bodyY + 16 + leg); ctx.moveTo(x, bodyY + 10); ctx.lineTo(x + 5, bodyY + 16 - leg); ctx.stroke()
+      // 衣服
+      ctx.strokeStyle = '#1e88e5'; ctx.lineWidth = 3
+      ctx.beginPath(); ctx.moveTo(x, bodyY - 2); ctx.lineTo(x, bodyY + 6); ctx.stroke()
+    }
+    angle += 0.01
+    drawKid(w * 0.22, h * 0.68, angle)
+    drawKid(w * 0.28, h * 0.69, angle + 0.5)
+    drawKid(w * 0.34, h * 0.685, angle + 1.0)
+
+    requestAnimationFrame(draw)
   }
 
   draw()
@@ -655,19 +740,27 @@ onMounted(() => {
   border-right: 1px solid #e0e0e0;
 }
 
+.left-art-wrap {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+}
+ 
 .left-art {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-  z-index: 1;
 }
 
 .welcome-content,
 .footer-link {
   position: relative;
-  z-index: 2;
 }
 
 .welcome-content {
@@ -728,6 +821,7 @@ onMounted(() => {
   color: #666;
   position: relative;
   z-index: 2;
+  margin-top: 16px;
 }
 
 .footer-link a {
