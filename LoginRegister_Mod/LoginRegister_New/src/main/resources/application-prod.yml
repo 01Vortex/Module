@@ -31,10 +31,10 @@ jwt:
 logging:
   level:
     root: INFO
-    com.vortex: DEBUG
-    com.vortex.loginregister_new.mapper: DEBUG
+    com.vortex: INFO
+    com.vortex.loginregister_new.mapper: INFO
     org.springframework.web: INFO
-    org.springframework.security: DEBUG
+    org.springframework.security: INFO
   pattern:
     console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
     file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"

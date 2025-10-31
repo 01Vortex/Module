@@ -48,7 +48,7 @@
             <input 
               v-model="username" 
               type="text" 
-              placeholder="输入邮箱或手机号"
+              :placeholder="loginType === 'password' ? '输入用户名或邮箱' : '输入邮箱或手机号'"
               :disabled="loading"
               required
             />
@@ -103,7 +103,7 @@
           </div>
 
           <button type="submit" class="login-btn" :disabled="loading || !agreedToTerms">
-            <span v-if="!loading">登录/注册</span>
+            <span v-if="!loading">登录</span>
             <span v-else>登录中...</span>
           </button>
         </form>
@@ -142,8 +142,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch, computed } from 'vue'
-import { login, loginWithCode, sendVerificationCode } from '../api/auth'
+import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
+import { login, loginWithCode, sendVerificationCode, API_BASE_URL } from '../api/auth'
 import MessageBox from './MessageBox.vue'
 
 const props = defineProps({
@@ -184,7 +184,21 @@ const isPhoneFormat = computed(() => {
 
 const isValidContact = computed(() => isEmailFormat.value || isPhoneFormat.value)
 
-const shouldShowBlueBtn = computed(() => isValidContact.value && countdown.value === 0 && !loading.value)
+const shouldShowBlueBtn = computed(() => {
+  const base = countdown.value === 0 && !loading.value
+  return loginType.value === 'code' ? (isValidContact.value && base) : (isValidContact.value && base)
+})
+// 密码登录仅允许：用户名 或 邮箱
+const isValidUsername = (v) => /^[a-zA-Z0-9_]{3,20}$/.test(v)
+const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+
+const validatePasswordLoginIdentity = (v) => {
+  const value = (v || '').trim()
+  if (!value) return false
+  if (value.includes('@')) return isEmail(value)
+  return isValidUsername(value)
+}
+
 
 // 监听预填充数据
 watch(() => props.prefilledData, (data) => {
@@ -212,6 +226,12 @@ const handleLogin = async () => {
     let result
     
     if (loginType.value === 'password') {
+      // 仅允许用户名或邮箱，不允许手机号
+      if (!validatePasswordLoginIdentity(username.value)) {
+        showMessage('请输入有效的用户名或邮箱', 'error')
+        loading.value = false
+        return
+      }
       if (!password.value) {
         showMessage('请输入密码', 'error')
         loading.value = false
@@ -219,6 +239,12 @@ const handleLogin = async () => {
       }
       result = await login(username.value, password.value)
     } else {
+      // 验证码登录：支持邮箱或手机号（不支持用户名）
+      if (!isValidContact.value) {
+        showMessage('请输入有效的邮箱或手机号', 'error')
+        loading.value = false
+        return
+      }
       if (!verifyCode.value) {
         showMessage('请输入验证码', 'error')
         loading.value = false
@@ -257,7 +283,7 @@ const handleForgotPassword = () => {
 
 const sendCode = async () => {
   if (!username.value) {
-    showMessage('请先输入用户名或邮箱', 'error')
+    showMessage('请先输入邮箱或手机号', 'error')
     return
   }
   
@@ -266,6 +292,11 @@ const sendCode = async () => {
   }
   
   try {
+    // 验证码登录支持邮箱或手机号
+    if (!isValidContact.value) {
+      showMessage('请输入有效的邮箱或手机号', 'error')
+      return
+    }
     const result = await sendVerificationCode(username.value)
     
     if (result.code === 200) {
@@ -296,10 +327,81 @@ const sendCode = async () => {
   }
 }
 
+let qqMessageHandler = null
 const handleSocialLogin = (platform) => {
-  console.log('使用', platform, '登录')
+  const w = 520
+  const h = 600
+  const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2)
+  const top = window.screenY + Math.max(0, (window.outerHeight - h) / 3)
+  const features = `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+
+  if (platform === 'qq') {
+    const url = `${API_BASE_URL}/oauth/qq/authorize`
+    const popup = window.open(url, 'qq_login', features)
+    if (!popup) {
+      showMessage('请允许弹出窗口以完成QQ登录', 'error')
+      return
+    }
+
+    qqMessageHandler = (event) => {
+      try {
+        const data = event.data || {}
+        if (data && data.type === 'qq_auth') {
+          const payload = data.payload || {}
+          if (payload.code === 200) {
+            const user = payload.data
+            localStorage.setItem('user', JSON.stringify(user))
+            showMessage('QQ登录成功！', 'success')
+          } else {
+            showMessage(payload.message || 'QQ登录失败', 'error')
+          }
+          window.removeEventListener('message', qqMessageHandler)
+          qqMessageHandler = null
+        }
+      } catch (e) {}
+    }
+    window.addEventListener('message', qqMessageHandler)
+    return
+  }
+
+  if (platform === 'google') {
+    const url = `${API_BASE_URL}/oauth/google/authorize`
+    const popup = window.open(url, 'google_login', features)
+    if (!popup) {
+      showMessage('请允许弹出窗口以完成Google登录', 'error')
+      return
+    }
+
+    qqMessageHandler = (event) => {
+      try {
+        const data = event.data || {}
+        if (data && data.type === 'google_auth') {
+          const payload = data.payload || {}
+          if (payload.code === 200) {
+            const user = payload.data
+            localStorage.setItem('user', JSON.stringify(user))
+            showMessage('Google登录成功！', 'success')
+          } else {
+            showMessage(payload.message || 'Google登录失败', 'error')
+          }
+          window.removeEventListener('message', qqMessageHandler)
+          qqMessageHandler = null
+        }
+      } catch (e) {}
+    }
+    window.addEventListener('message', qqMessageHandler)
+    return
+  }
+
   showMessage(`${platform}登录功能开发中...`, 'info')
 }
+
+onBeforeUnmount(() => {
+  if (qqMessageHandler) {
+    window.removeEventListener('message', qqMessageHandler)
+    qqMessageHandler = null
+  }
+})
 
 const handleTerms = () => {
   console.log('查看用户协议')
@@ -429,7 +531,7 @@ onMounted(() => {
 .login-card {
   display: flex;
   width: 100%;
-  max-width: 900px;
+  max-width: 760px;
   min-height: 520px;
   background: white;
   border-radius: 20px;
@@ -457,7 +559,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px 30px;
+  padding: 32px 24px;
   color: #333;
   background: white;
   position: relative;
@@ -545,13 +647,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 35px 30px;
+  padding: 28px 24px;
   background: white;
 }
 
 .login-form-wrapper {
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
 }
 
 .login-tabs {

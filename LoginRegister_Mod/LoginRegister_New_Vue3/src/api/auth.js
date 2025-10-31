@@ -1,5 +1,5 @@
 // API基础配置
-const API_BASE_URL = 'http://localhost:8080/api'
+export const API_BASE_URL = 'http://localhost:8080/api'
 
 /**
  * 发送HTTP请求

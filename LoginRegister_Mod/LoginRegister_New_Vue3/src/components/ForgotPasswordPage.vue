@@ -334,7 +334,7 @@ onMounted(() => {
 .forgot-card {
   display: flex;
   width: 100%;
-  max-width: 900px;
+  max-width: 760px;
   min-height: 520px;
   background: white;
   border-radius: 20px;
@@ -362,7 +362,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 40px 30px;
+  padding: 32px 24px;
   color: #333;
   background: white;
   position: relative;
@@ -450,13 +450,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 35px 30px;
+  padding: 28px 24px;
   background: white;
 }
 
 .forgot-form-wrapper {
   width: 100%;
-  max-width: 380px;
+  max-width: 360px;
 }
 
 .form-title {
