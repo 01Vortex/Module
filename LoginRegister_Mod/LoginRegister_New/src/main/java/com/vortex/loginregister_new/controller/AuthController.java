@@ -212,12 +212,15 @@ public class AuthController {
     @PostMapping("/send-code")
     public Map<String, Object> sendVerificationCode(@RequestBody Map<String, String> data) {
         String username = data.get("username");
+        if (username != null) {
+            username = username.trim();
+        }
         
         log.info("发送验证码请求: {}", username);
         
         Map<String, Object> result = new HashMap<>();
         
-        if (username == null || username.trim().isEmpty()) {
+        if (username == null || username.isEmpty()) {
             result.put("code", 400);
             result.put("message", "用户名或邮箱/手机号不能为空");
             return result;
@@ -227,8 +230,10 @@ public class AuthController {
             // 生成6位数字验证码
             String code = String.format("%06d", new Random().nextInt(1000000));
             
+            // 标准化标识（邮箱统一小写，其他原样）
+            String identifier = username.contains("@") ? username.toLowerCase() : username;
             // Redis 存储验证码（5分钟有效）
-            String redisKey = VERIFICATION_CODE_PREFIX + username;
+            String redisKey = VERIFICATION_CODE_PREFIX + identifier;
             redisService.set(redisKey, code, 5, TimeUnit.MINUTES);
             
             log.info("验证码已生成并存储到Redis: {} (用户: {}, 有效期: 5分钟)", code, username);
@@ -273,20 +278,23 @@ public class AuthController {
     public Map<String, Object> loginWithCode(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
         String username = loginData.get("username");
         String code = loginData.get("code");
+        if (username != null) username = username.trim();
+        if (code != null) code = code.trim();
         
         log.info("验证码登录请求: {}", username);
         
         Map<String, Object> result = new HashMap<>();
         
-        if (username == null || code == null) {
+        if (username == null || username.isEmpty() || code == null || code.isEmpty()) {
             result.put("code", 400);
-            result.put("message", "用户名和验证码不能为空");
+            result.put("message", "账号和验证码不能为空");
             return result;
         }
         
         try {
-            // 从 Redis 验证验证码
-            String redisKey = VERIFICATION_CODE_PREFIX + username;
+            // 从 Redis 验证验证码（邮箱统一小写）
+            String identifier = username.contains("@") ? username.toLowerCase() : username;
+            String redisKey = VERIFICATION_CODE_PREFIX + identifier;
             String storedCode = redisService.get(redisKey);
             
             if (storedCode == null) {
@@ -301,15 +309,21 @@ public class AuthController {
                 return result;
             }
             
-            // 查询用户
+            // 查询用户（用户名或邮箱）
             User user = userService.findByUsername(username);
-            if (user == null) {
+            if (user == null && username.contains("@")) {
                 user = userService.findByEmail(username);
             }
             
             if (user == null) {
                 result.put("code", 401);
-                result.put("message", "用户不存在");
+                if (username.contains("@")) {
+                    result.put("message", "邮箱未注册");
+                } else if (username.matches("^\\d{11}$")) {
+                    result.put("message", "手机号未注册");
+                } else {
+                    result.put("message", "用户不存在");
+                }
                 return result;
             }
             
