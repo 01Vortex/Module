@@ -76,9 +76,9 @@
               />
               <button 
                 type="button" 
-                class="send-code-btn" 
+                :class="['send-code-btn', shouldShowBlueBtn ? 'is-blue' : '']" 
                 @click="sendCode"
-                :disabled="countdown > 0 || loading"
+                :disabled="countdown > 0 || loading || !isValidContact"
               >
                 {{ codeButtonText }}
               </button>
@@ -143,7 +143,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { login, loginWithCode, sendVerificationCode } from '../api/auth'
 import MessageBox from './MessageBox.vue'
 
@@ -170,6 +170,22 @@ const agreedToTerms = ref(false)
 const showMessageBox = ref(false)
 const messageText = ref('')
 const messageType = ref('info')
+
+// 按钮变色校验（邮箱或11位手机号）
+const isEmailFormat = computed(() => {
+  const v = (username.value || '').trim()
+  if (!v.includes('@')) return false
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+})
+
+const isPhoneFormat = computed(() => {
+  const v = (username.value || '').trim()
+  return /^\d{11}$/.test(v)
+})
+
+const isValidContact = computed(() => isEmailFormat.value || isPhoneFormat.value)
+
+const shouldShowBlueBtn = computed(() => isValidContact.value && countdown.value === 0 && !loading.value)
 
 // 监听预填充数据
 watch(() => props.prefilledData, (data) => {
@@ -622,6 +638,16 @@ onMounted(() => {
 
 .send-code-btn:hover:not(:disabled) {
   background: #e8e8e8;
+}
+
+.send-code-btn.is-blue {
+  background: #2196f3 !important;
+  border-color: #2196f3 !important;
+  color: #fff !important;
+}
+
+.send-code-btn.is-blue:hover:not(:disabled) {
+  background: #1976d2 !important;
 }
 
 .send-code-btn:disabled {

@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * 认证控制器 - 处理登录、注册等认证相关功能
  *
- * @author 01Vortex
+ * @author Vortex
  * @since 2024
  */
 @Slf4j

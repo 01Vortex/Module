@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 /**
  * 邮件服务实现
  *
- * @author 01Vortex
+ * @author Vortex
  * @since 2024
  */
 @Slf4j

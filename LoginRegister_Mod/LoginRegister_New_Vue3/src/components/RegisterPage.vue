@@ -10,17 +10,7 @@
     <div class="register-card">
       <!-- 左侧装饰区 -->
       <div class="left-section">
-        <div class="welcome-content">
-          <h1 class="welcome-title">欢迎注册</h1>
-          <h2 class="module-name">01Vortex的模块</h2>
-          
-          <div class="qr-code">
-            <canvas ref="qrCanvas" width="160" height="160"></canvas>
-          </div>
-          
-          <p class="qr-hint">使用特定app扫码</p>
-        </div>
-        
+        <canvas ref="artCanvas" class="left-art"></canvas>
         <div class="footer-link">
           <p>已有账号？<a href="#" @click.prevent="$emit('switch-to-login')">立即登录</a></p>
         </div>
@@ -100,9 +90,9 @@
                 />
                 <button 
                   type="button" 
-                  class="send-code-btn" 
+                  :class="['send-code-btn', shouldShowBlueBtn ? 'is-blue' : '']" 
                   @click="sendCode"
-                  :disabled="countdown > 0 || loading || !formData.emailOrPhone"
+                  :disabled="countdown > 0 || loading || !isValidContact"
                 >
                   {{ codeButtonText }}
                 </button>
@@ -159,13 +149,14 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, computed } from 'vue'
 import { register, checkUsername, checkEmail, sendVerificationCode } from '../api/auth'
 import MessageBox from './MessageBox.vue'
 
 const emit = defineEmits(['switch-to-login', 'register-success'])
 
 const qrCanvas = ref(null)
+const artCanvas = ref(null)
 const loading = ref(false)
 const agreedToTerms = ref(false)
 
@@ -195,6 +186,24 @@ const errors = reactive({
 const showMessageBox = ref(false)
 const messageText = ref('')
 const messageType = ref('info')
+
+// 简单格式校验（仅用于按钮变色，不做占用后端校验）
+const isEmailFormat = computed(() => {
+  const v = (formData.emailOrPhone || '').trim()
+  if (!v.includes('@')) return false
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
+})
+
+const isPhoneFormat = computed(() => {
+  const v = (formData.emailOrPhone || '').trim()
+  return /^\d{11}$/.test(v)
+})
+
+const isValidContact = computed(() => isEmailFormat.value || isPhoneFormat.value)
+
+const shouldShowBlueBtn = computed(() => {
+  return isValidContact.value && countdown.value === 0 && !loading.value
+})
 
 // 验证用户名
 const validateUsername = async () => {
@@ -430,28 +439,100 @@ const showMessage = (text, type = 'info') => {
   showMessageBox.value = true
 }
 
-// 生成随机二维码图案
-const generateQRCode = async () => {
-  if (!qrCanvas.value) return
+// 左侧画布动画 - 粒子缓缓漂浮
+const startLeftCanvas = () => {
+  if (!artCanvas.value) return
+  const canvas = artCanvas.value
+  const ctx = canvas.getContext('2d')
 
-  // 真实二维码内容：使用当前页面 URL + 时间戳，保证每次刷新内容变化
-  const content = `${window.location.origin}/register?t=${Date.now()}`
+  const parent = canvas.parentElement
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
 
-  const QRCode = (await import('qrcode')).default
-  await QRCode.toCanvas(qrCanvas.value, content, {
-    width: 120,
-    margin: 1,
-    color: {
-      dark: '#2196f3',      // 蓝色深色模块
-      light: '#ffffffff'    // 纯白背景
+  const resize = () => {
+    const w = parent.clientWidth
+    const h = parent.clientHeight
+    canvas.style.width = w + 'px'
+    canvas.style.height = h + 'px'
+    canvas.width = Math.floor(w * dpr)
+    canvas.height = Math.floor(h * dpr)
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  }
+
+  resize()
+  window.addEventListener('resize', resize)
+
+  const colors = ['#42a5f5', '#90caf9', '#4dd0e1', '#81c784', '#ffd54f']
+  const particles = Array.from({ length: 28 }).map(() => ({
+    x: Math.random() * canvas.clientWidth,
+    y: Math.random() * canvas.clientHeight,
+    r: 3 + Math.random() * 12,
+    vx: -0.4 + Math.random() * 0.8,
+    vy: -0.4 + Math.random() * 0.8,
+    color: colors[(Math.random() * colors.length) | 0],
+    alpha: 0.35 + Math.random() * 0.4
+  }))
+
+  let rafId = 0
+  const draw = () => {
+    const w = canvas.clientWidth
+    const h = canvas.clientHeight
+    ctx.clearRect(0, 0, w, h)
+
+    // 背景淡淡渐变
+    const grad = ctx.createLinearGradient(0, 0, w, h)
+    grad.addColorStop(0, 'rgba(33,150,243,0.08)')
+    grad.addColorStop(1, 'rgba(76,175,80,0.08)')
+    ctx.fillStyle = grad
+    ctx.fillRect(0, 0, w, h)
+
+    // 连接邻近粒子
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i]
+      for (let j = i + 1; j < particles.length; j++) {
+        const q = particles[j]
+        const dx = p.x - q.x
+        const dy = p.y - q.y
+        const dist2 = dx * dx + dy * dy
+        if (dist2 < 140 * 140) {
+          const a = 0.06 * (1 - dist2 / (140 * 140))
+          ctx.strokeStyle = `rgba(33,150,243,${a})`
+          ctx.lineWidth = 1
+          ctx.beginPath()
+          ctx.moveTo(p.x, p.y)
+          ctx.lineTo(q.x, q.y)
+          ctx.stroke()
+        }
+      }
     }
-  })
+
+    // 粒子
+    for (const p of particles) {
+      p.x += p.vx
+      p.y += p.vy
+      if (p.x < -20) p.x = w + 20
+      if (p.x > w + 20) p.x = -20
+      if (p.y < -20) p.y = h + 20
+      if (p.y > h + 20) p.y = -20
+
+      const rad = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r)
+      rad.addColorStop(0, p.color)
+      rad.addColorStop(1, 'rgba(255,255,255,0)')
+      ctx.fillStyle = rad
+      ctx.globalAlpha = p.alpha
+      ctx.beginPath()
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.globalAlpha = 1
+    }
+
+    rafId = requestAnimationFrame(draw)
+  }
+
+  draw()
 }
 
 onMounted(() => {
-  generateQRCode()
-  // 每15秒更新一次二维码
-  setInterval(generateQRCode, 15000)
+  startLeftCanvas()
 })
 </script>
 
@@ -574,6 +655,15 @@ onMounted(() => {
   border-right: 1px solid #e0e0e0;
 }
 
+.left-art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 1;
+}
+
 .welcome-content,
 .footer-link {
   position: relative;
@@ -636,6 +726,8 @@ onMounted(() => {
   font-size: 15px;
   text-align: center;
   color: #666;
+  position: relative;
+  z-index: 2;
 }
 
 .footer-link a {
@@ -725,6 +817,16 @@ onMounted(() => {
 
 .send-code-btn:hover:not(:disabled) {
   background: #e8e8e8;
+}
+
+.send-code-btn.is-blue {
+  background: #2196f3 !important;
+  border-color: #2196f3 !important;
+  color: #fff !important;
+}
+
+.send-code-btn.is-blue:hover:not(:disabled) {
+  background: #1976d2 !important;
 }
 
 .send-code-btn:disabled {
