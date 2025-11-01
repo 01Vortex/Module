@@ -393,6 +393,35 @@ const handleSocialLogin = (platform) => {
     return
   }
 
+  if (platform === 'wechat') {
+    const url = `${API_BASE_URL}/oauth/wechat/authorize`
+    const popup = window.open(url, 'wechat_login', features)
+    if (!popup) {
+      showMessage('请允许弹出窗口以完成微信登录', 'error')
+      return
+    }
+
+    qqMessageHandler = (event) => {
+      try {
+        const data = event.data || {}
+        if (data && data.type === 'wechat_auth') {
+          const payload = data.payload || {}
+          if (payload.code === 200) {
+            const user = payload.data
+            localStorage.setItem('user', JSON.stringify(user))
+            showMessage('微信登录成功！', 'success')
+          } else {
+            showMessage(payload.message || '微信登录失败', 'error')
+          }
+          window.removeEventListener('message', qqMessageHandler)
+          qqMessageHandler = null
+        }
+      } catch (e) {}
+    }
+    window.addEventListener('message', qqMessageHandler)
+    return
+  }
+
   showMessage(`${platform}登录功能开发中...`, 'info')
 }
 

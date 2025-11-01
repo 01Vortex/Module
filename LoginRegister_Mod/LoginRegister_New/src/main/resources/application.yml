@@ -140,6 +140,13 @@ google:
     client-secret: YOUR_GOOGLE_CLIENT_SECRET
     redirect-uri: http://localhost:8080/api/oauth/google/callback
 
+# WeChat 开放平台 OAuth（PC 扫码登录）
+wechat:
+  oauth:
+    app-id: YOUR_WECHAT_APP_ID
+    app-secret: YOUR_WECHAT_APP_SECRET
+    redirect-uri: http://localhost:8080/api/oauth/wechat/callback
+
 # 日志配置
 logging:
   level:

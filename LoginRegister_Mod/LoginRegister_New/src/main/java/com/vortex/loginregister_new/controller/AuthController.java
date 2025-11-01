@@ -108,24 +108,17 @@ public class AuthController {
      */
     @PostMapping("/register")
     public Map<String, Object> register(@RequestBody Map<String, String> registerData) {
-        String username = registerData.get("username");
+        String nickname = registerData.get("nickname");
         String password = registerData.get("password");
         String email = registerData.get("email");
         String phone = registerData.get("phone");
         String verifyCode = registerData.get("verifyCode");
         
-        log.info("用户注册请求: {}", username);
+        log.info("用户注册请求(昵称): {}", nickname);
         
         Map<String, Object> result = new HashMap<>();
         
         try {
-            // 验证用户名
-            if (userService.isUsernameExists(username)) {
-                result.put("code", 400);
-                result.put("message", "用户名已存在");
-                return result;
-            }
-            
             // 判断是邮箱注册还是手机号注册
             String identifier = email != null ? email : phone;
             
@@ -152,16 +145,19 @@ public class AuthController {
                 return result;
             }
             
-            // 创建用户对象
+            // 创建用户对象（用户名为10位随机数字，需保证唯一）
             User user = new User();
-            user.setUsername(username);
+            String generatedUsername = generateUniqueUsername(10);
+            user.setUsername(generatedUsername);
             user.setPassword(passwordEncoder.encode(password));
             user.setEmail(email);
             user.setPhone(phone);
             
-            // 生成随机昵称: 用户 + 10位随机纯数字
-            String randomSuffix = generateRandomNumber(10);
-            user.setNickname("用户" + randomSuffix);
+            // 使用前端传入的昵称（可为空时给一个默认昵称）
+            if (nickname == null || nickname.trim().isEmpty()) {
+                nickname = "新用户";
+            }
+            user.setNickname(nickname.trim());
             
             // 设置默认状态
             user.setStatus(1);
@@ -204,6 +200,23 @@ public class AuthController {
             sb.append(random.nextInt(10));
         }
         return sb.toString();
+    }
+
+    /**
+     * 生成唯一的10位数字用户名（如发生碰撞则重试）
+     */
+    private String generateUniqueUsername(int length) {
+        String candidate;
+        int attempts = 0;
+        do {
+            candidate = generateRandomNumber(length);
+            attempts++;
+            if (attempts > 10) {
+                // 极端情况下增加一位长度降碰撞风险
+                candidate = generateRandomNumber(length + 1);
+            }
+        } while (userService.isUsernameExists(candidate));
+        return candidate;
     }
 
     /**

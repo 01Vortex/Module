@@ -43,7 +43,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             // 配置请求授权
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/**", "/user/test", "/user/check/**").permitAll()
+                .requestMatchers("/auth/**", "/oauth/**", "/user/test", "/user/check/**").permitAll()
                 .anyRequest().permitAll() // 开发环境暂时允许所有请求
             );
         

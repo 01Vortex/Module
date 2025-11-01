@@ -27,6 +27,23 @@ CREATE TABLE IF NOT EXISTS `user` (
     KEY `idx_deleted` (`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='用户表';
 
+-- 第三方账号绑定表
+CREATE TABLE IF NOT EXISTS `user_social` (
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+    `user_id` BIGINT NOT NULL COMMENT '用户ID',
+    `provider` VARCHAR(50) NOT NULL COMMENT '提供商：wechat/qq/google等',
+    `openid` VARCHAR(128) NOT NULL COMMENT '第三方openid',
+    `unionid` VARCHAR(128) DEFAULT NULL COMMENT '第三方unionid',
+    `nickname` VARCHAR(100) DEFAULT NULL COMMENT '第三方昵称',
+    `avatar` VARCHAR(255) DEFAULT NULL COMMENT '第三方头像',
+    `create_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    `update_time` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (`id`),
+    KEY `idx_user` (`user_id`),
+    KEY `idx_provider_openid` (`provider`, `openid`),
+    KEY `idx_provider_unionid` (`provider`, `unionid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='第三方账号绑定表';
+
 -- 角色表
 CREATE TABLE IF NOT EXISTS `role` (
     `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '角色ID',

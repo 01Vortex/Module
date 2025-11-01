@@ -24,19 +24,19 @@
           <h2 class="form-title">创建新账号</h2>
 
           <form @submit.prevent="handleRegister" class="register-form">
-            <!-- 用户名 -->
+            <!-- 昵称 -->
             <div class="form-group">
               <input 
-                v-model="formData.username" 
+                v-model="formData.nickname" 
                 type="text" 
-                placeholder="用户名（3-20位字符）"
+                placeholder="昵称（显示名称）"
                 :disabled="loading"
                 required
-                minlength="3"
+                minlength="1"
                 maxlength="20"
-                @blur="validateUsername"
+                @blur="validateNickname"
               />
-              <span v-if="errors.username" class="error-text">{{ errors.username }}</span>
+              <span v-if="errors.nickname" class="error-text">{{ errors.nickname }}</span>
             </div>
 
             <!-- 邮箱或手机号 -->
@@ -134,7 +134,7 @@
 
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
-import { register, checkUsername, checkEmail, sendVerificationCode } from '../api/auth'
+import { register, checkEmail, sendVerificationCode } from '../api/auth'
 import MessageBox from './MessageBox.vue'
 
 const emit = defineEmits(['switch-to-login', 'register-success'])
@@ -150,7 +150,7 @@ const countdown = ref(0)
 
 // 表单数据
 const formData = reactive({
-  username: '',
+  nickname: '',
   emailOrPhone: '',
   password: '',
   confirmPassword: '',
@@ -159,7 +159,7 @@ const formData = reactive({
 
 // 错误信息
 const errors = reactive({
-  username: '',
+  nickname: '',
   emailOrPhone: '',
   password: '',
   confirmPassword: '',
@@ -189,32 +189,12 @@ const shouldShowBlueBtn = computed(() => {
   return isValidContact.value && countdown.value === 0 && !loading.value
 })
 
-// 验证用户名
-const validateUsername = async () => {
-  errors.username = ''
-  
-  if (!formData.username) {
-    return
-  }
-  
-  if (formData.username.length < 3 || formData.username.length > 20) {
-    errors.username = '用户名长度应为3-20位字符'
-    return
-  }
-  
-  // 检查用户名格式（字母、数字、下划线）
-  if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
-    errors.username = '用户名只能包含字母、数字和下划线'
-    return
-  }
-  
-  try {
-    const result = await checkUsername(formData.username)
-    if (result.exists) {
-      errors.username = '该用户名已被使用'
-    }
-  } catch (error) {
-    console.error('检查用户名失败:', error)
+// 验证昵称
+const validateNickname = () => {
+  errors.nickname = ''
+  if (!formData.nickname) return
+  if (formData.nickname.length < 1 || formData.nickname.length > 20) {
+    errors.nickname = '昵称长度应为1-20个字符'
   }
 }
 
@@ -336,7 +316,7 @@ const handleRegister = async () => {
   Object.keys(errors).forEach(key => errors[key] = '')
   
   // 验证所有字段
-  await validateUsername()
+  validateNickname()
   await validateEmailOrPhone()
   validatePassword()
   validateConfirmPassword()
@@ -365,7 +345,7 @@ const handleRegister = async () => {
     const isEmail = formData.emailOrPhone.includes('@')
     
     const registerData = {
-      username: formData.username,
+      nickname: formData.nickname,
       password: formData.password,
       verifyCode: formData.verifyCode
     }
@@ -384,8 +364,9 @@ const handleRegister = async () => {
       
       // 2秒后跳转到登录页
       setTimeout(() => {
+        const isEmail = formData.emailOrPhone.includes('@')
         emit('register-success', { 
-          username: formData.username,
+          username: isEmail ? formData.emailOrPhone : '',
           password: formData.password 
         })
         emit('switch-to-login')
