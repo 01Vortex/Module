@@ -11,6 +11,11 @@ spring:
   profiles:
     active: prod
   
+  # 排除自动配置，解决默认密码问题
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  
   # 启用 ANSI 颜色输出
   output:
     ansi:
