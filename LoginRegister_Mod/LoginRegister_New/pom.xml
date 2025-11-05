@@ -56,7 +56,7 @@
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
             <version>${mysql.version}</version>
-            <scope>runtime</scope>
+            <!-- 移除 scope，让 IDE 能在编译时识别驱动类 -->
         </dependency>
 
         <!-- JWT 支持 (最新版本，支持 Java 21) -->

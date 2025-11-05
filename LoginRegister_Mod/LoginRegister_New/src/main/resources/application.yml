@@ -28,7 +28,7 @@ spring:
 
   # 数据源配置
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    # driver-class-name 已移除，Spring Boot 3.x 会自动检测 MySQL 驱动
     url: jdbc:mysql://localhost:3306/login_register_new?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 193510
