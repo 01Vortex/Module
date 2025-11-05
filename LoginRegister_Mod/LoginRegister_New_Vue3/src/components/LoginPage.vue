@@ -143,7 +143,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed, onBeforeUnmount } from 'vue'
-import { login, loginWithCode, sendVerificationCode, API_BASE_URL } from '../api/auth'
+import { login, loginWithCode, sendVerificationCode, API_BASE_URL, tokenManager } from '../api/auth'
 import MessageBox from './MessageBox.vue'
 
 const props = defineProps({
@@ -256,14 +256,18 @@ const handleLogin = async () => {
     if (result.code === 200) {
       console.log('登录成功:', result.data)
       showMessage('登录成功！', 'success')
-      // 保存用户信息到localStorage
-      localStorage.setItem('user', JSON.stringify(result.data))
+      // token和用户信息已由API客户端自动保存
       // 跳转到主页或其他页面
-      // setTimeout(() => {
-      //   window.location.href = '/dashboard'
-      // }, 1000)
+      setTimeout(() => {
+        window.location.href = '/dashboard'
+      }, 1000)
     } else {
-      showMessage(result.message || '登录失败', 'error')
+      // 显示详细的错误信息
+      let errorMsg = result.message || '登录失败'
+      if (result.remainingAttempts !== undefined) {
+        errorMsg += `，剩余尝试次数：${result.remainingAttempts}`
+      }
+      showMessage(errorMsg, 'error')
     }
   } catch (error) {
     console.error('登录错误:', error)
@@ -350,8 +354,14 @@ const handleSocialLogin = (platform) => {
           const payload = data.payload || {}
           if (payload.code === 200) {
             const user = payload.data
-            localStorage.setItem('user', JSON.stringify(user))
+            if (payload.accessToken && payload.refreshToken) {
+              tokenManager.setTokens(payload.accessToken, payload.refreshToken)
+            }
+            tokenManager.setUser(user)
             showMessage('QQ登录成功！', 'success')
+            setTimeout(() => {
+              window.location.href = '/dashboard'
+            }, 1000)
           } else {
             showMessage(payload.message || 'QQ登录失败', 'error')
           }
@@ -379,7 +389,10 @@ const handleSocialLogin = (platform) => {
           const payload = data.payload || {}
           if (payload.code === 200) {
             const user = payload.data
-            localStorage.setItem('user', JSON.stringify(user))
+            if (payload.accessToken && payload.refreshToken) {
+              tokenManager.setTokens(payload.accessToken, payload.refreshToken)
+            }
+            tokenManager.setUser(user)
             showMessage('Google登录成功！', 'success')
           } else {
             showMessage(payload.message || 'Google登录失败', 'error')
@@ -408,7 +421,10 @@ const handleSocialLogin = (platform) => {
           const payload = data.payload || {}
           if (payload.code === 200) {
             const user = payload.data
-            localStorage.setItem('user', JSON.stringify(user))
+            if (payload.accessToken && payload.refreshToken) {
+              tokenManager.setTokens(payload.accessToken, payload.refreshToken)
+            }
+            tokenManager.setUser(user)
             showMessage('微信登录成功！', 'success')
           } else {
             showMessage(payload.message || '微信登录失败', 'error')

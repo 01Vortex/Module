@@ -2,8 +2,11 @@ package com.vortex.loginregister_new.controller;
 
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.service.EmailService;
+import com.vortex.loginregister_new.service.LoginAttemptService;
+import com.vortex.loginregister_new.service.RateLimitService;
 import com.vortex.loginregister_new.service.RedisService;
 import com.vortex.loginregister_new.service.UserService;
+import com.vortex.loginregister_new.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * 认证控制器 - 处理登录、注册等认证相关功能
@@ -32,9 +36,18 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
     private final EmailService emailService;
+    private final JwtUtil jwtUtil;
+    private final LoginAttemptService loginAttemptService;
+    private final RateLimitService rateLimitService;
     
     // Redis Key 前缀
     private static final String VERIFICATION_CODE_PREFIX = "verification_code:";
+    private static final String CODE_ATTEMPT_PREFIX = "code_attempt:";
+    
+    // 密码策略：至少8位，包含字母和数字，允许常见特殊字符
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&._\\-+=()\\[\\]{}]{8,}$");
+    // 验证码最大尝试次数
+    private static final int MAX_CODE_ATTEMPTS = 5;
 
     /**
      * 用户登录（密码方式）
@@ -43,10 +56,16 @@ public class AuthController {
     public Map<String, Object> login(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
         String username = loginData.get("username");
         String password = loginData.get("password");
-        
-        log.info("用户登录请求: {}", username);
+        String clientIp = getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
+        
+        // 请求频率限制：每个IP每分钟最多5次登录尝试
+        if (rateLimitService.isRateLimited("login:" + clientIp, 5, 60)) {
+            result.put("code", 429);
+            result.put("message", "请求过于频繁，请稍后再试");
+            return result;
+        }
         
         if (username == null || password == null) {
             result.put("code", 400);
@@ -54,23 +73,46 @@ public class AuthController {
             return result;
         }
         
+        // 标准化标识（邮箱统一小写）
+        String identifier = username.contains("@") ? username.toLowerCase() : username;
+        
         try {
-            // 支持用户名或邮箱登录
-            User user = userService.findByUsername(username);
-            if (user == null) {
-                user = userService.findByEmail(username);
-            }
-            
-            if (user == null) {
-                result.put("code", 401);
-                result.put("message", "用户不存在");
+            // 检查账户是否被锁定
+            if (loginAttemptService.isBlocked(identifier)) {
+                long remainingTime = loginAttemptService.getLockRemainingTime(identifier);
+                result.put("code", 423);
+                result.put("message", String.format("账户已被锁定，请%d分钟后重试", remainingTime));
                 return result;
             }
             
-            // 验证密码
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                result.put("code", 401);
-                result.put("message", "密码错误");
+            // 支持用户名或邮箱登录
+            User user = userService.findByUsername(identifier);
+            if (user == null && identifier.contains("@")) {
+                user = userService.findByEmail(identifier);
+            }
+            
+            // 无论用户是否存在，都进行密码验证（防止用户枚举攻击）
+            boolean passwordValid = false;
+            if (user != null) {
+                passwordValid = passwordEncoder.matches(password, user.getPassword());
+            }
+            
+            if (user == null || !passwordValid) {
+                // 记录登录失败
+                if (user != null) {
+                    loginAttemptService.loginFailed(identifier);
+                    int remaining = loginAttemptService.getRemainingAttempts(identifier);
+                    result.put("code", 401);
+                    result.put("message", "用户名或密码错误");
+                    if (remaining > 0) {
+                        result.put("remainingAttempts", remaining);
+                    }
+                } else {
+                    // 用户不存在时也记录失败（防止用户枚举）
+                    loginAttemptService.loginFailed(identifier);
+                    result.put("code", 401);
+                    result.put("message", "用户名或密码错误");
+                }
                 return result;
             }
             
@@ -81,9 +123,15 @@ public class AuthController {
                 return result;
             }
             
+            // 登录成功，清除失败记录
+            loginAttemptService.loginSucceeded(identifier);
+            
             // 更新登录信息
-            String clientIp = getClientIp(request);
             userService.updateLastLoginInfo(user.getId(), clientIp);
+            
+            // 生成JWT token
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
             
             // 返回用户信息（不包含密码）
             user.setPassword(null);
@@ -91,13 +139,16 @@ public class AuthController {
             result.put("code", 200);
             result.put("message", "登录成功");
             result.put("data", user);
+            result.put("accessToken", accessToken);
+            result.put("refreshToken", refreshToken);
+            result.put("tokenType", "Bearer");
             
-            log.info("用户 {} 登录成功", username);
+            log.info("用户 {} 登录成功，IP: {}", username, clientIp);
             
         } catch (Exception e) {
             log.error("登录失败: ", e);
             result.put("code", 500);
-            result.put("message", "登录失败: " + e.getMessage());
+            result.put("message", "登录失败，请稍后重试");
         }
         
         return result;
@@ -107,20 +158,45 @@ public class AuthController {
      * 用户注册
      */
     @PostMapping("/register")
-    public Map<String, Object> register(@RequestBody Map<String, String> registerData) {
+    public Map<String, Object> register(@RequestBody Map<String, String> registerData, HttpServletRequest request) {
         String nickname = registerData.get("nickname");
         String password = registerData.get("password");
         String email = registerData.get("email");
         String phone = registerData.get("phone");
         String verifyCode = registerData.get("verifyCode");
-        
-        log.info("用户注册请求(昵称): {}", nickname);
+        String clientIp = getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
+        // 请求频率限制：每个IP每小时最多10次注册尝试
+        if (rateLimitService.isRateLimited("register:" + clientIp, 10, 3600)) {
+            result.put("code", 429);
+            result.put("message", "请求过于频繁，请稍后再试");
+            return result;
+        }
+        
+        // 验证密码强度
+        if (password == null || password.length() < 8) {
+            result.put("code", 400);
+            result.put("message", "密码长度至少为8位");
+            return result;
+        }
+        
+        if (!PASSWORD_PATTERN.matcher(password).matches()) {
+            result.put("code", 400);
+            result.put("message", "密码必须包含字母和数字，长度至少8位，可包含常见特殊字符（@$!%*#?&._-+=()[]{}）");
+            return result;
+        }
+        
         try {
             // 判断是邮箱注册还是手机号注册
-            String identifier = email != null ? email : phone;
+            String identifier = email != null ? email.toLowerCase() : phone;
+            
+            if (identifier == null || identifier.isEmpty()) {
+                result.put("code", 400);
+                result.put("message", "邮箱或手机号不能为空");
+                return result;
+            }
             
             // 从 Redis 验证验证码
             String redisKey = VERIFICATION_CODE_PREFIX + identifier;
@@ -157,7 +233,8 @@ public class AuthController {
             if (nickname == null || nickname.trim().isEmpty()) {
                 nickname = "新用户";
             }
-            user.setNickname(nickname.trim());
+            // 防止XSS：清理昵称
+            user.setNickname(sanitizeInput(nickname.trim()));
             
             // 设置默认状态
             user.setStatus(1);
@@ -173,16 +250,16 @@ public class AuthController {
                 result.put("code", 200);
                 result.put("message", "注册成功");
                 result.put("data", user);
-                log.info("用户 {} 注册成功，昵称: {}", user.getUsername(), user.getNickname());
+                log.info("用户 {} 注册成功，昵称: {}，IP: {}", user.getUsername(), user.getNickname(), clientIp);
             } else {
                 result.put("code", 500);
-                result.put("message", "注册失败");
+                result.put("message", "注册失败，请稍后重试");
             }
             
         } catch (Exception e) {
             log.error("注册失败: ", e);
             result.put("code", 500);
-            result.put("message", "注册失败: " + e.getMessage());
+            result.put("message", "注册失败，请稍后重试");
         }
         
         return result;
@@ -223,13 +300,12 @@ public class AuthController {
      * 发送验证码
      */
     @PostMapping("/send-code")
-    public Map<String, Object> sendVerificationCode(@RequestBody Map<String, String> data) {
+    public Map<String, Object> sendVerificationCode(@RequestBody Map<String, String> data, HttpServletRequest request) {
         String username = data.get("username");
         if (username != null) {
             username = username.trim();
         }
-        
-        log.info("发送验证码请求: {}", username);
+        String clientIp = getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
@@ -239,15 +315,32 @@ public class AuthController {
             return result;
         }
         
+        // 标准化标识（邮箱统一小写，其他原样）
+        String identifier = username.contains("@") ? username.toLowerCase() : username;
+        
+        // 频率限制：每个标识每分钟最多发送1次，每个IP每分钟最多5次
+        if (rateLimitService.isRateLimited("send_code:" + identifier, 1, 60)) {
+            result.put("code", 429);
+            result.put("message", "验证码发送过于频繁，请稍后再试");
+            return result;
+        }
+        
+        if (rateLimitService.isRateLimited("send_code_ip:" + clientIp, 5, 60)) {
+            result.put("code", 429);
+            result.put("message", "请求过于频繁，请稍后再试");
+            return result;
+        }
+        
         try {
             // 生成6位数字验证码
             String code = String.format("%06d", new Random().nextInt(1000000));
             
-            // 标准化标识（邮箱统一小写，其他原样）
-            String identifier = username.contains("@") ? username.toLowerCase() : username;
             // Redis 存储验证码（5分钟有效）
             String redisKey = VERIFICATION_CODE_PREFIX + identifier;
             redisService.set(redisKey, code, 5, TimeUnit.MINUTES);
+            
+            // 清除验证码尝试次数
+            redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
             
             log.info("验证码已生成并存储到Redis: {} (用户: {}, 有效期: 5分钟)", code, username);
             
@@ -263,7 +356,7 @@ public class AuthController {
                 } catch (Exception e) {
                     log.error("❌ 邮件发送失败: ", e);
                     result.put("code", 500);
-                    result.put("message", "邮件发送失败: " + e.getMessage());
+                    result.put("message", "邮件发送失败，请稍后重试");
                     // 删除 Redis 中的验证码
                     redisService.delete(redisKey);
                 }
@@ -278,7 +371,7 @@ public class AuthController {
         } catch (Exception e) {
             log.error("发送验证码失败: ", e);
             result.put("code", 500);
-            result.put("message", "发送失败: " + e.getMessage());
+            result.put("message", "发送失败，请稍后重试");
         }
         
         return result;
@@ -293,10 +386,16 @@ public class AuthController {
         String code = loginData.get("code");
         if (username != null) username = username.trim();
         if (code != null) code = code.trim();
-        
-        log.info("验证码登录请求: {}", username);
+        String clientIp = getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
+        
+        // 请求频率限制
+        if (rateLimitService.isRateLimited("login_code:" + clientIp, 5, 60)) {
+            result.put("code", 429);
+            result.put("message", "请求过于频繁，请稍后再试");
+            return result;
+        }
         
         if (username == null || username.isEmpty() || code == null || code.isEmpty()) {
             result.put("code", 400);
@@ -310,6 +409,11 @@ public class AuthController {
             String redisKey = VERIFICATION_CODE_PREFIX + identifier;
             String storedCode = redisService.get(redisKey);
             
+            // 检查验证码尝试次数
+            String attemptKey = CODE_ATTEMPT_PREFIX + identifier;
+            String attemptStr = redisService.get(attemptKey);
+            int attempts = attemptStr == null ? 0 : Integer.parseInt(attemptStr);
+            
             if (storedCode == null) {
                 result.put("code", 400);
                 result.put("message", "验证码已过期或不存在");
@@ -317,22 +421,33 @@ public class AuthController {
             }
             
             if (!storedCode.equals(code)) {
+                attempts++;
+                if (attempts >= MAX_CODE_ATTEMPTS) {
+                    // 超过最大尝试次数，清除验证码
+                    redisService.delete(redisKey);
+                    redisService.delete(attemptKey);
+                    result.put("code", 400);
+                    result.put("message", "验证码错误次数过多，请重新获取验证码");
+                    return result;
+                }
+                redisService.set(attemptKey, String.valueOf(attempts), 5, TimeUnit.MINUTES);
                 result.put("code", 400);
                 result.put("message", "验证码错误");
+                result.put("remainingAttempts", MAX_CODE_ATTEMPTS - attempts);
                 return result;
             }
             
             // 查询用户（用户名或邮箱）
-            User user = userService.findByUsername(username);
-            if (user == null && username.contains("@")) {
-                user = userService.findByEmail(username);
+            User user = userService.findByUsername(identifier);
+            if (user == null && identifier.contains("@")) {
+                user = userService.findByEmail(identifier);
             }
             
             if (user == null) {
                 result.put("code", 401);
-                if (username.contains("@")) {
+                if (identifier.contains("@")) {
                     result.put("message", "邮箱未注册");
-                } else if (username.matches("^\\d{11}$")) {
+                } else if (identifier.matches("^\\d{11}$")) {
                     result.put("message", "手机号未注册");
                 } else {
                     result.put("message", "用户不存在");
@@ -347,12 +462,16 @@ public class AuthController {
                 return result;
             }
             
+            // 登录成功，清除验证码和尝试次数
+            redisService.delete(redisKey);
+            redisService.delete(attemptKey);
+            
             // 更新登录信息
-            String clientIp = getClientIp(request);
             userService.updateLastLoginInfo(user.getId(), clientIp);
             
-            // 清除 Redis 中已使用的验证码
-            redisService.delete(redisKey);
+            // 生成JWT token
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
             
             // 返回用户信息
             user.setPassword(null);
@@ -360,18 +479,84 @@ public class AuthController {
             result.put("code", 200);
             result.put("message", "登录成功");
             result.put("data", user);
+            result.put("accessToken", accessToken);
+            result.put("refreshToken", refreshToken);
+            result.put("tokenType", "Bearer");
             
-            log.info("用户 {} 通过验证码登录成功", username);
+            log.info("用户 {} 通过验证码登录成功，IP: {}", username, clientIp);
             
         } catch (Exception e) {
             log.error("验证码登录失败: ", e);
             result.put("code", 500);
-            result.put("message", "登录失败: " + e.getMessage());
+            result.put("message", "登录失败，请稍后重试");
         }
         
         return result;
     }
 
+    /**
+     * 刷新访问令牌
+     */
+    @PostMapping("/refresh")
+    public Map<String, Object> refreshToken(@RequestBody Map<String, String> data) {
+        String refreshToken = data.get("refreshToken");
+        Map<String, Object> result = new HashMap<>();
+        
+        if (refreshToken == null || refreshToken.isEmpty()) {
+            result.put("code", 400);
+            result.put("message", "刷新令牌不能为空");
+            return result;
+        }
+        
+        try {
+            // 验证刷新token
+            if (!jwtUtil.validateToken(refreshToken) || !jwtUtil.isRefreshToken(refreshToken)) {
+                result.put("code", 401);
+                result.put("message", "无效的刷新令牌");
+                return result;
+            }
+            
+            // 获取用户信息
+            String username = jwtUtil.getUsernameFromToken(refreshToken);
+            Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+            
+            if (username == null || userId == null) {
+                result.put("code", 401);
+                result.put("message", "无效的刷新令牌");
+                return result;
+            }
+            
+            // 生成新的访问令牌
+            String newAccessToken = jwtUtil.generateAccessToken(userId, username);
+            
+            result.put("code", 200);
+            result.put("message", "刷新成功");
+            result.put("accessToken", newAccessToken);
+            result.put("tokenType", "Bearer");
+            
+        } catch (Exception e) {
+            log.error("刷新令牌失败: ", e);
+            result.put("code", 500);
+            result.put("message", "刷新失败，请稍后重试");
+        }
+        
+        return result;
+    }
+    
+    /**
+     * 清理输入，防止XSS攻击
+     */
+    private String sanitizeInput(String input) {
+        if (input == null) {
+            return null;
+        }
+        // 移除HTML标签和特殊字符
+        return input.replaceAll("<[^>]*>", "")
+                   .replaceAll("&[^;]+;", "")
+                   .replaceAll("[<>\"']", "")
+                   .trim();
+    }
+    
     /**
      * 获取客户端IP
      */
@@ -382,6 +567,10 @@ public class AuthController {
         }
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
+        }
+        // 处理多个IP的情况（取第一个）
+        if (ip != null && ip.contains(",")) {
+            ip = ip.split(",")[0].trim();
         }
         return ip;
     }
