@@ -145,10 +145,10 @@ async function request(url, options = {}) {
 /**
  * 用户登录（密码方式）
  */
-export async function login(username, password) {
+export async function login(account, password) {
   const result = await request('/auth/login', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ account, password }),
   })
   
   // 登录成功，保存token和用户信息
@@ -167,10 +167,10 @@ export async function login(username, password) {
 /**
  * 用户登录（验证码方式）
  */
-export async function loginWithCode(username, code) {
+export async function loginWithCode(account, code) {
   const result = await request('/auth/login/code', {
     method: 'POST',
-    body: JSON.stringify({ username, code }),
+    body: JSON.stringify({ account, code }),
   })
   
   // 登录成功，保存token和用户信息
@@ -209,15 +209,15 @@ export async function register(userData) {
 export async function sendVerificationCode(emailOrPhone) {
   return request('/auth/send-code', {
     method: 'POST',
-    body: JSON.stringify({ username: emailOrPhone }),
+    body: JSON.stringify({ account: emailOrPhone }),
   })
 }
 
 /**
- * 检查用户名是否存在
+ * 检查账号是否存在
  */
-export async function checkUsername(username) {
-  return request(`/user/check/username/${username}`)
+export async function checkAccount(account) {
+  return request(`/user/check/account/${account}`)
 }
 
 /**

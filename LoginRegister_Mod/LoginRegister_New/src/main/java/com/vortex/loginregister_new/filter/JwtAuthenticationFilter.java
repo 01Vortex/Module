@@ -59,22 +59,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
 
-                String username = jwtUtil.getUsernameFromToken(token);
+                String account = jwtUtil.getAccountFromToken(token);
                 Long userId = jwtUtil.getUserIdFromToken(token);
 
-                if (username != null && userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (account != null && userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     // 创建认证对象
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            username,
+                            account,
                             null,
                             Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
                     );
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    // 将userId存储到请求属性中，方便后续使用
+                    // 将userId和account存储到请求属性中，方便后续使用
                     request.setAttribute("userId", userId);
-                    request.setAttribute("username", username);
+                    request.setAttribute("account", account);
                 }
             }
         } catch (Exception e) {

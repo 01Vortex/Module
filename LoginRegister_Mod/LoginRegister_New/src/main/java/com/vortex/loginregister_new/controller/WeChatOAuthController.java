@@ -132,7 +132,7 @@ public class WeChatOAuthController {
 
         // 创建新用户：用户名10位随机数字，昵称取三方昵称
         User user = new User();
-        user.setUsername(generateUniqueUsername(10));
+        user.setAccount(generateUniqueAccount(10));
         user.setPassword("");
         user.setNickname(nickname);
         user.setAvatar(avatar);
@@ -150,7 +150,7 @@ public class WeChatOAuthController {
         return user;
     }
 
-    private String generateUniqueUsername(int length) {
+    private String generateUniqueAccount(int length) {
         String candidate;
         int attempts = 0;
         do {
@@ -159,7 +159,7 @@ public class WeChatOAuthController {
             if (attempts > 10) {
                 candidate = generateRandomDigits(length + 1);
             }
-        } while (userService.isUsernameExists(candidate));
+        } while (userService.isAccountExists(candidate));
         return candidate;
     }
 

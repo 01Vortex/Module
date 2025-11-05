@@ -103,12 +103,12 @@ public class QqAuthController {
             } catch (Exception ignored) { }
 
             // Find or create user by qq openid
-            String generatedUsername = "qq_" + openId;
-            User user = userService.findByUsername(generatedUsername);
+            String generatedAccount = "qq_" + openId;
+            User user = userService.findByAccount(generatedAccount);
             if (user == null) {
                 user = new User();
-                user.setUsername(generatedUsername);
-                user.setNickname(nickname != null ? nickname : generatedUsername);
+                user.setAccount(generatedAccount);
+                user.setNickname(nickname != null ? nickname : generatedAccount);
                 user.setAvatar(avatar);
                 user.setStatus(1);
                 userService.register(user);

@@ -27,10 +27,10 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 用户名
+     * 账号
      */
-    @TableField("username")
-    private String username;
+    @TableField("account")
+    private String account;
 
     /**
      * 密码（加密）

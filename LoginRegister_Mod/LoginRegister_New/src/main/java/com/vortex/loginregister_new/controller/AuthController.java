@@ -54,7 +54,7 @@ public class AuthController {
      */
     @PostMapping("/login")
     public Map<String, Object> login(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
-        String username = loginData.get("username");
+        String account = loginData.get("account");
         String password = loginData.get("password");
         String clientIp = getClientIp(request);
         
@@ -67,14 +67,14 @@ public class AuthController {
             return result;
         }
         
-        if (username == null || password == null) {
+        if (account == null || password == null) {
             result.put("code", 400);
-            result.put("message", "用户名和密码不能为空");
+            result.put("message", "账号和密码不能为空");
             return result;
         }
         
         // 标准化标识（邮箱统一小写）
-        String identifier = username.contains("@") ? username.toLowerCase() : username;
+        String identifier = account.contains("@") ? account.toLowerCase() : account;
         
         try {
             // 检查账户是否被锁定
@@ -85,8 +85,8 @@ public class AuthController {
                 return result;
             }
             
-            // 支持用户名或邮箱登录
-            User user = userService.findByUsername(identifier);
+            // 支持账号或邮箱登录
+            User user = userService.findByAccount(identifier);
             if (user == null && identifier.contains("@")) {
                 user = userService.findByEmail(identifier);
             }
@@ -103,7 +103,7 @@ public class AuthController {
                     loginAttemptService.loginFailed(identifier);
                     int remaining = loginAttemptService.getRemainingAttempts(identifier);
                     result.put("code", 401);
-                    result.put("message", "用户名或密码错误");
+                    result.put("message", "账号或密码错误");
                     if (remaining > 0) {
                         result.put("remainingAttempts", remaining);
                     }
@@ -111,7 +111,7 @@ public class AuthController {
                     // 用户不存在时也记录失败（防止用户枚举）
                     loginAttemptService.loginFailed(identifier);
                     result.put("code", 401);
-                    result.put("message", "用户名或密码错误");
+                    result.put("message", "账号或密码错误");
                 }
                 return result;
             }
@@ -130,8 +130,8 @@ public class AuthController {
             userService.updateLastLoginInfo(user.getId(), clientIp);
             
             // 生成JWT token
-            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount());
             
             // 返回用户信息（不包含密码）
             user.setPassword(null);
@@ -143,7 +143,7 @@ public class AuthController {
             result.put("refreshToken", refreshToken);
             result.put("tokenType", "Bearer");
             
-            log.info("用户 {} 登录成功，IP: {}", username, clientIp);
+            log.info("用户 {} 登录成功，IP: {}", account, clientIp);
             
         } catch (Exception e) {
             log.error("登录失败: ", e);
@@ -221,10 +221,10 @@ public class AuthController {
                 return result;
             }
             
-            // 创建用户对象（用户名为10位随机数字，需保证唯一）
+            // 创建用户对象（账号为10位随机数字，需保证唯一）
             User user = new User();
-            String generatedUsername = generateUniqueUsername(10);
-            user.setUsername(generatedUsername);
+            String generatedAccount = generateUniqueAccount(10);
+            user.setAccount(generatedAccount);
             user.setPassword(passwordEncoder.encode(password));
             user.setEmail(email);
             user.setPhone(phone);
@@ -250,7 +250,7 @@ public class AuthController {
                 result.put("code", 200);
                 result.put("message", "注册成功");
                 result.put("data", user);
-                log.info("用户 {} 注册成功，昵称: {}，IP: {}", user.getUsername(), user.getNickname(), clientIp);
+                log.info("用户 {} 注册成功，昵称: {}，IP: {}", user.getAccount(), user.getNickname(), clientIp);
             } else {
                 result.put("code", 500);
                 result.put("message", "注册失败，请稍后重试");
@@ -280,9 +280,9 @@ public class AuthController {
     }
 
     /**
-     * 生成唯一的10位数字用户名（如发生碰撞则重试）
+     * 生成唯一的10位数字账号（如发生碰撞则重试）
      */
-    private String generateUniqueUsername(int length) {
+    private String generateUniqueAccount(int length) {
         String candidate;
         int attempts = 0;
         do {
@@ -292,7 +292,7 @@ public class AuthController {
                 // 极端情况下增加一位长度降碰撞风险
                 candidate = generateRandomNumber(length + 1);
             }
-        } while (userService.isUsernameExists(candidate));
+        } while (userService.isAccountExists(candidate));
         return candidate;
     }
 
@@ -301,22 +301,22 @@ public class AuthController {
      */
     @PostMapping("/send-code")
     public Map<String, Object> sendVerificationCode(@RequestBody Map<String, String> data, HttpServletRequest request) {
-        String username = data.get("username");
-        if (username != null) {
-            username = username.trim();
+        String account = data.get("account");
+        if (account != null) {
+            account = account.trim();
         }
         String clientIp = getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
-        if (username == null || username.isEmpty()) {
+        if (account == null || account.isEmpty()) {
             result.put("code", 400);
-            result.put("message", "用户名或邮箱/手机号不能为空");
+            result.put("message", "账号或邮箱/手机号不能为空");
             return result;
         }
         
         // 标准化标识（邮箱统一小写，其他原样）
-        String identifier = username.contains("@") ? username.toLowerCase() : username;
+        String identifier = account.contains("@") ? account.toLowerCase() : account;
         
         // 频率限制：每个标识每分钟最多发送1次，每个IP每分钟最多5次
         if (rateLimitService.isRateLimited("send_code:" + identifier, 1, 60)) {
@@ -342,17 +342,17 @@ public class AuthController {
             // 清除验证码尝试次数
             redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
             
-            log.info("验证码已生成并存储到Redis: {} (用户: {}, 有效期: 5分钟)", code, username);
+            log.info("验证码已生成并存储到Redis: {} (用户: {}, 有效期: 5分钟)", code, account);
             
             // 判断是邮箱还是手机号
-            if (username.contains("@")) {
+            if (account.contains("@")) {
                 // 邮箱：发送邮件验证码
                 try {
-                    emailService.sendVerificationCode(username, code);
+                    emailService.sendVerificationCode(account, code);
                     result.put("code", 200);
                     result.put("message", "验证码已发送到邮箱，请查收");
                     // 开发环境：在日志中显示验证码（查看后端日志）
-                    log.info("✅ 验证码邮件已发送到: {}，验证码: {}", username, code);
+                    log.info("✅ 验证码邮件已发送到: {}，验证码: {}", account, code);
                 } catch (Exception e) {
                     log.error("❌ 邮件发送失败: ", e);
                     result.put("code", 500);
@@ -382,9 +382,9 @@ public class AuthController {
      */
     @PostMapping("/login/code")
     public Map<String, Object> loginWithCode(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
-        String username = loginData.get("username");
+        String account = loginData.get("account");
         String code = loginData.get("code");
-        if (username != null) username = username.trim();
+        if (account != null) account = account.trim();
         if (code != null) code = code.trim();
         String clientIp = getClientIp(request);
         
@@ -397,7 +397,7 @@ public class AuthController {
             return result;
         }
         
-        if (username == null || username.isEmpty() || code == null || code.isEmpty()) {
+        if (account == null || account.isEmpty() || code == null || code.isEmpty()) {
             result.put("code", 400);
             result.put("message", "账号和验证码不能为空");
             return result;
@@ -405,7 +405,7 @@ public class AuthController {
         
         try {
             // 从 Redis 验证验证码（邮箱统一小写）
-            String identifier = username.contains("@") ? username.toLowerCase() : username;
+            String identifier = account.contains("@") ? account.toLowerCase() : account;
             String redisKey = VERIFICATION_CODE_PREFIX + identifier;
             String storedCode = redisService.get(redisKey);
             
@@ -437,8 +437,8 @@ public class AuthController {
                 return result;
             }
             
-            // 查询用户（用户名或邮箱）
-            User user = userService.findByUsername(identifier);
+            // 查询用户（账号或邮箱）
+            User user = userService.findByAccount(identifier);
             if (user == null && identifier.contains("@")) {
                 user = userService.findByEmail(identifier);
             }
@@ -470,8 +470,8 @@ public class AuthController {
             userService.updateLastLoginInfo(user.getId(), clientIp);
             
             // 生成JWT token
-            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getUsername());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getUsername());
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount());
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount());
             
             // 返回用户信息
             user.setPassword(null);
@@ -483,7 +483,7 @@ public class AuthController {
             result.put("refreshToken", refreshToken);
             result.put("tokenType", "Bearer");
             
-            log.info("用户 {} 通过验证码登录成功，IP: {}", username, clientIp);
+            log.info("用户 {} 通过验证码登录成功，IP: {}", account, clientIp);
             
         } catch (Exception e) {
             log.error("验证码登录失败: ", e);
@@ -517,17 +517,17 @@ public class AuthController {
             }
             
             // 获取用户信息
-            String username = jwtUtil.getUsernameFromToken(refreshToken);
+            String account = jwtUtil.getAccountFromToken(refreshToken);
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
             
-            if (username == null || userId == null) {
+            if (account == null || userId == null) {
                 result.put("code", 401);
                 result.put("message", "无效的刷新令牌");
                 return result;
             }
             
             // 生成新的访问令牌
-            String newAccessToken = jwtUtil.generateAccessToken(userId, username);
+            String newAccessToken = jwtUtil.generateAccessToken(userId, account);
             
             result.put("code", 200);
             result.put("message", "刷新成功");

@@ -19,8 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Override
-    public User findByUsername(String username) {
-        return baseMapper.findByUsername(username);
+    public User findByAccount(String account) {
+        return baseMapper.findByAccount(account);
     }
 
     @Override
@@ -43,9 +43,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional(rollbackFor = Exception.class)
     public boolean register(User user) {
-        // 检查用户名是否已存在
-        if (isUsernameExists(user.getUsername())) {
-            log.warn("用户名已存在: {}", user.getUsername());
+        // 检查账号是否已存在
+        if (isAccountExists(user.getAccount())) {
+            log.warn("账号已存在: {}", user.getAccount());
             return false;
         }
 
@@ -65,14 +65,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 保存用户
         boolean saved = this.save(user);
         if (saved) {
-            log.info("用户注册成功: {}", user.getUsername());
+            log.info("用户注册成功: {}", user.getAccount());
         }
         return saved;
     }
 
     @Override
-    public boolean isUsernameExists(String username) {
-        User user = findByUsername(username);
+    public boolean isAccountExists(String account) {
+        User user = findByAccount(account);
         return user != null;
     }
 

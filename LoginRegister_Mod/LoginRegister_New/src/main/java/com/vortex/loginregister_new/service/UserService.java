@@ -12,12 +12,12 @@ import com.vortex.loginregister_new.entity.User;
 public interface UserService extends IService<User> {
 
     /**
-     * 根据用户名查询用户
+     * 根据账号查询用户
      *
-     * @param username 用户名
+     * @param account 账号
      * @return 用户对象
      */
-    User findByUsername(String username);
+    User findByAccount(String account);
 
     /**
      * 根据邮箱查询用户
@@ -53,12 +53,12 @@ public interface UserService extends IService<User> {
     boolean register(User user);
 
     /**
-     * 检查用户名是否存在
+     * 检查账号是否存在
      *
-     * @param username 用户名
+     * @param account 账号
      * @return 是否存在
      */
-    boolean isUsernameExists(String username);
+    boolean isAccountExists(String account);
 
     /**
      * 检查邮箱是否存在

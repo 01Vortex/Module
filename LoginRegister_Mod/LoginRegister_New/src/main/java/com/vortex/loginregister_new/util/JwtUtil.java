@@ -44,18 +44,18 @@ public class JwtUtil {
      * 生成访问令牌（Access Token）
      *
      * @param userId   用户ID
-     * @param username 用户名
+     * @param account 账号
      * @return JWT token
      */
-    public String generateAccessToken(Long userId, String username) {
+    public String generateAccessToken(Long userId, String account) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        claims.put("username", username);
+        claims.put("account", account);
         claims.put("type", "access");
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(username)
+                .subject(account)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSigningKey())
@@ -66,18 +66,18 @@ public class JwtUtil {
      * 生成刷新令牌（Refresh Token）
      *
      * @param userId   用户ID
-     * @param username 用户名
+     * @param account 账号
      * @return JWT refresh token
      */
-    public String generateRefreshToken(Long userId, String username) {
+    public String generateRefreshToken(Long userId, String account) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        claims.put("username", username);
+        claims.put("account", account);
         claims.put("type", "refresh");
 
         return Jwts.builder()
                 .claims(claims)
-                .subject(username)
+                .subject(account)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
                 .signWith(getSigningKey())
@@ -85,14 +85,14 @@ public class JwtUtil {
     }
 
     /**
-     * 从token中获取用户名
+     * 从token中获取账号
      */
-    public String getUsernameFromToken(String token) {
+    public String getAccountFromToken(String token) {
         try {
             Claims claims = getClaimsFromToken(token);
             return claims.getSubject();
         } catch (Exception e) {
-            log.warn("从token中获取用户名失败: {}", e.getMessage());
+            log.warn("从token中获取账号失败: {}", e.getMessage());
             return null;
         }
     }

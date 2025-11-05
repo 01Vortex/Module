@@ -366,7 +366,7 @@ const handleRegister = async () => {
       setTimeout(() => {
         const isEmail = formData.emailOrPhone.includes('@')
         emit('register-success', { 
-          username: isEmail ? formData.emailOrPhone : '',
+          account: isEmail ? formData.emailOrPhone : '',
           password: formData.password 
         })
         emit('switch-to-login')

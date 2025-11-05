@@ -46,9 +46,9 @@
         <form @submit.prevent="handleLogin" class="login-form">
           <div class="form-group">
             <input 
-              v-model="username" 
+              v-model="account" 
               type="text" 
-              :placeholder="loginType === 'password' ? '输入用户名或邮箱' : '输入邮箱或手机号'"
+              :placeholder="loginType === 'password' ? '输入账号或邮箱' : '输入邮箱或手机号'"
               :disabled="loading"
               required
             />
@@ -156,7 +156,7 @@ const props = defineProps({
 const emit = defineEmits(['switch-to-register', 'switch-to-forgot-password'])
 
 const loginType = ref('password')
-const username = ref('')
+const account = ref('')
 const password = ref('')
 const verifyCode = ref('')
 const codeButtonText = ref('发送验证码')
@@ -172,13 +172,13 @@ const messageType = ref('info')
 
 // 按钮变色校验（邮箱或11位手机号）
 const isEmailFormat = computed(() => {
-  const v = (username.value || '').trim()
+  const v = (account.value || '').trim()
   if (!v.includes('@')) return false
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
 })
 
 const isPhoneFormat = computed(() => {
-  const v = (username.value || '').trim()
+  const v = (account.value || '').trim()
   return /^\d{11}$/.test(v)
 })
 
@@ -188,30 +188,30 @@ const shouldShowBlueBtn = computed(() => {
   const base = countdown.value === 0 && !loading.value
   return loginType.value === 'code' ? (isValidContact.value && base) : (isValidContact.value && base)
 })
-// 密码登录仅允许：用户名 或 邮箱
-const isValidUsername = (v) => /^[a-zA-Z0-9_]{3,20}$/.test(v)
+// 密码登录仅允许：账号 或 邮箱
+const isValidAccount = (v) => /^[a-zA-Z0-9_]{3,20}$/.test(v)
 const isEmail = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
 
 const validatePasswordLoginIdentity = (v) => {
   const value = (v || '').trim()
   if (!value) return false
   if (value.includes('@')) return isEmail(value)
-  return isValidUsername(value)
+  return isValidAccount(value)
 }
 
 
 // 监听预填充数据
 watch(() => props.prefilledData, (data) => {
   if (data) {
-    username.value = data.username || ''
+    account.value = data.account || ''
     password.value = data.password || ''
     loginType.value = 'password'
   }
 }, { immediate: true })
 
 const handleLogin = async () => {
-  if (!username.value) {
-    showMessage('请输入用户名或邮箱', 'error')
+  if (!account.value) {
+    showMessage('请输入账号或邮箱', 'error')
     return
   }
   
@@ -226,9 +226,9 @@ const handleLogin = async () => {
     let result
     
     if (loginType.value === 'password') {
-      // 仅允许用户名或邮箱，不允许手机号
-      if (!validatePasswordLoginIdentity(username.value)) {
-        showMessage('请输入有效的用户名或邮箱', 'error')
+      // 仅允许账号或邮箱，不允许手机号
+      if (!validatePasswordLoginIdentity(account.value)) {
+        showMessage('请输入有效的账号或邮箱', 'error')
         loading.value = false
         return
       }
@@ -237,9 +237,9 @@ const handleLogin = async () => {
         loading.value = false
         return
       }
-      result = await login(username.value, password.value)
+      result = await login(account.value, password.value)
     } else {
-      // 验证码登录：支持邮箱或手机号（不支持用户名）
+      // 验证码登录：支持邮箱或手机号（不支持账号）
       if (!isValidContact.value) {
         showMessage('请输入有效的邮箱或手机号', 'error')
         loading.value = false
@@ -250,7 +250,7 @@ const handleLogin = async () => {
         loading.value = false
         return
       }
-      result = await loginWithCode(username.value, verifyCode.value)
+      result = await loginWithCode(account.value, verifyCode.value)
     }
     
     if (result.code === 200) {
@@ -286,7 +286,7 @@ const handleForgotPassword = () => {
 }
 
 const sendCode = async () => {
-  if (!username.value) {
+  if (!account.value) {
     showMessage('请先输入邮箱或手机号', 'error')
     return
   }
@@ -301,7 +301,7 @@ const sendCode = async () => {
       showMessage('请输入有效的邮箱或手机号', 'error')
       return
     }
-    const result = await sendVerificationCode(username.value)
+    const result = await sendVerificationCode(account.value)
     
     if (result.code === 200) {
       // 开发环境显示验证码

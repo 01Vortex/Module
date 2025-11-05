@@ -5,7 +5,7 @@
     <!-- 通用查询映射结果 -->
     <resultMap id="BaseResultMap" type="com.vortex.loginregister_new.entity.User">
         <id column="id" property="id"/>
-        <result column="username" property="username"/>
+        <result column="account" property="account"/>
         <result column="password" property="password"/>
         <result column="email" property="email"/>
         <result column="phone" property="phone"/>
@@ -21,16 +21,16 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, username, password, email, phone, nickname, avatar, status,
+        id, account, password, email, phone, nickname, avatar, status,
         last_login_time, last_login_ip, create_time, update_time, deleted
     </sql>
 
-    <!-- 根据用户名查询用户 -->
-    <select id="findByUsername" resultMap="BaseResultMap">
+    <!-- 根据账号查询用户 -->
+    <select id="findByAccount" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM user
-        WHERE username = #{username}
+        WHERE account = #{account}
         AND deleted = 0
         LIMIT 1
     </select>

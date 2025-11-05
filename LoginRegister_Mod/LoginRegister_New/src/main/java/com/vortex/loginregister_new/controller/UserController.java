@@ -75,11 +75,11 @@ public class UserController {
     }
 
     /**
-     * 根据用户名查询用户
+     * 根据账号查询用户
      */
-    @GetMapping("/username/{username}")
-    public Map<String, Object> getByUsername(@PathVariable String username) {
-        User user = userService.findByUsername(username);
+    @GetMapping("/account/{account}")
+    public Map<String, Object> getByAccount(@PathVariable String account) {
+        User user = userService.findByAccount(account);
         
         Map<String, Object> result = new HashMap<>();
         if (user != null) {
@@ -148,11 +148,11 @@ public class UserController {
     }
 
     /**
-     * 检查用户名是否存在
+     * 检查账号是否存在
      */
-    @GetMapping("/check/username/{username}")
-    public Map<String, Object> checkUsername(@PathVariable String username) {
-        boolean exists = userService.isUsernameExists(username);
+    @GetMapping("/check/account/{account}")
+    public Map<String, Object> checkAccount(@PathVariable String account) {
+        boolean exists = userService.isAccountExists(account);
         
         Map<String, Object> result = new HashMap<>();
         result.put("code", 200);

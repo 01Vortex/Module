@@ -104,13 +104,13 @@ public class GoogleAuthController {
             }
 
             // Find or create user
-            String generatedUsername = "google_" + sub;
-            User user = userService.findByUsername(generatedUsername);
+            String generatedAccount = "google_" + sub;
+            User user = userService.findByAccount(generatedAccount);
             if (user == null) {
                 user = new User();
-                user.setUsername(generatedUsername);
+                user.setAccount(generatedAccount);
                 user.setEmail(email);
-                user.setNickname(name != null ? name : generatedUsername);
+                user.setNickname(name != null ? name : generatedAccount);
                 user.setAvatar(picture);
                 user.setStatus(1);
                 userService.register(user);
