@@ -48,9 +48,22 @@ public class JwtUtil {
      * @return JWT token
      */
     public String generateAccessToken(Long userId, String account) {
+        return generateAccessToken(userId, account, "ROLE_USER");
+    }
+
+    /**
+     * 生成访问令牌（Access Token）- 带角色
+     *
+     * @param userId   用户ID
+     * @param account 账号
+     * @param role    角色
+     * @return JWT token
+     */
+    public String generateAccessToken(Long userId, String account, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("account", account);
+        claims.put("role", role);
         claims.put("type", "access");
 
         return Jwts.builder()
@@ -70,9 +83,22 @@ public class JwtUtil {
      * @return JWT refresh token
      */
     public String generateRefreshToken(Long userId, String account) {
+        return generateRefreshToken(userId, account, "ROLE_USER");
+    }
+
+    /**
+     * 生成刷新令牌（Refresh Token）- 带角色
+     *
+     * @param userId   用户ID
+     * @param account 账号
+     * @param role    角色
+     * @return JWT refresh token
+     */
+    public String generateRefreshToken(Long userId, String account, String role) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("account", account);
+        claims.put("role", role);
         claims.put("type", "refresh");
 
         return Jwts.builder()
@@ -94,6 +120,20 @@ public class JwtUtil {
         } catch (Exception e) {
             log.warn("从token中获取账号失败: {}", e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * 从token中获取角色
+     */
+    public String getRoleFromToken(String token) {
+        try {
+            Claims claims = getClaimsFromToken(token);
+            Object role = claims.get("role");
+            return role != null ? role.toString() : "ROLE_USER";
+        } catch (Exception e) {
+            log.warn("从token中获取角色失败: {}", e.getMessage());
+            return "ROLE_USER";
         }
     }
 

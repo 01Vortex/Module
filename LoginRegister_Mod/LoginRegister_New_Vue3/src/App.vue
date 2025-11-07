@@ -1,18 +1,71 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import LoginPage from './components/LoginPage.vue'
 import RegisterPage from './components/RegisterPage.vue'
 import ForgotPasswordPage from './components/ForgotPasswordPage.vue'
+import AdminLoginPage from './components/AdminLoginPage.vue'
+import AdminDashboard from './components/AdminDashboard.vue'
+import { tokenManager } from './api/auth.js'
 
-const currentPage = ref('login') // 'login', 'register' 或 'forgot-password'
+const currentPage = ref('login') // 'login', 'register', 'forgot-password', 'admin/login', 'admin/dashboard'
 const prefilledData = ref(null)
 
+// 简单的路由系统
+const route = computed(() => {
+  const hash = window.location.hash.slice(1) || 'login'
+  return hash
+})
+
+const updateRoute = (path) => {
+  window.location.hash = path
+  currentPage.value = path
+}
+
+onMounted(() => {
+  // 监听hash变化
+  window.addEventListener('hashchange', () => {
+    const newRoute = route.value
+    currentPage.value = newRoute
+    
+    // 如果访问管理员页面，检查是否已登录
+    if (newRoute === 'admin/dashboard') {
+      const user = tokenManager.getUser()
+      if (!user) {
+        updateRoute('admin/login')
+      }
+    }
+  })
+  
+  // 初始化路由
+  const initialRoute = route.value
+  currentPage.value = initialRoute
+  
+  // 如果访问管理员页面，检查是否已登录
+  if (initialRoute === 'admin/dashboard') {
+    const user = tokenManager.getUser()
+    if (!user) {
+      updateRoute('admin/login')
+    }
+  }
+  
+  // 监听路由变化，确保 currentPage 与 hash 同步
+  const syncRoute = () => {
+    const hash = window.location.hash.slice(1) || 'login'
+    if (currentPage.value !== hash) {
+      currentPage.value = hash
+    }
+  }
+  
+  // 定期检查路由同步（用于处理直接修改 hash 的情况）
+  setInterval(syncRoute, 100)
+})
+
 const switchToRegister = () => {
-  currentPage.value = 'register'
+  updateRoute('register')
 }
 
 const switchToLogin = (data) => {
-  currentPage.value = 'login'
+  updateRoute('login')
   if (data) {
     // 注册成功后自动填充用户名和密码
     prefilledData.value = data
@@ -20,15 +73,23 @@ const switchToLogin = (data) => {
 }
 
 const switchToForgotPassword = () => {
-  currentPage.value = 'forgot-password'
+  updateRoute('forgot-password')
 }
 
 const handleRegisterSuccess = (data) => {
   prefilledData.value = data
 }
+
+// 导出路由方法供子组件使用
+window.$router = {
+  push: (path) => {
+    updateRoute(path)
+  }
+}
 </script>
 
 <template>
+  <!-- 普通用户页面 -->
   <LoginPage 
     v-if="currentPage === 'login'" 
     :prefilled-data="prefilledData"
@@ -44,6 +105,10 @@ const handleRegisterSuccess = (data) => {
     v-else-if="currentPage === 'forgot-password'"
     @switch-to-login="switchToLogin"
   />
+  
+  <!-- 管理员页面 -->
+  <AdminLoginPage v-else-if="currentPage === 'admin/login'" />
+  <AdminDashboard v-else-if="currentPage === 'admin/dashboard'" />
 </template>
 
 <style>

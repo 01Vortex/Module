@@ -1,6 +1,8 @@
 package com.vortex.loginregister_new.controller;
 
+import com.vortex.loginregister_new.entity.Admin;
 import com.vortex.loginregister_new.entity.User;
+import com.vortex.loginregister_new.service.AdminService;
 import com.vortex.loginregister_new.service.EmailService;
 import com.vortex.loginregister_new.service.LoginAttemptService;
 import com.vortex.loginregister_new.service.RateLimitService;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +36,7 @@ import java.util.regex.Pattern;
 public class AuthController {
 
     private final UserService userService;
+    private final AdminService adminService;
     private final PasswordEncoder passwordEncoder;
     private final RedisService redisService;
     private final EmailService emailService;
@@ -106,11 +110,11 @@ public class AuthController {
                     result.put("message", "账号或密码错误");
                     if (remaining > 0) {
                         result.put("remainingAttempts", remaining);
-                    }
+            }
                 } else {
                     // 用户不存在时也记录失败（防止用户枚举）
                     loginAttemptService.loginFailed(identifier);
-                    result.put("code", 401);
+                result.put("code", 401);
                     result.put("message", "账号或密码错误");
                 }
                 return result;
@@ -129,9 +133,13 @@ public class AuthController {
             // 更新登录信息
             userService.updateLastLoginInfo(user.getId(), clientIp);
             
-            // 生成JWT token
-            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount());
+            // 获取用户角色（默认为普通用户）
+            List<String> roles = userService.getUserRoles(user.getId());
+            String role = roles != null && !roles.isEmpty() ? roles.get(0) : "ROLE_USER";
+            
+            // 生成JWT token（包含角色信息）
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount(), role);
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount(), role);
             
             // 返回用户信息（不包含密码）
             user.setPassword(null);
@@ -469,9 +477,13 @@ public class AuthController {
             // 更新登录信息
             userService.updateLastLoginInfo(user.getId(), clientIp);
             
-            // 生成JWT token
-            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount());
-            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount());
+            // 获取用户角色（默认为普通用户）
+            List<String> roles = userService.getUserRoles(user.getId());
+            String role = roles != null && !roles.isEmpty() ? roles.get(0) : "ROLE_USER";
+            
+            // 生成JWT token（包含角色信息）
+            String accessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount(), role);
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount(), role);
             
             // 返回用户信息
             user.setPassword(null);
@@ -489,6 +501,255 @@ public class AuthController {
             log.error("验证码登录失败: ", e);
             result.put("code", 500);
             result.put("message", "登录失败，请稍后重试");
+        }
+        
+        return result;
+    }
+
+    /**
+     * 管理员登录（只能登录，不能注册）
+     */
+    @PostMapping("/admin/login")
+    public Map<String, Object> adminLogin(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
+        String account = loginData.get("account");
+        String password = loginData.get("password");
+        String clientIp = getClientIp(request);
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        // 请求频率限制
+        if (rateLimitService.isRateLimited("admin_login:" + clientIp, 5, 60)) {
+            result.put("code", 429);
+            result.put("message", "请求过于频繁，请稍后再试");
+            return result;
+        }
+        
+        if (account == null || password == null) {
+            result.put("code", 400);
+            result.put("message", "账号和密码不能为空");
+            return result;
+        }
+        
+        try {
+            // 从admin表查询管理员
+            Admin admin = adminService.findByAccount(account);
+            
+            log.debug("管理员登录尝试 - 账号: {}, 查询结果: {}", account, admin != null ? "找到" : "未找到");
+            
+            if (admin == null) {
+                log.warn("管理员登录失败 - 账号不存在: {}", account);
+                result.put("code", 401);
+                result.put("message", "账号或密码错误");
+                return result;
+            }
+            
+            log.debug("管理员登录 - 账号: {}, 状态: {}, 密码hash: {}", account, admin.getStatus(), admin.getPassword() != null ? "已设置" : "未设置");
+            
+            // 验证密码
+            boolean passwordMatches = passwordEncoder.matches(password, admin.getPassword());
+            log.debug("密码验证结果: {}", passwordMatches);
+            
+            if (!passwordMatches) {
+                log.warn("管理员登录失败 - 密码错误: {}", account);
+                result.put("code", 401);
+                result.put("message", "账号或密码错误");
+                return result;
+            }
+            
+            // 检查管理员状态
+            if (admin.getStatus() == 0) {
+                result.put("code", 403);
+                result.put("message", "账号已被禁用");
+                return result;
+            }
+            
+            // 更新登录信息
+            adminService.updateLastLoginInfo(admin.getId(), clientIp);
+            
+            // 生成JWT token（管理员固定为ROLE_ADMIN）
+            String role = "ROLE_ADMIN";
+            String accessToken = jwtUtil.generateAccessToken(admin.getId(), admin.getAccount(), role);
+            String refreshToken = jwtUtil.generateRefreshToken(admin.getId(), admin.getAccount(), role);
+            
+            // 返回管理员信息（不包含密码）
+            admin.setPassword(null);
+            
+            // 构建返回数据（兼容前端）
+            Map<String, Object> adminData = new HashMap<>();
+            adminData.put("id", admin.getId());
+            adminData.put("account", admin.getAccount());
+            adminData.put("name", admin.getName());
+            adminData.put("email", admin.getEmail());
+            adminData.put("phone", admin.getPhone());
+            adminData.put("status", admin.getStatus());
+            adminData.put("lastLoginTime", admin.getLastLoginTime());
+            adminData.put("lastLoginIp", admin.getLastLoginIp());
+            
+            result.put("code", 200);
+            result.put("message", "登录成功");
+            result.put("data", adminData);
+            result.put("accessToken", accessToken);
+            result.put("refreshToken", refreshToken);
+            result.put("tokenType", "Bearer");
+            result.put("role", role);
+            
+            log.info("管理员 {} 登录成功，IP: {}", account, clientIp);
+            log.info("生成的AccessToken前50字符: {}...", accessToken.length() > 50 ? accessToken.substring(0, 50) : accessToken);
+            log.info("Token中的角色: {}", role);
+            
+        } catch (Exception e) {
+            log.error("管理员登录失败: ", e);
+            result.put("code", 500);
+            result.put("message", "登录失败，请稍后重试");
+        }
+        
+        return result;
+    }
+
+    /**
+     * 管理员发送重置密码验证码（仅支持邮箱）
+     */
+    @PostMapping("/admin/forgot-password/send-code")
+    public Map<String, Object> sendAdminResetPasswordCode(@RequestBody Map<String, String> data) {
+        String email = data.get("email");
+        
+        log.info("管理员发送重置密码验证码请求: {}", email);
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        if (email == null || email.trim().isEmpty()) {
+            result.put("code", 400);
+            result.put("message", "邮箱不能为空");
+            return result;
+        }
+        
+        // 验证邮箱格式
+        if (!email.contains("@")) {
+            result.put("code", 400);
+            result.put("message", "邮箱格式不正确");
+            return result;
+        }
+        
+        try {
+            // 通过邮箱查找管理员
+            Admin admin = adminService.findByEmail(email);
+            
+            if (admin == null) {
+                result.put("code", 404);
+                result.put("message", "该邮箱未绑定管理员账号");
+                return result;
+            }
+            
+            // 生成6位数字验证码
+            String code = String.format("%06d", new Random().nextInt(1000000));
+            
+            // Redis 存储验证码（15分钟有效）
+            String redisKey = "admin_reset_password_code:" + email;
+            redisService.set(redisKey, code, 15, TimeUnit.MINUTES);
+            
+            log.info("管理员重置密码验证码已生成并存储到Redis: {} (邮箱: {}, 有效期: 15分钟)", code, email);
+            
+            // 发送邮件
+            try {
+                emailService.sendResetPasswordCode(email, code);
+                result.put("code", 200);
+                result.put("message", "验证码已发送到您的邮箱，请查收");
+            } catch (Exception e) {
+                log.error("发送管理员重置密码验证码邮件失败: ", e);
+                result.put("code", 500);
+                result.put("message", "发送验证码失败，请稍后重试");
+            }
+            
+        } catch (Exception e) {
+            log.error("发送管理员重置密码验证码失败: ", e);
+            result.put("code", 500);
+            result.put("message", "发送验证码失败，请稍后重试");
+        }
+        
+        return result;
+    }
+
+    /**
+     * 管理员重置密码（仅支持邮箱）
+     */
+    @PostMapping("/admin/forgot-password/reset")
+    public Map<String, Object> resetAdminPassword(@RequestBody Map<String, String> data) {
+        String email = data.get("email");
+        String code = data.get("code");
+        String newPassword = data.get("newPassword");
+        
+        log.info("管理员重置密码请求: {}", email);
+        
+        Map<String, Object> result = new HashMap<>();
+        
+        if (email == null || email.trim().isEmpty()) {
+            result.put("code", 400);
+            result.put("message", "邮箱不能为空");
+            return result;
+        }
+        
+        if (code == null || code.trim().isEmpty()) {
+            result.put("code", 400);
+            result.put("message", "验证码不能为空");
+            return result;
+        }
+        
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            result.put("code", 400);
+            result.put("message", "新密码不能为空");
+            return result;
+        }
+        
+        // 验证密码强度
+        if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
+            result.put("code", 400);
+            result.put("message", "密码必须包含字母和数字，长度至少8位，可包含常见特殊字符（@$!%*#?&._-+=()[]{}）");
+            return result;
+        }
+        
+        try {
+            // 验证验证码
+            String redisKey = "admin_reset_password_code:" + email;
+            String storedCode = redisService.get(redisKey);
+            
+            if (storedCode == null || !storedCode.equals(code)) {
+                result.put("code", 400);
+                result.put("message", "验证码错误或已过期");
+                return result;
+            }
+            
+            // 通过邮箱查找管理员
+            Admin admin = adminService.findByEmail(email);
+            
+            if (admin == null) {
+                result.put("code", 404);
+                result.put("message", "该邮箱未绑定管理员账号");
+                return result;
+            }
+            
+            // 加密新密码
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            admin.setPassword(encodedPassword);
+            
+            // 更新密码
+            boolean updated = adminService.updateById(admin);
+            
+            if (updated) {
+                // 删除验证码
+                redisService.delete(redisKey);
+                
+                result.put("code", 200);
+                result.put("message", "密码重置成功，请重新登录");
+                log.info("管理员 {} 密码重置成功", email);
+            } else {
+                result.put("code", 500);
+                result.put("message", "密码重置失败，请稍后重试");
+            }
+            
+        } catch (Exception e) {
+            log.error("管理员重置密码失败: ", e);
+            result.put("code", 500);
+            result.put("message", "密码重置失败，请稍后重试");
         }
         
         return result;
@@ -519,6 +780,7 @@ public class AuthController {
             // 获取用户信息
             String account = jwtUtil.getAccountFromToken(refreshToken);
             Long userId = jwtUtil.getUserIdFromToken(refreshToken);
+            String role = jwtUtil.getRoleFromToken(refreshToken);
             
             if (account == null || userId == null) {
                 result.put("code", 401);
@@ -526,8 +788,8 @@ public class AuthController {
                 return result;
             }
             
-            // 生成新的访问令牌
-            String newAccessToken = jwtUtil.generateAccessToken(userId, account);
+            // 生成新的访问令牌（包含角色信息）
+            String newAccessToken = jwtUtil.generateAccessToken(userId, account, role);
             
             result.put("code", 200);
             result.put("message", "刷新成功");
@@ -556,7 +818,7 @@ public class AuthController {
                    .replaceAll("[<>\"']", "")
                    .trim();
     }
-    
+
     /**
      * 获取客户端IP
      */

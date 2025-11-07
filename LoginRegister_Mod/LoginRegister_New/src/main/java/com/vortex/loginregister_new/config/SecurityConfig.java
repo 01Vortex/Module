@@ -1,6 +1,7 @@
 package com.vortex.loginregister_new.config;
 
 import com.vortex.loginregister_new.filter.JwtAuthenticationFilter;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +32,9 @@ public class SecurityConfig {
 
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Autowired
+    private SecurityExceptionHandler securityExceptionHandler;
 
     /**
      * 配置密码编码器
@@ -63,18 +67,21 @@ public class SecurityConfig {
                 // 公开端点（无需认证）
                 .requestMatchers(
                     "/auth/login",
+                    "/auth/admin/login",
+                    "/auth/admin/forgot-password/**",
                     "/auth/register",
                     "/auth/send-code",
                     "/auth/login/code",
                     "/auth/forgot-password/**",
                     "/auth/refresh",
                     "/oauth/**",
-                    "/user/test",
                     "/user/check/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health"
                 ).permitAll()
+                // 管理员端点需要管理员权限
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 // 其他端点需要认证
                 .anyRequest().authenticated()
             )
@@ -82,11 +89,29 @@ public class SecurityConfig {
             // 添加JWT认证过滤器
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             
+            // 配置异常处理
+            .exceptionHandling(exceptions -> exceptions
+                .accessDeniedHandler(securityExceptionHandler)
+                .authenticationEntryPoint((request, response, authException) -> {
+                    // 处理401未认证错误
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setCharacterEncoding("UTF-8");
+                    response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
+                    response.setHeader("Access-Control-Allow-Credentials", "true");
+                    response.getWriter().write("{\"code\":401,\"message\":\"未认证或认证已失效\"}");
+                    response.getWriter().flush();
+                })
+            )
+            
             // 配置安全响应头
             .headers(headers -> headers
-                .contentTypeOptions(contentType -> contentType.and())
+                .contentTypeOptions(contentType -> {})
                 .frameOptions(frame -> frame.deny())
-                .xssProtection(xss -> xss.and())
+                .xssProtection(xss -> {})
+                .httpStrictTransportSecurity(hsts -> hsts
+                    .maxAgeInSeconds(31536000)
+                )
             );
         
         return http.build();

@@ -84,7 +84,7 @@ async function refreshAccessToken() {
 /**
  * 发送HTTP请求（带自动token刷新）
  */
-async function request(url, options = {}) {
+export async function request(url, options = {}) {
   // 获取访问token
   let accessToken = tokenManager.getAccessToken()
   
@@ -95,11 +95,13 @@ async function request(url, options = {}) {
   }
   
   // 添加Authorization头（公开端点除外）
-  const publicEndpoints = ['/auth/login', '/auth/register', '/auth/send-code', '/auth/login/code', '/auth/forgot-password', '/auth/refresh']
+  const publicEndpoints = ['/auth/login', '/auth/admin/login', '/auth/admin/forgot-password', '/auth/register', '/auth/send-code', '/auth/login/code', '/auth/forgot-password', '/auth/refresh']
   const isPublicEndpoint = publicEndpoints.some(endpoint => url.includes(endpoint))
   
-  if (!isPublicEndpoint && accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`
+  if (!isPublicEndpoint) {
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`
+    }
   }
   
   try {
@@ -128,16 +130,67 @@ async function request(url, options = {}) {
       }
     }
     
-    const data = await response.json()
+    // 检查响应内容类型并读取响应文本
+    const contentType = response.headers.get('content-type')
+    let responseText = ''
     
-    // 如果仍然是401，清除token
+    try {
+      // 先读取响应文本（只能读取一次）
+      responseText = await response.text()
+    } catch (readError) {
+      responseText = ''
+    }
+    
+    let data
+    
+    // 如果响应是JSON格式，尝试解析
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        if (responseText && responseText.trim()) {
+          data = JSON.parse(responseText)
+        } else {
+          // 响应体为空，创建默认响应
+          data = {
+            code: response.status,
+            message: response.status === 403 ? '访问被拒绝' : 
+                     response.status === 401 ? '未授权，请重新登录' : '请求失败'
+          }
+        }
+      } catch (parseError) {
+        data = {
+          code: response.status,
+          message: response.status === 403 ? '访问被拒绝' : 
+                   response.status === 401 ? '未授权，请重新登录' : '请求失败'
+        }
+      }
+    } else {
+      // 非JSON响应，创建默认响应
+      data = {
+        code: response.status,
+        message: response.status === 403 ? '访问被拒绝' : 
+                 response.status === 401 ? '未授权，请重新登录' : 
+                 response.status === 404 ? '资源不存在' : '请求失败'
+      }
+    }
+    
+    // 如果返回401，说明token过期或无效，清除token并跳转
     if (response.status === 401) {
       tokenManager.clearTokens()
+      // 如果是管理员页面，跳转到管理员登录页
+      if (url.includes('/admin/')) {
+        window.location.hash = '#admin/login'
+      } else {
+        window.location.hash = '#login'
+      }
     }
+    // 403错误不自动跳转，让组件自己处理（可能是权限问题，但不一定是未登录）
     
     return data
   } catch (error) {
-    console.error('请求失败:', error)
+    // 如果是网络错误或JSON解析错误，返回友好的错误信息
+    if (error.name === 'TypeError' && error.message.includes('json')) {
+      throw new Error('服务器响应格式错误，请稍后重试')
+    }
     throw error
   }
 }

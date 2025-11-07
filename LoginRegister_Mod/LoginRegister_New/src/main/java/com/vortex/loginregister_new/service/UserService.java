@@ -3,6 +3,8 @@ package com.vortex.loginregister_new.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.vortex.loginregister_new.entity.User;
 
+import java.util.List;
+
 /**
  * 用户服务接口
  *
@@ -67,5 +69,21 @@ public interface UserService extends IService<User> {
      * @return 是否存在
      */
     boolean isEmailExists(String email);
+
+    /**
+     * 检查用户是否为管理员
+     *
+     * @param userId 用户ID
+     * @return 是否为管理员
+     */
+    boolean isAdmin(Long userId);
+
+    /**
+     * 获取用户角色列表
+     *
+     * @param userId 用户ID
+     * @return 角色编码列表
+     */
+    List<String> getUserRoles(Long userId);
 }
 

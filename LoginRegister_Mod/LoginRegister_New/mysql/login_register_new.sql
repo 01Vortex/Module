@@ -11,11 +11,39 @@
  Target Server Version : 80041 (8.0.41)
  File Encoding         : 65001
 
- Date: 06/11/2025 01:27:32
+ Date: 07/11/2025 15:18:37
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for admin
+-- ----------------------------
+DROP TABLE IF EXISTS `admin`;
+CREATE TABLE `admin`  (
+  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '管理员ID',
+  `account` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '管理员账号',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码（加密）',
+  `name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '管理员姓名',
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '邮箱',
+  `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '手机号',
+  `status` tinyint NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-正常',
+  `last_login_time` datetime NULL DEFAULT NULL COMMENT '最后登录时间',
+  `last_login_ip` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '最后登录IP',
+  `deleted` tinyint NOT NULL DEFAULT 0 COMMENT '逻辑删除：0-未删除，1-已删除',
+  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_account`(`account` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_deleted`(`deleted` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '管理员表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of admin
+-- ----------------------------
+INSERT INTO `admin` VALUES (2, 'admin', '$2a$12$adTBJcgDWWG6IFIpENEGH.hOLkAioguPDIVyB3vGRqhsXeYrflD5i', '系统管理员', '2901449366@qq.com', NULL, 1, '2025-11-07 15:15:12', '0:0:0:0:0:0:0:1', 0, '2025-11-06 21:52:57', '2025-11-07 15:15:12');
 
 -- ----------------------------
 -- Table structure for login_log
@@ -36,7 +64,7 @@ CREATE TABLE `login_log`  (
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_login_time`(`login_time` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '登录日志表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '登录日志表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of login_log
@@ -62,7 +90,7 @@ CREATE TABLE `permission`  (
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_permission_code`(`permission_code` ASC) USING BTREE,
   INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '权限表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '权限表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of permission
@@ -87,7 +115,7 @@ CREATE TABLE `refresh_token`  (
   UNIQUE INDEX `uk_token`(`token`(255) ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_expire_time`(`expire_time` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '刷新令牌表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '刷新令牌表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of refresh_token
@@ -107,7 +135,7 @@ CREATE TABLE `role`  (
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_role_code`(`role_code` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of role
@@ -128,7 +156,7 @@ CREATE TABLE `role_permission`  (
   UNIQUE INDEX `uk_role_permission`(`role_id` ASC, `permission_id` ASC) USING BTREE,
   INDEX `idx_role_id`(`role_id` ASC) USING BTREE,
   INDEX `idx_permission_id`(`permission_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色权限关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色权限关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of role_permission
@@ -158,11 +186,24 @@ CREATE TABLE `user`  (
   INDEX `idx_phone`(`phone` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_deleted`(`deleted` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
 -- ----------------------------
+INSERT INTO `user` VALUES (9, '1000000001', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user1@example.com', '13800138001', '测试用户1', NULL, 1, NULL, NULL, 0, '2025-11-06 21:52:58', '2025-11-06 21:52:58');
+INSERT INTO `user` VALUES (10, '1000000002', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user2@example.com', '13800138002', '测试用户2', NULL, 1, NULL, NULL, 0, '2025-11-06 21:52:58', '2025-11-06 21:52:58');
+INSERT INTO `user` VALUES (11, '1000000003', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user3@example.com', '13800138003', '测试用户3', NULL, 0, NULL, NULL, 0, '2025-11-06 21:52:58', '2025-11-06 21:52:58');
+INSERT INTO `user` VALUES (12, '1000000010', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user10@example.com', '13800138010', '测试用户10', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (13, '1000000011', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user11@example.com', '13800138011', '测试用户11', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (14, '1000000012', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user12@example.com', '13800138012', '测试用户12', NULL, 0, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (15, '1000000013', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user13@example.com', '13800138013', '测试用户13', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (16, '1000000014', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user14@example.com', '13800138014', '测试用户14', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (17, '1000000015', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user15@example.com', '13800138015', '测试用户15', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (18, '1000000016', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user16@example.com', '13800138016', '测试用户16', NULL, 0, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (19, '1000000017', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user17@example.com', '13800138017', '测试用户17', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (20, '1000000018', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user18@example.com', '13800138018', '测试用户18', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (21, '1000000019', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user19@example.com', '13800138019', '测试用户19', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
 
 -- ----------------------------
 -- Table structure for user_role
@@ -177,11 +218,12 @@ CREATE TABLE `user_role`  (
   UNIQUE INDEX `uk_user_role`(`user_id` ASC, `role_id` ASC) USING BTREE,
   INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
   INDEX `idx_role_id`(`role_id` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户角色关联表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户角色关联表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_role
 -- ----------------------------
+INSERT INTO `user_role` VALUES (1, 8, 1, '2025-11-06 15:53:09');
 
 -- ----------------------------
 -- Table structure for user_social
@@ -201,7 +243,7 @@ CREATE TABLE `user_social`  (
   INDEX `idx_user`(`user_id` ASC) USING BTREE,
   INDEX `idx_provider_openid`(`provider` ASC, `openid` ASC) USING BTREE,
   INDEX `idx_provider_unionid`(`provider` ASC, `unionid` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '第三方账号绑定表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '第三方账号绑定表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user_social

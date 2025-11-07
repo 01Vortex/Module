@@ -24,18 +24,6 @@ public class UserController {
     private final UserService userService;
 
     /**
-     * 测试接口
-     */
-    @GetMapping("/test")
-    public Map<String, Object> test() {
-        Map<String, Object> result = new HashMap<>();
-        result.put("code", 200);
-        result.put("message", "MyBatis Plus 配置成功！");
-        result.put("timestamp", System.currentTimeMillis());
-        return result;
-    }
-
-    /**
      * 查询用户列表（分页）
      */
     @GetMapping("/list")

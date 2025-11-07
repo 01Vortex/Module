@@ -3,10 +3,13 @@ package com.vortex.loginregister_new.service.impl;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.mapper.UserMapper;
+import com.vortex.loginregister_new.mapper.UserRoleMapper;
 import com.vortex.loginregister_new.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 用户服务实现类
@@ -17,6 +20,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    private final UserRoleMapper userRoleMapper;
+
+    public UserServiceImpl(UserRoleMapper userRoleMapper) {
+        this.userRoleMapper = userRoleMapper;
+    }
 
     @Override
     public User findByAccount(String account) {
@@ -80,6 +89,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean isEmailExists(String email) {
         User user = findByEmail(email);
         return user != null;
+    }
+
+    @Override
+    public boolean isAdmin(Long userId) {
+        List<String> roles = getUserRoles(userId);
+        return roles != null && roles.contains("ROLE_ADMIN");
+    }
+
+    @Override
+    public List<String> getUserRoles(Long userId) {
+        return userRoleMapper.findRoleCodesByUserId(userId);
     }
 }
 
