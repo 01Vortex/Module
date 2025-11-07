@@ -102,7 +102,12 @@
               v-model="formData.password" 
               type="password" 
               :required="showAddDialog"
+              :placeholder="showAddDialog ? '至少8位，包含字母和数字' : '至少8位，包含字母和数字'"
+              minlength="8"
             />
+            <small v-if="showAddDialog" style="color: #666; font-size: 12px; margin-top: 4px; display: block;">
+              密码必须至少8位，包含字母和数字（仅允许字母和数字）
+            </small>
           </div>
           <div class="form-group">
             <label>邮箱</label>

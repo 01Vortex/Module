@@ -1,31 +1,133 @@
 # 开发环境配置
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  tomcat:
+    max-http-form-post-size: 10MB
+    max-connections: 200
+    threads:
+      max: 200
+      min-spare: 10
+  max-http-request-header-size: 8KB
+
 spring:
+  devtools:
+    restart:
+      enabled: true
+      additional-paths: src/main/java,src/main/resources
+      exclude: static/**,public/**,templates/**
+    livereload:
+      enabled: true
+  
+  output:
+    ansi:
+      enabled: always
+  
+  threads:
+    virtual:
+      enabled: true
+  
   datasource:
     url: jdbc:mysql://localhost:3306/login_register_new?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
     password: 193510
-
-  # Redis 配置（开发环境）
+    hikari:
+      pool-name: LoginRegisterHikariCP-Dev
+      minimum-idle: 2
+      maximum-pool-size: 10
+      connection-timeout: 30000
+      leak-detection-threshold: 60000
+  
   data:
     redis:
       host: localhost
       port: 6379
-      password: 
+      password:
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+  
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: isvoid2077@qq.com
+    password: zpizplxofnqtdeei
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+  
+  jackson:
+    serialization:
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-single-value-as-array: true
+  
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
-  devtools:
-    restart:
-      enabled: true
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
-# MyBatis Plus 日志（开发环境）
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+jwt:
+  secret: YourSecretKeyForJWT2024LoginRegisterModuleVortexApplicationSecureKey123456
+
 logging:
   level:
     root: INFO
-    com.vortex: DEBUG
-    com.vortex.loginregister_new.mapper: DEBUG
+    com.vortex.loginregister_new: DEBUG
+    com.vortex.loginregister_new.util.SecurityAuditLogger: INFO
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
+    org.apache.ibatis: DEBUG
+    com.zaxxer.hikari: DEBUG
+  pattern:
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %m%n"
+  file:
+    name: logs/login-register-dev.log
+  logback:
+    rolling policy:
+      max-file-size: 10MB
+      max-history: 7
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+  health:
+    mail:
+      enabled: false
+  metrics:
+    tags:
+      environment: development
+
+# SpringDoc配置
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha

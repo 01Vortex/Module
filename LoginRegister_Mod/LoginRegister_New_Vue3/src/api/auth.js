@@ -14,27 +14,50 @@ export const tokenManager = {
   setTokens(accessToken, refreshToken) {
     // 使用sessionStorage存储token（更安全，关闭标签页后自动清除）
     // 如果需要在多个标签页共享，可以使用localStorage
+    // 注意：生产环境建议使用httpOnly Cookie存储token，更安全
+    try {
     sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken)
     if (refreshToken) {
       sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken)
+      }
+    } catch (e) {
+      // 如果sessionStorage不可用（如隐私模式），使用内存存储
+      console.warn('sessionStorage不可用，使用内存存储token')
+      tokenManager._memoryTokens = { accessToken, refreshToken }
     }
   },
   
+  // 内存存储（备用方案）
+  _memoryTokens: null,
+  
   // 获取访问token
   getAccessToken() {
-    return sessionStorage.getItem(ACCESS_TOKEN_KEY)
+    try {
+      return sessionStorage.getItem(ACCESS_TOKEN_KEY) || (tokenManager._memoryTokens?.accessToken)
+    } catch (e) {
+      return tokenManager._memoryTokens?.accessToken
+    }
   },
   
   // 获取刷新token
   getRefreshToken() {
-    return sessionStorage.getItem(REFRESH_TOKEN_KEY)
+    try {
+      return sessionStorage.getItem(REFRESH_TOKEN_KEY) || (tokenManager._memoryTokens?.refreshToken)
+    } catch (e) {
+      return tokenManager._memoryTokens?.refreshToken
+    }
   },
   
   // 清除token
   clearTokens() {
+    try {
     sessionStorage.removeItem(ACCESS_TOKEN_KEY)
     sessionStorage.removeItem(REFRESH_TOKEN_KEY)
     sessionStorage.removeItem(USER_KEY)
+    } catch (e) {
+      // 忽略错误
+    }
+    tokenManager._memoryTokens = null
   },
   
   // 保存用户信息

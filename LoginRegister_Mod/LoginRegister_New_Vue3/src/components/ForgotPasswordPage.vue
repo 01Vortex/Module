@@ -75,10 +75,10 @@
               <input 
                 v-model="newPassword" 
                 type="password"
-                placeholder="新密码（至少6位）"
+                placeholder="新密码（至少8位，包含字母和数字）"
                 :disabled="loading"
                 required
-                minlength="6"
+                minlength="8"
               />
               <span v-if="errors.newPassword" class="error-text">{{ errors.newPassword }}</span>
             </div>
@@ -191,8 +191,31 @@ const resetPassword = async () => {
     return
   }
 
-  if (!newPassword.value || newPassword.value.length < 6) {
-    errors.newPassword = '密码长度至少为6位'
+  if (!newPassword.value) {
+    errors.newPassword = '密码不能为空'
+    return
+  }
+  
+  if (newPassword.value.length < 8) {
+    errors.newPassword = '密码长度至少为8位'
+    return
+  }
+  
+  // 检查是否包含字母
+  if (!/[A-Za-z]/.test(newPassword.value)) {
+    errors.newPassword = '密码必须包含字母'
+    return
+  }
+  
+  // 检查是否包含数字
+  if (!/\d/.test(newPassword.value)) {
+    errors.newPassword = '密码必须包含数字'
+    return
+  }
+  
+  // 检查是否只包含字母和数字
+  if (!/^[A-Za-z\d]+$/.test(newPassword.value)) {
+    errors.newPassword = '密码只能包含字母和数字'
     return
   }
 

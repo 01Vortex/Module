@@ -1,5 +1,6 @@
 package com.vortex.loginregister_new.filter;
 
+import com.vortex.loginregister_new.service.JwtBlacklistService;
 import com.vortex.loginregister_new.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -33,6 +34,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
+    private final JwtBlacklistService jwtBlacklistService;
 
     @Value("${jwt.header:Authorization}")
     private String tokenHeader;
@@ -67,6 +69,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             if (token != null && jwtUtil.validateToken(token)) {
+                // 检查token是否在黑名单中（已注销）
+                if (jwtBlacklistService.isBlacklisted(token)) {
+                    log.warn("尝试使用已注销的token访问: {}", request.getRequestURI());
+                    SecurityContextHolder.clearContext();
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write("{\"code\":401,\"message\":\"令牌已失效\"}");
+                    response.getWriter().flush();
+                    return;
+                }
+                
                 // 验证是否为刷新token，刷新token不能用于普通API访问
                 if (jwtUtil.isRefreshToken(token)) {
                     log.warn("尝试使用刷新token访问API: {}", request.getRequestURI());
@@ -84,6 +98,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 String role = jwtUtil.getRoleFromToken(token);
 
                 if (account != null && userId != null) {
+                    // 检查用户token是否已失效（密码修改后）
+                    // 只检查用户token，不检查管理员token（管理员密码修改后应该重新登录）
+                    if (!"ROLE_ADMIN".equals(role) && jwtBlacklistService.isUserTokenInvalidated(userId)) {
+                        log.warn("尝试使用已失效的用户token访问: {}, 用户ID: {}", request.getRequestURI(), userId);
+                        SecurityContextHolder.clearContext();
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json;charset=UTF-8");
+                        response.setCharacterEncoding("UTF-8");
+                        response.getWriter().write("{\"code\":401,\"message\":\"密码已修改，请重新登录\"}");
+                        response.getWriter().flush();
+                        return;
+                    }
                     // 检查是否已有认证信息，如果有则清除（避免使用旧认证）
                     if (SecurityContextHolder.getContext().getAuthentication() != null) {
                         SecurityContextHolder.clearContext();

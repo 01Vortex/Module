@@ -54,8 +54,6 @@ export default {
       window.location.hash = '#admin/login'
       // 触发hashchange事件
       window.dispatchEvent(new HashChangeEvent('hashchange'))
-    } else {
-      console.log('管理员信息:', this.adminInfo)
     }
   },
   methods: {

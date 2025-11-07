@@ -1,94 +1,18 @@
-server:
-  port: 8080
-  servlet:
-    context-path: /api
-
+# 开发时数据源配置(mysql,redis)请转application-dev.yml
+# 主配置文件 - 所有环境共用配置
 spring:
   application:
     name: LoginRegister_New
   
-  # 激活生产环境配置
+  # 配置切换: dev(开发) 或 prod(生产)
   profiles:
-    active: prod
+    active: dev
   
-  # 排除自动配置，解决默认密码问题
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   
-  # 启用 ANSI 颜色输出
-  output:
-    ansi:
-      enabled: ALWAYS
-  
-  # 启用虚拟线程 (Java 21 特性)
-  threads:
-    virtual:
-      enabled: true
-
-  # 数据源配置
-  datasource:
-    # driver-class-name 已移除，Spring Boot 3.x 会自动检测 MySQL 驱动
-    url: jdbc:mysql://localhost:3306/login_register_new?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 193510
-    hikari:
-      minimum-idle: 5
-      maximum-pool-size: 20
-      auto-commit: true
-      idle-timeout: 30000
-      pool-name: LoginRegisterHikariCP
-      max-lifetime: 1800000
-      connection-timeout: 30000
-
-  # MyBatis 配置
-  mybatis:
-    # MyBatis 原生配置
-    mapper-locations: classpath:mapper/**/*.xml
-    type-aliases-package: com.vortex.loginregister_new.entity
-    configuration:
-      map-underscore-to-camel-case: true
-      cache-enabled: true
-      lazy-loading-enabled: true
-      aggressive-lazy-loading: false
-      log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
-
-  # Redis 配置
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: 
-      database: 0
-      timeout: 10000ms
-      lettuce:
-        pool:
-          max-active: 8
-          max-wait: -1ms
-          max-idle: 8
-          min-idle: 0
-
-  # 邮件配置 (QQ邮箱 - 使用465端口SSL)
-  mail:
-    host: smtp.qq.com
-    port: 465
-    username: isvoid2077@qq.com
-    password: zpizplxofnqtdeei  # 临时测试密码，实际请填入16位授权码
-    default-encoding: UTF-8
-    protocol: smtps
-    properties:
-      mail:
-        smtp:
-          auth: true
-          ssl:
-            enable: true
-          socketFactory:
-            class: javax.net.ssl.SSLSocketFactory
-            port: 465
-          timeout: 5000
-          connectiontimeout: 5000
-
-  # Jackson 配置
+  # Jackson配置（所有环境共用）
   jackson:
     time-zone: Asia/Shanghai
     date-format: yyyy-MM-dd HH:mm:ss
@@ -96,15 +20,17 @@ spring:
     serialization:
       write-dates-as-timestamps: false
 
-  # DevTools 配置
-  devtools:
-    restart:
-      enabled: true
-      additional-paths: src/main/java
-    livereload:
-      enabled: true
+# MyBatis配置（所有环境共用）
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  type-aliases-package: com.vortex.loginregister_new.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    lazy-loading-enabled: true
+    aggressive-lazy-loading: false
 
-# MyBatis Plus 配置
+# MyBatis Plus配置（所有环境共用）
 mybatis-plus:
   mapper-locations: classpath:mapper/**/*.xml
   type-aliases-package: com.vortex.loginregister_new.entity
@@ -113,7 +39,6 @@ mybatis-plus:
     cache-enabled: true
     lazy-loading-enabled: true
     aggressive-lazy-loading: false
-    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
   global-config:
     db-config:
       id-type: auto
@@ -123,78 +48,28 @@ mybatis-plus:
       update-strategy: not_null
     banner: false
 
-# JWT 配置
+# JWT配置,密钥在dev或prod配置（默认值）
 jwt:
-  secret: YourSecretKeyForJWT2024LoginRegisterModuleVortexApplicationSecureKey123456
-  expiration: 86400000  # 24小时（毫秒）
-  refresh-expiration: 604800000  # 7天（毫秒）
+  expiration: 86400000
+  refresh-expiration: 604800000
   header: Authorization
   token-prefix: Bearer 
 
-# QQ 互联 OAuth 配置（请到 connect.qq.com 申请后填入）
+# OAuth配置（默认值）
 qq:
   oauth:
     app-id: YOUR_QQ_APP_ID
     app-key: YOUR_QQ_APP_KEY
     redirect-uri: http://localhost:8080/api/oauth/qq/callback
 
-# Google OAuth 配置（请在 Google Cloud Console 创建OAuth客户端后填入）
 google:
   oauth:
     client-id: YOUR_GOOGLE_CLIENT_ID
     client-secret: YOUR_GOOGLE_CLIENT_SECRET
     redirect-uri: http://localhost:8080/api/oauth/google/callback
 
-# WeChat 开放平台 OAuth（PC 扫码登录）
 wechat:
   oauth:
     app-id: YOUR_WECHAT_APP_ID
     app-secret: YOUR_WECHAT_APP_SECRET
     redirect-uri: http://localhost:8080/api/oauth/wechat/callback
-
-# 日志配置
-logging:
-  level:
-    root: INFO
-    com.vortex: INFO
-    com.vortex.loginregister_new.filter: DEBUG
-    com.vortex.loginregister_new.config: DEBUG
-    com.vortex.loginregister_new.controller.AdminController: DEBUG
-    org.springframework.web: INFO
-    org.springframework.security: DEBUG
-    org.hibernate.SQL: INFO
-    org.hibernate.type.descriptor.sql.BasicBinder: INFO
-  pattern:
-    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(%5p) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n%wEx"
-    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
-  file:
-    name: logs/login-register.log
-    max-size: 10MB
-    max-history: 30
-
-# Actuator 配置
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics,prometheus
-  endpoint:
-    health:
-      show-details: when-authorized
-  health:
-    redis:
-      enabled: true
-    db:
-      enabled: true
-    mail:
-      enabled: false  # 禁用邮件健康检查，避免启动时连接失败
-
-# Spring Doc API 文档配置（可选）
-springdoc:
-  api-docs:
-    enabled: true
-    path: /v3/api-docs
-  swagger-ui:
-    enabled: true
-    path: /swagger-ui.html
-

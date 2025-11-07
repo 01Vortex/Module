@@ -11,7 +11,7 @@
  Target Server Version : 80041 (8.0.41)
  File Encoding         : 65001
 
- Date: 07/11/2025 15:18:37
+ Date: 07/11/2025 17:03:12
 */
 
 SET NAMES utf8mb4;
@@ -43,7 +43,7 @@ CREATE TABLE `admin`  (
 -- ----------------------------
 -- Records of admin
 -- ----------------------------
-INSERT INTO `admin` VALUES (2, 'admin', '$2a$12$adTBJcgDWWG6IFIpENEGH.hOLkAioguPDIVyB3vGRqhsXeYrflD5i', '系统管理员', '2901449366@qq.com', NULL, 1, '2025-11-07 15:15:12', '0:0:0:0:0:0:0:1', 0, '2025-11-06 21:52:57', '2025-11-07 15:15:12');
+INSERT INTO `admin` VALUES (2, 'admin', '$2a$12$9ULAvl2/EsjAF5QKPFQSLe82DQtctIK1CYTvEdeoJnOK2j4dbGbRa', '系统管理员', '8888888888@qq.com', NULL, 1, '2025-11-07 17:00:57', '0:0:0:0:0:0:0:1', 0, '2025-11-06 21:52:57', '2025-11-07 17:00:57');
 
 -- ----------------------------
 -- Table structure for login_log
@@ -186,7 +186,7 @@ CREATE TABLE `user`  (
   INDEX `idx_phone`(`phone` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE,
   INDEX `idx_deleted`(`deleted` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 22 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 23 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of user
@@ -203,7 +203,8 @@ INSERT INTO `user` VALUES (17, '1000000015', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAg
 INSERT INTO `user` VALUES (18, '1000000016', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user16@example.com', '13800138016', '测试用户16', NULL, 0, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
 INSERT INTO `user` VALUES (19, '1000000017', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user17@example.com', '13800138017', '测试用户17', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
 INSERT INTO `user` VALUES (20, '1000000018', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user18@example.com', '13800138018', '测试用户18', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
-INSERT INTO `user` VALUES (21, '1000000019', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user19@example.com', '13800138019', '测试用户19', NULL, 1, NULL, NULL, 0, '2025-11-06 23:31:09', '2025-11-06 23:31:09');
+INSERT INTO `user` VALUES (21, '1000000019', '$2a$12$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'user19@example.com', '13800138019', '测试用户19', NULL, 1, NULL, NULL, 1, '2025-11-06 23:31:09', '2025-11-07 15:24:30');
+INSERT INTO `user` VALUES (22, '7877543073', '$2a$12$1vBaGCBk4wAIQyeQyhMzkOl/ncBbVdqc8RKr2KL6YDeSOH3PZZuV6', '1236556532@qq.com', NULL, 'takiku', NULL, 1, '2025-11-07 16:40:26', '0:0:0:0:0:0:0:1', 0, '2025-11-07 15:45:39', '2025-11-07 17:01:54');
 
 -- ----------------------------
 -- Table structure for user_role

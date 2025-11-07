@@ -31,6 +31,11 @@ public class JwtUtil {
 
     @Value("${jwt.refresh-expiration:604800000}")
     private Long refreshExpiration;
+    
+    // 管理员token有效期：1天（86400000毫秒）
+    private static final long ADMIN_EXPIRATION = 86400000L;
+    // 用户token有效期：7天（604800000毫秒）
+    private static final long USER_EXPIRATION = 604800000L;
 
     /**
      * 生成密钥
@@ -65,12 +70,16 @@ public class JwtUtil {
         claims.put("account", account);
         claims.put("role", role);
         claims.put("type", "access");
+        
+        // 根据角色设置不同的token有效期
+        // 管理员：1天，用户：7天
+        long tokenExpiration = "ROLE_ADMIN".equals(role) ? ADMIN_EXPIRATION : USER_EXPIRATION;
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(account)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .signWith(getSigningKey())
                 .compact();
     }
@@ -100,12 +109,16 @@ public class JwtUtil {
         claims.put("account", account);
         claims.put("role", role);
         claims.put("type", "refresh");
+        
+        // 根据角色设置不同的refresh token有效期
+        // 管理员：1天，用户：7天
+        long tokenExpiration = "ROLE_ADMIN".equals(role) ? ADMIN_EXPIRATION : USER_EXPIRATION;
 
         return Jwts.builder()
                 .claims(claims)
                 .subject(account)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + refreshExpiration))
+                .expiration(new Date(System.currentTimeMillis() + tokenExpiration))
                 .signWith(getSigningKey())
                 .compact();
     }

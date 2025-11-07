@@ -1,14 +1,19 @@
 package com.vortex.loginregister_new.controller;
 
+import com.vortex.loginregister_new.common.Constants;
 import com.vortex.loginregister_new.entity.Admin;
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.service.AdminService;
 import com.vortex.loginregister_new.service.EmailService;
+import com.vortex.loginregister_new.service.JwtBlacklistService;
 import com.vortex.loginregister_new.service.LoginAttemptService;
 import com.vortex.loginregister_new.service.RateLimitService;
 import com.vortex.loginregister_new.service.RedisService;
 import com.vortex.loginregister_new.service.UserService;
 import com.vortex.loginregister_new.util.JwtUtil;
+import com.vortex.loginregister_new.util.ValidationUtils;
+import com.vortex.loginregister_new.util.VerificationCodeUtils;
+import com.vortex.loginregister_new.util.WebUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,9 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Pattern;
 
 /**
  * 认证控制器 - 处理登录、注册等认证相关功能
@@ -43,15 +46,11 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final LoginAttemptService loginAttemptService;
     private final RateLimitService rateLimitService;
+    private final JwtBlacklistService jwtBlacklistService;
     
     // Redis Key 前缀
-    private static final String VERIFICATION_CODE_PREFIX = "verification_code:";
-    private static final String CODE_ATTEMPT_PREFIX = "code_attempt:";
-    
-    // 密码策略：至少8位，包含字母和数字，允许常见特殊字符
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&._\\-+=()\\[\\]{}]{8,}$");
-    // 验证码最大尝试次数
-    private static final int MAX_CODE_ATTEMPTS = 5;
+    private static final String VERIFICATION_CODE_PREFIX = Constants.RedisKey.VERIFICATION_CODE_PREFIX;
+    private static final String CODE_ATTEMPT_PREFIX = Constants.RedisKey.CODE_ATTEMPT_PREFIX;
 
     /**
      * 用户登录（密码方式）
@@ -60,7 +59,7 @@ public class AuthController {
     public Map<String, Object> login(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
         String account = loginData.get("account");
         String password = loginData.get("password");
-        String clientIp = getClientIp(request);
+        String clientIp = WebUtils.getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
@@ -172,7 +171,7 @@ public class AuthController {
         String email = registerData.get("email");
         String phone = registerData.get("phone");
         String verifyCode = registerData.get("verifyCode");
-        String clientIp = getClientIp(request);
+        String clientIp = WebUtils.getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
@@ -184,15 +183,10 @@ public class AuthController {
         }
         
         // 验证密码强度
-        if (password == null || password.length() < 8) {
+        String passwordError = ValidationUtils.getPasswordValidationError(password);
+        if (passwordError != null) {
             result.put("code", 400);
-            result.put("message", "密码长度至少为8位");
-            return result;
-        }
-        
-        if (!PASSWORD_PATTERN.matcher(password).matches()) {
-            result.put("code", 400);
-            result.put("message", "密码必须包含字母和数字，长度至少8位，可包含常见特殊字符（@$!%*#?&._-+=()[]{}）");
+            result.put("message", passwordError);
             return result;
         }
         
@@ -242,7 +236,7 @@ public class AuthController {
                 nickname = "新用户";
             }
             // 防止XSS：清理昵称
-            user.setNickname(sanitizeInput(nickname.trim()));
+            user.setNickname(ValidationUtils.sanitizeInput(nickname.trim()));
             
             // 设置默认状态
             user.setStatus(1);
@@ -274,31 +268,17 @@ public class AuthController {
     }
     
     /**
-     * 生成随机纯数字字符串
-     * @param length 数字长度
-     * @return 纯数字字符串
-     */
-    private String generateRandomNumber(int length) {
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < length; i++) {
-            sb.append(random.nextInt(10));
-        }
-        return sb.toString();
-    }
-
-    /**
      * 生成唯一的10位数字账号（如发生碰撞则重试）
      */
     private String generateUniqueAccount(int length) {
         String candidate;
         int attempts = 0;
         do {
-            candidate = generateRandomNumber(length);
+            candidate = VerificationCodeUtils.generateCode(length);
             attempts++;
             if (attempts > 10) {
                 // 极端情况下增加一位长度降碰撞风险
-                candidate = generateRandomNumber(length + 1);
+                candidate = VerificationCodeUtils.generateCode(length + 1);
             }
         } while (userService.isAccountExists(candidate));
         return candidate;
@@ -313,7 +293,7 @@ public class AuthController {
         if (account != null) {
             account = account.trim();
         }
-        String clientIp = getClientIp(request);
+        String clientIp = WebUtils.getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
@@ -341,7 +321,7 @@ public class AuthController {
         
         try {
             // 生成6位数字验证码
-            String code = String.format("%06d", new Random().nextInt(1000000));
+            String code = VerificationCodeUtils.generateSixDigitCode();
             
             // Redis 存储验证码（5分钟有效）
             String redisKey = VERIFICATION_CODE_PREFIX + identifier;
@@ -394,7 +374,7 @@ public class AuthController {
         String code = loginData.get("code");
         if (account != null) account = account.trim();
         if (code != null) code = code.trim();
-        String clientIp = getClientIp(request);
+        String clientIp = WebUtils.getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
@@ -430,7 +410,7 @@ public class AuthController {
             
             if (!storedCode.equals(code)) {
                 attempts++;
-                if (attempts >= MAX_CODE_ATTEMPTS) {
+                if (attempts >= Constants.VerificationCode.MAX_ATTEMPTS) {
                     // 超过最大尝试次数，清除验证码
                     redisService.delete(redisKey);
                     redisService.delete(attemptKey);
@@ -441,7 +421,7 @@ public class AuthController {
                 redisService.set(attemptKey, String.valueOf(attempts), 5, TimeUnit.MINUTES);
                 result.put("code", 400);
                 result.put("message", "验证码错误");
-                result.put("remainingAttempts", MAX_CODE_ATTEMPTS - attempts);
+                result.put("remainingAttempts", Constants.VerificationCode.MAX_ATTEMPTS - attempts);
                 return result;
             }
             
@@ -513,7 +493,7 @@ public class AuthController {
     public Map<String, Object> adminLogin(@RequestBody Map<String, String> loginData, HttpServletRequest request) {
         String account = loginData.get("account");
         String password = loginData.get("password");
-        String clientIp = getClientIp(request);
+        String clientIp = WebUtils.getClientIp(request);
         
         Map<String, Object> result = new HashMap<>();
         
@@ -594,8 +574,6 @@ public class AuthController {
             result.put("role", role);
             
             log.info("管理员 {} 登录成功，IP: {}", account, clientIp);
-            log.info("生成的AccessToken前50字符: {}...", accessToken.length() > 50 ? accessToken.substring(0, 50) : accessToken);
-            log.info("Token中的角色: {}", role);
             
         } catch (Exception e) {
             log.error("管理员登录失败: ", e);
@@ -641,7 +619,7 @@ public class AuthController {
             }
             
             // 生成6位数字验证码
-            String code = String.format("%06d", new Random().nextInt(1000000));
+            String code = VerificationCodeUtils.generateSixDigitCode();
             
             // Redis 存储验证码（15分钟有效）
             String redisKey = "admin_reset_password_code:" + email;
@@ -701,11 +679,12 @@ public class AuthController {
         }
         
         // 验证密码强度
-        if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
-            result.put("code", 400);
-            result.put("message", "密码必须包含字母和数字，长度至少8位，可包含常见特殊字符（@$!%*#?&._-+=()[]{}）");
-            return result;
-        }
+            String passwordError = ValidationUtils.getPasswordValidationError(newPassword);
+            if (passwordError != null) {
+                result.put("code", 400);
+                result.put("message", passwordError);
+                return result;
+            }
         
         try {
             // 验证验证码
@@ -788,6 +767,14 @@ public class AuthController {
                 return result;
             }
             
+            // 检查用户token是否已失效（密码修改后）
+            // 只检查用户token，不检查管理员token
+            if (!"ROLE_ADMIN".equals(role) && jwtBlacklistService.isUserTokenInvalidated(userId)) {
+                result.put("code", 401);
+                result.put("message", "密码已修改，请重新登录");
+                return result;
+            }
+            
             // 生成新的访问令牌（包含角色信息）
             String newAccessToken = jwtUtil.generateAccessToken(userId, account, role);
             
@@ -805,37 +792,6 @@ public class AuthController {
         return result;
     }
     
-    /**
-     * 清理输入，防止XSS攻击
-     */
-    private String sanitizeInput(String input) {
-        if (input == null) {
-            return null;
-        }
-        // 移除HTML标签和特殊字符
-        return input.replaceAll("<[^>]*>", "")
-                   .replaceAll("&[^;]+;", "")
-                   .replaceAll("[<>\"']", "")
-                   .trim();
-    }
-
-    /**
-     * 获取客户端IP
-     */
-    private String getClientIp(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("X-Real-IP");
-        }
-        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        // 处理多个IP的情况（取第一个）
-        if (ip != null && ip.contains(",")) {
-            ip = ip.split(",")[0].trim();
-        }
-        return ip;
-    }
 
     /**
      * 发送重置密码验证码
@@ -870,7 +826,7 @@ public class AuthController {
             }
             
             // 生成6位数字验证码
-            String code = String.format("%06d", new Random().nextInt(1000000));
+            String code = VerificationCodeUtils.generateSixDigitCode();
             
             // Redis 存储验证码（15分钟有效）
             String redisKey = "reset_password_code:" + emailOrPhone;
@@ -929,9 +885,11 @@ public class AuthController {
             return result;
         }
         
-        if (newPassword.length() < 6) {
+        // 验证密码强度
+        String passwordError = ValidationUtils.getPasswordValidationError(newPassword);
+        if (passwordError != null) {
             result.put("code", 400);
-            result.put("message", "密码长度至少为6位");
+            result.put("message", passwordError);
             return result;
         }
         
@@ -970,12 +928,15 @@ public class AuthController {
             user.setPassword(passwordEncoder.encode(newPassword));
             userService.updateById(user);
             
+            // 标记用户的所有token失效（7天内密码修改后使token失效）
+            jwtBlacklistService.invalidateUserTokens(user.getId(), 7);
+            
             // 清除 Redis 中的验证码
             redisService.delete(redisKey);
             
             result.put("code", 200);
             result.put("message", "密码重置成功");
-            log.info("用户 {} 密码重置成功", emailOrPhone);
+            log.info("用户 {} 密码重置成功，已使所有token失效", emailOrPhone);
             
         } catch (Exception e) {
             log.error("重置密码失败: ", e);

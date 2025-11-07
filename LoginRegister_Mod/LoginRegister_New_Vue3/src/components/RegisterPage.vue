@@ -57,10 +57,10 @@
               <input 
                 v-model="formData.password" 
                 type="password"
-                placeholder="密码（至少6位）"
+                placeholder="密码（至少8位，包含字母和数字）"
                 :disabled="loading"
                 required
-                minlength="6"
+                minlength="8"
                 @blur="validatePassword"
               />
               <span v-if="errors.password" class="error-text">{{ errors.password }}</span>
@@ -243,8 +243,26 @@ const validatePassword = () => {
     return
   }
   
-  if (formData.password.length < 6) {
-    errors.password = '密码长度至少为6位'
+  if (formData.password.length < 8) {
+    errors.password = '密码长度至少为8位'
+    return
+  }
+  
+  // 检查是否包含字母
+  if (!/[A-Za-z]/.test(formData.password)) {
+    errors.password = '密码必须包含字母'
+    return
+  }
+  
+  // 检查是否包含数字
+  if (!/\d/.test(formData.password)) {
+    errors.password = '密码必须包含数字'
+    return
+  }
+  
+  // 检查是否只包含字母和数字
+  if (!/^[A-Za-z\d]+$/.test(formData.password)) {
+    errors.password = '密码只能包含字母和数字'
     return
   }
   
