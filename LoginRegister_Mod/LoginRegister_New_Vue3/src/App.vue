@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import HomePage from './components/HomePage.vue'
 import LoginPage from './components/LoginPage.vue'
 import RegisterPage from './components/RegisterPage.vue'
 import ForgotPasswordPage from './components/ForgotPasswordPage.vue'
@@ -7,12 +8,12 @@ import AdminLoginPage from './components/AdminLoginPage.vue'
 import AdminDashboard from './components/AdminDashboard.vue'
 import { tokenManager } from './api/auth.js'
 
-const currentPage = ref('login') // 'login', 'register', 'forgot-password', 'admin/login', 'admin/dashboard'
+const currentPage = ref('home') // 'home', 'login', 'register', 'forgot-password', 'admin/login', 'admin/dashboard'
 const prefilledData = ref(null)
 
 // 简单的路由系统
 const route = computed(() => {
-  const hash = window.location.hash.slice(1) || 'login'
+  const hash = window.location.hash.slice(1) || 'home'
   return hash
 })
 
@@ -50,7 +51,7 @@ onMounted(() => {
   
   // 监听路由变化，确保 currentPage 与 hash 同步
   const syncRoute = () => {
-    const hash = window.location.hash.slice(1) || 'login'
+    const hash = window.location.hash.slice(1) || 'home'
     if (currentPage.value !== hash) {
       currentPage.value = hash
     }
@@ -89,9 +90,12 @@ window.$router = {
 </script>
 
 <template>
+  <!-- 主页 -->
+  <HomePage v-if="currentPage === 'home'" />
+  
   <!-- 普通用户页面 -->
   <LoginPage 
-    v-if="currentPage === 'login'" 
+    v-else-if="currentPage === 'login'" 
     :prefilled-data="prefilledData"
     @switch-to-register="switchToRegister"
     @switch-to-forgot-password="switchToForgotPassword"
