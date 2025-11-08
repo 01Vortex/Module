@@ -53,8 +53,8 @@ spring:
   mail:
     host: smtp.qq.com
     port: 465
-    username: isvoid2077@qq.com
-    password: zpizplxofnqtdeei
+    username:            # QQ邮箱
+    password:            # QQ邮箱授权码
 
 # MyBatis日志配置（开发环境：输出到控制台）
 mybatis:

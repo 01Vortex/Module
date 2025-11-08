@@ -1,4 +1,4 @@
-# LoginRegister Module New
+# LoginRegister_New
 
 基于 **Spring Boot 3.2.5** 和 **Java 21** 的现代化登录注册模块，支持多种登录方式、虚拟线程、第三方 OAuth 集成、管理员系统和文件存储。
 
@@ -65,11 +65,9 @@ npm install
 npm run dev
 ```
 
-### 数据库初始化
-```bash
-# 执行 SQL 文件创建数据库和表结构
-mysql -u root -p < LoginRegister_New/mysql/login_register_new.sql
-```
+### 数据库管理员
+账号:admin
+密码:Qwerasdf12.
 
 或者直接在 MySQL 客户端中执行 `LoginRegister_New/mysql/login_register_new.sql` 文件。
 

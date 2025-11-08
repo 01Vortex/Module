@@ -67,9 +67,9 @@ public class ConnectionCheckConfig {
             throw new RuntimeException("应用启动失败：数据库或Redis连接失败");
         }
         
-        // 邮件服务器连接失败不阻止启动（仅记录警告）
+        // 邮件服务器连接失败时阻止启动
         if (!mailConnected) {
-            log.warn("邮件服务器连接失败，邮件功能将无法使用");
+            throw new RuntimeException("应用启动失败：邮件服务器未配置或连接失败，请在配置文件中配置 spring.mail.username 和 spring.mail.password");
         }
         
         // MinIO连接失败不阻止启动（仅记录警告），但会尝试创建存储桶
@@ -142,24 +142,30 @@ public class ConnectionCheckConfig {
      * 检查邮件服务器连接
      */
     private boolean checkMail() {
-        // 如果邮件配置不存在或未配置，跳过检查
+        // 如果邮件配置不存在或未配置，抛出异常阻止启动
         if (mailSender == null) {
-            log.warn("⚠️ 邮件服务未配置，跳过邮件服务器连接检查");
+            log.error("❌ 邮件服务未配置：请在配置文件中配置 spring.mail.host、spring.mail.username 和 spring.mail.password");
             return false;
         }
         
         try {
             if (mailSender instanceof JavaMailSenderImpl) {
                 JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
+                // 检查配置是否完整
+                if (mailSenderImpl.getUsername() == null || mailSenderImpl.getUsername().trim().isEmpty() ||
+                    mailSenderImpl.getPassword() == null || mailSenderImpl.getPassword().trim().isEmpty()) {
+                    log.error("❌ 邮件配置不完整：spring.mail.username 或 spring.mail.password 为空");
+                    return false;
+                }
                 mailSenderImpl.testConnection();
                 log.info("✅ 邮件服务器连接成功");
                 return true;
             } else {
-                log.warn("⚠️ 邮件服务器连接检查失败：邮件发送器类型不正确");
+                log.error("❌ 邮件服务器连接检查失败：邮件发送器类型不正确");
                 return false;
             }
         } catch (Exception e) {
-            log.warn("⚠️ 邮件服务器连接失败: {}", e.getMessage());
+            log.error("❌ 邮件服务器连接失败: {}", e.getMessage());
             return false;
         }
     }
