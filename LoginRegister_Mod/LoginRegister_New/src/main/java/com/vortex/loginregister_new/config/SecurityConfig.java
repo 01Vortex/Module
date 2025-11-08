@@ -76,6 +76,7 @@ public class SecurityConfig {
                     "/auth/refresh",
                     "/oauth/**",
                     "/user/check/**",
+                    "/uploads/**",
                     "/swagger-ui/**",
                     "/v3/api-docs/**",
                     "/actuator/health"

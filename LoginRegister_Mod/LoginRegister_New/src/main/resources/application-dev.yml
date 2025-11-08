@@ -88,6 +88,20 @@ mybatis-plus:
 jwt:
   secret: YourSecretKeyForJWT2024LoginRegisterModuleVortexApplicationSecureKey123456
 
+# 文件上传配置
+file:
+  upload:
+    path: uploads
+    url-prefix: /api/uploads
+
+# MinIO配置
+minio:
+  endpoint: http://localhost:9000
+  access-key: 01Vortex
+  secret-key: 193510193510
+  bucket-name: demo1
+  secure: false
+
 logging:
   level:
     root: INFO

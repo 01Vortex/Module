@@ -184,7 +184,7 @@ export default {
       searchKeyword: '',
       isLoggedIn: false,
       userInfo: null,
-      userAvatar: 'https://via.placeholder.com/40',
+      userAvatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzY2N2VlYSIvPgo8cGF0aCBkPSJNNTAgMzVDNDAgMzUgNDAgNDAgMzUgNDVDMjUuNSA0NSAyMCA1MC41IDIwIDYwQzIwIDcwIDI1IDc1IDMwIDgwQzMwIDg1IDQwIDkwIDUwIDkwQzYwIDkwIDcwIDg1IDcwIDgwQzc1IDc1IDgwIDcwIDgwIDYwQzgwIDUwLjUgNzQuNSA0NSA2NSA0NUM2MCA0MCA2MCAzNSA1MCAzNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==',
       showUserMenu: false
     }
   },
@@ -198,8 +198,15 @@ export default {
         this.isLoggedIn = true
         this.userInfo = user
         // 如果有头像URL，使用实际头像
-        if (user.avatar) {
-          this.userAvatar = user.avatar
+        if (user.avatar && user.avatar.trim()) {
+          // 如果是相对路径，添加API基础URL
+          if (user.avatar.startsWith('/')) {
+            this.userAvatar = 'http://localhost:8080' + user.avatar
+          } else if (user.avatar.startsWith('http://') || user.avatar.startsWith('https://') || user.avatar.startsWith('data:')) {
+            this.userAvatar = user.avatar
+          } else {
+            this.userAvatar = 'http://localhost:8080/api' + user.avatar
+          }
         }
       }
     },
@@ -222,7 +229,7 @@ export default {
     goToProfile() {
       this.showUserMenu = false
       // 跳转到个人中心
-      console.log('跳转到个人中心')
+      window.location.hash = '#profile'
     },
     goToSettings() {
       this.showUserMenu = false

@@ -15,10 +15,10 @@ public final class ValidationUtils {
     }
 
     /**
-     * 密码正则表达式：至少8位，必须包含字母和数字（仅允许字母和数字）
+     * 密码正则表达式：至少8位，必须包含字母和数字（可包含符号）
      */
     private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-            "^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,}$"
+            "^(?=.*[A-Za-z])(?=.*\\d).{8,}$"
     );
 
     /**
@@ -50,7 +50,7 @@ public final class ValidationUtils {
 
     /**
      * 验证密码强度
-     * 要求：至少8位，必须包含字母和数字（仅允许字母和数字）
+     * 要求：至少8位，必须包含字母和数字（可包含符号）
      *
      * @param password 密码
      * @return 是否有效
@@ -84,9 +84,7 @@ public final class ValidationUtils {
         if (!password.matches(".*\\d.*")) {
             return "密码必须包含数字";
         }
-        if (!password.matches("^[A-Za-z\\d]+$")) {
-            return "密码只能包含字母和数字";
-        }
+        // 密码可以包含字母、数字和符号，不再限制字符类型
         return null;
     }
 

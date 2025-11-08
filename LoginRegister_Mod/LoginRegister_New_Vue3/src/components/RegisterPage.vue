@@ -57,7 +57,7 @@
               <input 
                 v-model="formData.password" 
                 type="password"
-                placeholder="密码（至少8位，包含字母和数字）"
+                placeholder="密码（至少8位，包含字母和数字，可包含符号）"
                 :disabled="loading"
                 required
                 minlength="8"
@@ -260,11 +260,7 @@ const validatePassword = () => {
     return
   }
   
-  // 检查是否只包含字母和数字
-  if (!/^[A-Za-z\d]+$/.test(formData.password)) {
-    errors.password = '密码只能包含字母和数字'
-    return
-  }
+  // 密码可以包含字母、数字和符号，不再限制字符类型
   
   // 验证确认密码
   if (formData.confirmPassword) {

@@ -4,11 +4,12 @@ import HomePage from './components/HomePage.vue'
 import LoginPage from './components/LoginPage.vue'
 import RegisterPage from './components/RegisterPage.vue'
 import ForgotPasswordPage from './components/ForgotPasswordPage.vue'
+import ProfilePage from './components/ProfilePage.vue'
 import AdminLoginPage from './components/AdminLoginPage.vue'
 import AdminDashboard from './components/AdminDashboard.vue'
 import { tokenManager } from './api/auth.js'
 
-const currentPage = ref('home') // 'home', 'login', 'register', 'forgot-password', 'admin/login', 'admin/dashboard'
+const currentPage = ref('home') // 'home', 'login', 'register', 'forgot-password', 'profile', 'admin/login', 'admin/dashboard'
 const prefilledData = ref(null)
 
 // 简单的路由系统
@@ -22,7 +23,7 @@ const updateRoute = (path) => {
   currentPage.value = path
 }
 
-onMounted(() => {
+  onMounted(() => {
   // 监听hash变化
   window.addEventListener('hashchange', () => {
     const newRoute = route.value
@@ -33,6 +34,14 @@ onMounted(() => {
       const user = tokenManager.getUser()
       if (!user) {
         updateRoute('admin/login')
+      }
+    }
+    
+    // 如果访问个人中心，检查是否已登录
+    if (newRoute === 'profile') {
+      const user = tokenManager.getUser()
+      if (!user) {
+        updateRoute('login')
       }
     }
   })
@@ -46,6 +55,14 @@ onMounted(() => {
     const user = tokenManager.getUser()
     if (!user) {
       updateRoute('admin/login')
+    }
+  }
+  
+  // 如果访问个人中心，检查是否已登录
+  if (initialRoute === 'profile') {
+    const user = tokenManager.getUser()
+    if (!user) {
+      updateRoute('login')
     }
   }
   
@@ -108,6 +125,9 @@ window.$router = {
   <ForgotPasswordPage 
     v-else-if="currentPage === 'forgot-password'"
     @switch-to-login="switchToLogin"
+  />
+  <ProfilePage 
+    v-else-if="currentPage === 'profile'"
   />
   
   <!-- 管理员页面 -->

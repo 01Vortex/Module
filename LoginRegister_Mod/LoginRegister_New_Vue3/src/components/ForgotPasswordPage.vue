@@ -75,7 +75,7 @@
               <input 
                 v-model="newPassword" 
                 type="password"
-                placeholder="新密码（至少8位，包含字母和数字）"
+                placeholder="新密码（至少8位，包含字母和数字，可包含符号）"
                 :disabled="loading"
                 required
                 minlength="8"
@@ -213,11 +213,7 @@ const resetPassword = async () => {
     return
   }
   
-  // 检查是否只包含字母和数字
-  if (!/^[A-Za-z\d]+$/.test(newPassword.value)) {
-    errors.newPassword = '密码只能包含字母和数字'
-    return
-  }
+  // 密码可以包含字母、数字和符号，不再限制字符类型
 
   if (newPassword.value !== confirmPassword.value) {
     errors.confirmPassword = '两次输入的密码不一致'

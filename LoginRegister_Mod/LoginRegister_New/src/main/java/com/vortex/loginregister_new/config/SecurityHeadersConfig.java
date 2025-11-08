@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -24,21 +25,28 @@ import java.io.IOException;
 @Order(1)
 public class SecurityHeadersConfig extends OncePerRequestFilter {
 
+    @Value("${minio.endpoint:http://localhost:9000}")
+    private String minioEndpoint;
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 
                                    @NonNull HttpServletResponse response, 
                                    @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         
+        // 构建 MinIO 的域名（用于 CSP）
+        String minioDomain = extractDomain(minioEndpoint);
+        
         // Content Security Policy (CSP) - 防止XSS攻击
         // 允许同源资源，内联脚本和样式需要nonce或hash
+        // 允许从 MinIO 服务器加载图片
         response.setHeader("Content-Security-Policy", 
             "default-src 'self'; " +
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
             "style-src 'self' 'unsafe-inline'; " +
-            "img-src 'self' data: https:; " +
+            "img-src 'self' data: https: " + minioDomain + "; " +
             "font-src 'self' data:; " +
-            "connect-src 'self'; " +
+            "connect-src 'self' " + minioDomain + "; " +
             "frame-ancestors 'none'; " +
             "base-uri 'self'; " +
             "form-action 'self'"
@@ -77,5 +85,22 @@ public class SecurityHeadersConfig extends OncePerRequestFilter {
         response.setHeader("Server", "");
         
         filterChain.doFilter(request, response);
+    }
+    
+    /**
+     * 从URL中提取域名
+     * 例如: http://localhost:9000 -> http://localhost:9000
+     *      https://example.com -> https://example.com
+     */
+    private String extractDomain(String url) {
+        if (url == null || url.isEmpty()) {
+            return "http://localhost:9000";
+        }
+        // 移除末尾的斜杠
+        url = url.trim();
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 }

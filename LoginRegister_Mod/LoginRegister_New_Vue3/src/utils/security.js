@@ -61,7 +61,7 @@ export function isValidEmail(email) {
 
 /**
  * 验证密码强度（与后端规则保持一致）
- * 要求：至少8位，必须包含字母和数字（仅允许字母和数字）
+ * 要求：至少8位，必须包含字母和数字（可包含符号）
  */
 export function validatePasswordStrength(password) {
   if (!password) {
@@ -80,11 +80,7 @@ export function validatePasswordStrength(password) {
     return { valid: false, message: '密码必须包含数字' }
   }
   
-  // 检查是否只包含字母和数字
-  const allowedPattern = /^[A-Za-z\d]+$/
-  if (!allowedPattern.test(password)) {
-    return { valid: false, message: '密码只能包含字母和数字' }
-  }
+  // 密码可以包含字母、数字和符号，不再限制字符类型
   
   return { valid: true, message: '密码强度符合要求' }
 }

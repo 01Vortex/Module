@@ -8,7 +8,8 @@
     
     <!-- 安全相关Meta标签 -->
     <!-- 注意：后端已设置HTTP响应头，这里只做补充配置 -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' http://localhost:8080 http://127.0.0.1:8080 ws://localhost:5173 ws://127.0.0.1:5173; base-uri 'self'; form-action 'self';">
+    <!-- 允许从 MinIO (http://localhost:9000) 加载图片 -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http://localhost:9000 http://127.0.0.1:9000; font-src 'self' data:; connect-src 'self' http://localhost:8080 http://127.0.0.1:8080 http://localhost:9000 http://127.0.0.1:9000 ws://localhost:5173 ws://127.0.0.1:5173; base-uri 'self'; form-action 'self';">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     
