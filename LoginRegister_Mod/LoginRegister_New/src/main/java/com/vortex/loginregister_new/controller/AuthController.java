@@ -14,8 +14,8 @@ import com.vortex.loginregister_new.util.JwtUtil;
 import com.vortex.loginregister_new.util.ValidationUtils;
 import com.vortex.loginregister_new.util.VerificationCodeUtils;
 import com.vortex.loginregister_new.util.WebUtils;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +34,6 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "*", maxAge = 3600)
 public class AuthController {
 
@@ -47,6 +46,27 @@ public class AuthController {
     private final LoginAttemptService loginAttemptService;
     private final RateLimitService rateLimitService;
     private final JwtBlacklistService jwtBlacklistService;
+
+    public AuthController(
+            UserService userService,
+            AdminService adminService,
+            PasswordEncoder passwordEncoder,
+            RedisService redisService,
+            @Autowired(required = false) EmailService emailService,
+            JwtUtil jwtUtil,
+            LoginAttemptService loginAttemptService,
+            RateLimitService rateLimitService,
+            JwtBlacklistService jwtBlacklistService) {
+        this.userService = userService;
+        this.adminService = adminService;
+        this.passwordEncoder = passwordEncoder;
+        this.redisService = redisService;
+        this.emailService = emailService;
+        this.jwtUtil = jwtUtil;
+        this.loginAttemptService = loginAttemptService;
+        this.rateLimitService = rateLimitService;
+        this.jwtBlacklistService = jwtBlacklistService;
+    }
     
     // Redis Key 前缀
     private static final String VERIFICATION_CODE_PREFIX = Constants.RedisKey.VERIFICATION_CODE_PREFIX;
@@ -335,18 +355,25 @@ public class AuthController {
             // 判断是邮箱还是手机号
             if (account.contains("@")) {
                 // 邮箱：发送邮件验证码
-                try {
-                    emailService.sendVerificationCode(account, code);
-                    result.put("code", 200);
-                    result.put("message", "验证码已发送到邮箱，请查收");
-                    // 开发环境：在日志中显示验证码（查看后端日志）
-                    log.info("✅ 验证码邮件已发送到: {}，验证码: {}", account, code);
-                } catch (Exception e) {
-                    log.error("❌ 邮件发送失败: ", e);
-                    result.put("code", 500);
-                    result.put("message", "邮件发送失败，请稍后重试");
+                if (emailService == null) {
+                    result.put("code", 503);
+                    result.put("message", "邮件服务未配置，无法发送验证码");
                     // 删除 Redis 中的验证码
                     redisService.delete(redisKey);
+                } else {
+                    try {
+                        emailService.sendVerificationCode(account, code);
+                        result.put("code", 200);
+                        result.put("message", "验证码已发送到邮箱，请查收");
+                        // 开发环境：在日志中显示验证码（查看后端日志）
+                        log.info("✅ 验证码邮件已发送到: {}，验证码: {}", account, code);
+                    } catch (Exception e) {
+                        log.error("❌ 邮件发送失败: ", e);
+                        result.put("code", 500);
+                        result.put("message", "邮件发送失败，请稍后重试");
+                        // 删除 Redis 中的验证码
+                        redisService.delete(redisKey);
+                    }
                 }
             } else {
                 // 手机号：暂不支持
@@ -628,14 +655,19 @@ public class AuthController {
             log.info("管理员重置密码验证码已生成并存储到Redis: {} (邮箱: {}, 有效期: 15分钟)", code, email);
             
             // 发送邮件
-            try {
-                emailService.sendResetPasswordCode(email, code);
-                result.put("code", 200);
-                result.put("message", "验证码已发送到您的邮箱，请查收");
-            } catch (Exception e) {
-                log.error("发送管理员重置密码验证码邮件失败: ", e);
-                result.put("code", 500);
-                result.put("message", "发送验证码失败，请稍后重试");
+            if (emailService == null) {
+                result.put("code", 503);
+                result.put("message", "邮件服务未配置，无法发送验证码");
+            } else {
+                try {
+                    emailService.sendResetPasswordCode(email, code);
+                    result.put("code", 200);
+                    result.put("message", "验证码已发送到您的邮箱，请查收");
+                } catch (Exception e) {
+                    log.error("发送管理员重置密码验证码邮件失败: ", e);
+                    result.put("code", 500);
+                    result.put("message", "发送验证码失败，请稍后重试");
+                }
             }
             
         } catch (Exception e) {
@@ -837,17 +869,24 @@ public class AuthController {
             // 判断是邮箱还是手机号
             if (emailOrPhone.contains("@")) {
                 // 邮箱：发送邮件验证码
-                try {
-                    emailService.sendResetPasswordCode(emailOrPhone, code);
-                    result.put("code", 200);
-                    result.put("message", "验证码已发送到邮箱，请查收");
-                    log.info("✅ 重置密码验证码邮件已发送到: {}，验证码: {}", emailOrPhone, code);
-                } catch (Exception e) {
-                    log.error("❌ 邮件发送失败: ", e);
-                    result.put("code", 500);
-                    result.put("message", "邮件发送失败: " + e.getMessage());
+                if (emailService == null) {
+                    result.put("code", 503);
+                    result.put("message", "邮件服务未配置，无法发送验证码");
                     // 删除 Redis 中的验证码
                     redisService.delete(redisKey);
+                } else {
+                    try {
+                        emailService.sendResetPasswordCode(emailOrPhone, code);
+                        result.put("code", 200);
+                        result.put("message", "验证码已发送到邮箱，请查收");
+                        log.info("✅ 重置密码验证码邮件已发送到: {}，验证码: {}", emailOrPhone, code);
+                    } catch (Exception e) {
+                        log.error("❌ 邮件发送失败: ", e);
+                        result.put("code", 500);
+                        result.put("message", "邮件发送失败: " + e.getMessage());
+                        // 删除 Redis 中的验证码
+                        redisService.delete(redisKey);
+                    }
                 }
             } else {
                 // 手机号：暂不支持

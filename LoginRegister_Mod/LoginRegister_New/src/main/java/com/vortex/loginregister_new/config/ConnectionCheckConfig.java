@@ -4,8 +4,8 @@ import com.vortex.loginregister_new.service.MinIOService;
 import io.minio.MinioClient;
 import io.minio.errors.*;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -27,7 +27,6 @@ import java.sql.Connection;
 @Slf4j
 @Component
 @Order(1)
-@RequiredArgsConstructor
 public class ConnectionCheckConfig {
 
     private final DataSource dataSource;
@@ -36,6 +35,21 @@ public class ConnectionCheckConfig {
     private final MinioClient minioClient;
     private final MinIOConfig minIOConfig;
     private final MinIOService minIOService;
+
+    public ConnectionCheckConfig(
+            DataSource dataSource,
+            org.springframework.data.redis.connection.RedisConnectionFactory redisConnectionFactory,
+            @Autowired(required = false) JavaMailSender mailSender,
+            MinioClient minioClient,
+            MinIOConfig minIOConfig,
+            MinIOService minIOService) {
+        this.dataSource = dataSource;
+        this.redisConnectionFactory = redisConnectionFactory;
+        this.mailSender = mailSender;
+        this.minioClient = minioClient;
+        this.minIOConfig = minIOConfig;
+        this.minIOService = minIOService;
+    }
 
 
     /**
@@ -128,6 +142,12 @@ public class ConnectionCheckConfig {
      * 检查邮件服务器连接
      */
     private boolean checkMail() {
+        // 如果邮件配置不存在或未配置，跳过检查
+        if (mailSender == null) {
+            log.warn("⚠️ 邮件服务未配置，跳过邮件服务器连接检查");
+            return false;
+        }
+        
         try {
             if (mailSender instanceof JavaMailSenderImpl) {
                 JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
@@ -135,11 +155,11 @@ public class ConnectionCheckConfig {
                 log.info("✅ 邮件服务器连接成功");
                 return true;
             } else {
-                log.error("❌ 邮件服务器连接失败");
+                log.warn("⚠️ 邮件服务器连接检查失败：邮件发送器类型不正确");
                 return false;
             }
         } catch (Exception e) {
-            log.error("❌ 邮件服务器连接失败");
+            log.warn("⚠️ 邮件服务器连接失败: {}", e.getMessage());
             return false;
         }
     }

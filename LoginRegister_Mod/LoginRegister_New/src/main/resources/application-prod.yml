@@ -1,11 +1,9 @@
 # 生产环境配置 - 敏感信息请使用环境变量
+# 通用配置请查看 application.yml
 
 server:
   port: ${SERVER_PORT:8080}
-  servlet:
-    context-path: /api
   tomcat:
-    max-http-form-post-size: 10MB
     max-connections: 500
     threads:
       max: 300
@@ -13,23 +11,21 @@ server:
   compression:
     enabled: true
     mime-types: application/json,application/xml,text/html,text/xml,text/plain
-  max-http-request-header-size: 8KB
 
 spring:
+  # 开发工具配置（生产环境禁用）
   devtools:
     restart:
       enabled: false
     livereload:
       enabled: false
   
+  # 控制台输出颜色（生产环境禁用）
   output:
     ansi:
       enabled: never
   
-  threads:
-    virtual:
-      enabled: true
-  
+  # 数据源配置（生产环境）
   datasource:
     url: ${DB_URL:jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:login_register_new}?useUnicode=true&characterEncoding=utf8&useSSL=true&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=false}
     username: ${DB_USERNAME:root}
@@ -45,6 +41,7 @@ spring:
       leak-detection-threshold: 60000
       register-mbeans: true
   
+  # Redis配置（生产环境）
   data:
     redis:
       host: ${REDIS_HOST:localhost}
@@ -59,26 +56,19 @@ spring:
           max-idle: 10
           min-idle: 5
   
+  # 邮件配置（生产环境）
   mail:
     host: ${MAIL_HOST:smtp.qq.com}
     port: ${MAIL_PORT:465}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
-    protocol: smtps
     properties:
       mail:
         smtp:
-          auth: true
-          ssl:
-            enable: true
           starttls:
             enable: true
-  
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
 
+# MyBatis日志配置（生产环境：使用Slf4j）
 mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
@@ -87,11 +77,13 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
 
+# JWT配置（生产环境：使用环境变量）
 jwt:
   secret: ${JWT_SECRET:}
   expiration: ${JWT_EXPIRATION:86400000}
   refresh-expiration: ${JWT_REFRESH_EXPIRATION:604800000}
 
+# OAuth配置（生产环境：使用环境变量）
 qq:
   oauth:
     app-id: ${QQ_APP_ID:}
@@ -109,6 +101,14 @@ wechat:
     app-id: ${WECHAT_APP_ID:}
     app-secret: ${WECHAT_APP_SECRET:}
     redirect-uri: ${WECHAT_REDIRECT_URI:}
+
+# MinIO配置（生产环境：使用环境变量）
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:}
+  secret-key: ${MINIO_SECRET_KEY:}
+  bucket-name: ${MINIO_BUCKET_NAME:avatar}
+  secure: ${MINIO_SECURE:false}
 
 logging:
   level:

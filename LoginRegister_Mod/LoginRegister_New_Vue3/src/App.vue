@@ -23,7 +23,7 @@ const updateRoute = (path) => {
   currentPage.value = path
 }
 
-  onMounted(() => {
+onMounted(() => {
   // 监听hash变化
   window.addEventListener('hashchange', () => {
     const newRoute = route.value

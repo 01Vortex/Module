@@ -1,5 +1,6 @@
-# 开发时数据源配置(mysql,redis)请转application-dev.yml
 # 主配置文件 - 所有环境共用配置
+# 环境特定配置请查看 application-dev.yml 或 application-prod.yml
+
 spring:
   application:
     name: LoginRegister_New
@@ -12,6 +13,11 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   
+  # 虚拟线程配置（所有环境共用）
+  threads:
+    virtual:
+      enabled: true
+  
   # Jackson配置（所有环境共用）
   jackson:
     time-zone: Asia/Shanghai
@@ -19,6 +25,34 @@ spring:
     default-property-inclusion: non_null
     serialization:
       write-dates-as-timestamps: false
+      fail-on-empty-beans: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-single-value-as-array: true
+  
+  # 邮件配置（所有环境共用，具体值在环境配置文件中）
+  mail:
+    protocol: smtps
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+  
+  # 文件上传配置（所有环境共用）
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+# 服务器配置（所有环境共用）
+server:
+  servlet:
+    context-path: /api
+  tomcat:
+    max-http-form-post-size: 10MB
+  max-http-request-header-size: 8KB
 
 # MyBatis配置（所有环境共用）
 mybatis:
@@ -48,28 +82,18 @@ mybatis-plus:
       update-strategy: not_null
     banner: false
 
-# JWT配置,密钥在dev或prod配置（默认值）
+# JWT配置（所有环境共用，密钥在环境配置文件中）
 jwt:
   expiration: 86400000
   refresh-expiration: 604800000
   header: Authorization
   token-prefix: Bearer 
 
-# OAuth配置（默认值）
-qq:
-  oauth:
-    app-id: YOUR_QQ_APP_ID
-    app-key: YOUR_QQ_APP_KEY
-    redirect-uri: http://localhost:8080/api/oauth/qq/callback
+# 文件上传配置（所有环境共用）
+file:
+  upload:
+    path: uploads
+    url-prefix: /api/uploads
 
-google:
-  oauth:
-    client-id: YOUR_GOOGLE_CLIENT_ID
-    client-secret: YOUR_GOOGLE_CLIENT_SECRET
-    redirect-uri: http://localhost:8080/api/oauth/google/callback
-
-wechat:
-  oauth:
-    app-id: YOUR_WECHAT_APP_ID
-    app-secret: YOUR_WECHAT_APP_SECRET
-    redirect-uri: http://localhost:8080/api/oauth/wechat/callback
+# MinIO配置
+# 注意：MinIO的具体配置值（endpoint、access-key、secret-key、bucket-name等）在各环境配置文件中设置

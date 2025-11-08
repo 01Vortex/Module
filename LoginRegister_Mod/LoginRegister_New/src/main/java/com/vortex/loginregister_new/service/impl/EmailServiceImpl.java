@@ -3,28 +3,36 @@ package com.vortex.loginregister_new.service.impl;
 import com.vortex.loginregister_new.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 /**
  * 邮件服务实现
+ * 只有在 JavaMailSender Bean 存在时才会创建此服务
  *
  * @author Vortex
  * @since 2024
  */
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@ConditionalOnBean(JavaMailSender.class)
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
+    private final String from;
 
-    @Value("${spring.mail.username}")
-    private String from;
+    @Autowired
+    public EmailServiceImpl(
+            JavaMailSender mailSender,
+            @Value("${spring.mail.username:}") String from) {
+        this.mailSender = mailSender;
+        this.from = from;
+    }
 
     @Override
     public void sendVerificationCode(String to, String code) {

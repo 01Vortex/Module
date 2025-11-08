@@ -31,7 +31,7 @@ public class JwtUtil {
 
     @Value("${jwt.refresh-expiration:604800000}")
     private Long refreshExpiration;
-    
+
     // 管理员token有效期：1天（86400000毫秒）
     private static final long ADMIN_EXPIRATION = 86400000L;
     // 用户token有效期：7天（604800000毫秒）
