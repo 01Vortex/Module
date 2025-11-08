@@ -1,4 +1,4 @@
-# LoginRegister Module
+# LoginRegister Module New
 
 基于 **Spring Boot 3.2.5** 和 **Java 21** 的现代化登录注册模块，支持多种登录方式、虚拟线程、第三方 OAuth 集成、管理员系统和文件存储。
 
@@ -106,7 +106,7 @@ spring:
     password: your_auth_code  # QQ 邮箱授权码
 ```
 
-### MinIO 配置（`application-dev.yml`）
+### MinIO 图床配置（`application-dev.yml`）
 ```yaml
 minio:
   endpoint: http://localhost:9000
@@ -182,11 +182,11 @@ spring:
 - ✅ 验证码倒计时
 - ✅ 用户协议/隐私政策
 
-### 第三方登录
-- ✅ 微信 OAuth 登录（二维码扫码）
-- ✅ QQ OAuth 登录
-- ✅ Google OAuth 登录
-- ✅ 第三方账号绑定
+### 第三方登录(申请未通过qaq)
+- ❌微信 OAuth 登录（二维码扫码）
+- ❌ QQ OAuth 登录
+- ❌ Google OAuth 登录
+- ❌ 第三方账号绑定
 
 ### 管理员功能
 - ✅ 管理员登录

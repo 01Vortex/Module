@@ -77,8 +77,14 @@ public class SecurityConfig {
                     "/oauth/**",
                     "/user/check/**",
                     "/uploads/**",
+                    // Swagger UI 相关路径（SpringDoc）
+                    "/swagger-ui.html",
                     "/swagger-ui/**",
+                    "/swagger-ui/index.html",
+                    "/v3/api-docs",
                     "/v3/api-docs/**",
+                    "/swagger-resources/**",
+                    "/webjars/**",
                     "/actuator/health"
                 ).permitAll()
                 // 管理员端点需要管理员权限

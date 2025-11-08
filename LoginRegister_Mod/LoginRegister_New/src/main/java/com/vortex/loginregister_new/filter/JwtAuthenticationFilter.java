@@ -42,6 +42,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Value("${jwt.token-prefix:Bearer }")
     private String tokenPrefix;
 
+    /**
+     * 跳过不需要 JWT 认证的路径
+     * 注意：requestURI 包含 context-path（如 /api/swagger-ui.html）
+     */
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        
+        // 跳过 Swagger UI 相关的静态资源和 API 文档路径
+        // 支持带或不带 context-path 的路径
+        return requestURI.contains("/swagger-ui") 
+                || requestURI.contains("/v3/api-docs") 
+                || requestURI.contains("/swagger-resources")
+                || requestURI.contains("/webjars")
+                || requestURI.endsWith("/swagger-ui.html")
+                || requestURI.contains("/actuator");
+    }
+
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, 
                                     @NonNull HttpServletResponse response, 
@@ -49,6 +67,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String requestURI = request.getRequestURI();
+        
         // 判断是否是管理员接口（排除公开的管理员登录和忘记密码接口）
         boolean isAdminRequest = requestURI.contains("/admin/") 
                 && !requestURI.contains("/auth/admin/login")
