@@ -7,6 +7,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.env.Environment;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Component;
@@ -35,6 +36,7 @@ public class ConnectionCheckConfig {
     private final MinioClient minioClient;
     private final MinIOConfig minIOConfig;
     private final MinIOService minIOService;
+    private final Environment environment;
 
     public ConnectionCheckConfig(
             DataSource dataSource,
@@ -42,13 +44,15 @@ public class ConnectionCheckConfig {
             @Autowired(required = false) JavaMailSender mailSender,
             MinioClient minioClient,
             MinIOConfig minIOConfig,
-            MinIOService minIOService) {
+            MinIOService minIOService,
+            Environment environment) {
         this.dataSource = dataSource;
         this.redisConnectionFactory = redisConnectionFactory;
         this.mailSender = mailSender;
         this.minioClient = minioClient;
         this.minIOConfig = minIOConfig;
         this.minIOService = minIOService;
+        this.environment = environment;
     }
 
 
@@ -142,30 +146,81 @@ public class ConnectionCheckConfig {
      * 检查邮件服务器连接
      */
     private boolean checkMail() {
-        // 如果邮件配置不存在或未配置，抛出异常阻止启动
-        if (mailSender == null) {
-            log.error("❌ 邮件服务未配置：请在配置文件中配置 spring.mail.host、spring.mail.username 和 spring.mail.password");
+        // 先从环境配置中读取邮件配置
+        String mailHost = environment.getProperty("spring.mail.host");
+        String mailUsername = environment.getProperty("spring.mail.username");
+        String mailPassword = environment.getProperty("spring.mail.password");
+        String mailPort = environment.getProperty("spring.mail.port", "465");
+        
+        // 检查配置文件中的邮件配置
+        if (mailHost == null || mailHost.trim().isEmpty()) {
+            log.error("❌ 邮件服务未配置：请在配置文件中配置 spring.mail.host");
+            log.error("   当前配置 - host: {}, username: {}, password: {}", 
+                    mailHost != null ? "已配置" : "未配置",
+                    mailUsername != null && !mailUsername.trim().isEmpty() ? "已配置" : "未配置",
+                    mailPassword != null && !mailPassword.trim().isEmpty() ? "已配置" : "未配置");
             return false;
         }
         
-        try {
-            if (mailSender instanceof JavaMailSenderImpl) {
-                JavaMailSenderImpl mailSenderImpl = (JavaMailSenderImpl) mailSender;
-                // 检查配置是否完整
-                if (mailSenderImpl.getUsername() == null || mailSenderImpl.getUsername().trim().isEmpty() ||
-                    mailSenderImpl.getPassword() == null || mailSenderImpl.getPassword().trim().isEmpty()) {
-                    log.error("❌ 邮件配置不完整：spring.mail.username 或 spring.mail.password 为空");
-                    return false;
-                }
-                mailSenderImpl.testConnection();
-                log.info("✅ 邮件服务器连接成功");
-                return true;
-            } else {
-                log.error("❌ 邮件服务器连接检查失败：邮件发送器类型不正确");
-                return false;
+        if (mailUsername == null || mailUsername.trim().isEmpty()) {
+            log.error("❌ 邮件配置不完整：spring.mail.username 为空");
+            log.error("   当前配置 - host: {}, username: 未配置, password: {}", 
+                    mailHost,
+                    mailPassword != null && !mailPassword.trim().isEmpty() ? "已配置" : "未配置");
+            return false;
+        }
+        
+        if (mailPassword == null || mailPassword.trim().isEmpty()) {
+            log.error("❌ 邮件配置不完整：spring.mail.password 为空");
+            log.error("   当前配置 - host: {}, username: {}, password: 未配置", 
+                    mailHost, mailUsername);
+            return false;
+        }
+        
+        // 如果 JavaMailSender bean 存在，使用它进行连接测试
+        JavaMailSenderImpl mailSenderImpl = null;
+        if (mailSender != null && mailSender instanceof JavaMailSenderImpl) {
+            mailSenderImpl = (JavaMailSenderImpl) mailSender;
+        } else if (mailSender == null) {
+            // 如果 bean 不存在，但配置存在，手动创建一个临时的 JavaMailSender 来测试连接
+            log.info("📧 检测到邮件配置，但 JavaMailSender bean 未创建，正在手动创建测试实例...");
+            mailSenderImpl = new JavaMailSenderImpl();
+            mailSenderImpl.setHost(mailHost);
+            mailSenderImpl.setPort(Integer.parseInt(mailPort));
+            mailSenderImpl.setUsername(mailUsername);
+            mailSenderImpl.setPassword(mailPassword);
+            
+            // 设置邮件属性
+            java.util.Properties props = mailSenderImpl.getJavaMailProperties();
+            props.put("mail.transport.protocol", environment.getProperty("spring.mail.protocol", "smtps"));
+            props.put("mail.smtp.auth", "true");
+            props.put("mail.smtp.ssl.enable", "true");
+            props.put("mail.smtp.ssl.trust", mailHost);
+            
+            // 如果配置了其他邮件属性，也设置上
+            String protocol = environment.getProperty("spring.mail.protocol");
+            if (protocol != null && protocol.equals("smtps")) {
+                props.put("mail.smtp.ssl.enable", "true");
             }
+        } else {
+            log.error("❌ 邮件发送器类型不正确");
+            return false;
+        }
+        
+        // 测试邮件服务器连接
+        try {
+            mailSenderImpl.testConnection();
+            log.info("✅ 邮件服务器连接成功 (host: {}, port: {}, username: {})", 
+                    mailHost, mailPort, mailUsername);
+            return true;
         } catch (Exception e) {
             log.error("❌ 邮件服务器连接失败: {}", e.getMessage());
+            log.error("   配置信息 - host: {}, port: {}, username: {}", 
+                    mailHost, mailPort, mailUsername);
+            log.error("   错误详情: {}", e.getClass().getSimpleName());
+            if (e.getCause() != null) {
+                log.error("   原因: {}", e.getCause().getMessage());
+            }
             return false;
         }
     }

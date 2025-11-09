@@ -54,6 +54,8 @@ public class EmailServiceImpl implements EmailService {
             code
         );
         
+        log.info("准备发送验证码邮件，收件人: {}, 发件人: {}", to, from);
+        
         MimeMessage message = mailSender.createMimeMessage();
         
         try {
@@ -63,11 +65,18 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             
+            log.debug("邮件内容已准备，开始发送...");
             mailSender.send(message);
-            log.info("验证码邮件发送成功，收件人: {}", to);
+            log.info("✅ 验证码邮件发送成功，收件人: {}", to);
         } catch (MessagingException e) {
-            log.error("验证码邮件发送失败，收件人: {}", to, e);
-            throw new RuntimeException("邮件发送失败: " + e.getMessage());
+            log.error("❌ 验证码邮件发送失败 (MessagingException)，收件人: {}, 错误: {}", to, e.getMessage(), e);
+            if (e.getCause() != null) {
+                log.error("   原因: {}", e.getCause().getMessage());
+            }
+            throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("❌ 验证码邮件发送失败 (Exception)，收件人: {}, 错误: {}", to, e.getMessage(), e);
+            throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
         }
     }
     
@@ -92,6 +101,8 @@ public class EmailServiceImpl implements EmailService {
             code
         );
         
+        log.info("准备发送重置密码验证码邮件，收件人: {}, 发件人: {}", to, from);
+        
         MimeMessage message = mailSender.createMimeMessage();
         
         try {
@@ -101,11 +112,18 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             
+            log.debug("邮件内容已准备，开始发送...");
             mailSender.send(message);
-            log.info("重置密码验证码邮件发送成功，收件人: {}", to);
+            log.info("✅ 重置密码验证码邮件发送成功，收件人: {}", to);
         } catch (MessagingException e) {
-            log.error("重置密码验证码邮件发送失败，收件人: {}", to, e);
-            throw new RuntimeException("邮件发送失败: " + e.getMessage());
+            log.error("❌ 重置密码验证码邮件发送失败 (MessagingException)，收件人: {}, 错误: {}", to, e.getMessage(), e);
+            if (e.getCause() != null) {
+                log.error("   原因: {}", e.getCause().getMessage());
+            }
+            throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
+        } catch (Exception e) {
+            log.error("❌ 重置密码验证码邮件发送失败 (Exception)，收件人: {}, 错误: {}", to, e.getMessage(), e);
+            throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
         }
     }
 }
