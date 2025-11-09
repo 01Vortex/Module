@@ -33,10 +33,16 @@ public class User implements Serializable {
     private String account;
 
     /**
-     * 密码（加密）
+     * 密码（加密），第三方登录用户可为空
      */
     @TableField("password")
     private String password;
+
+    /**
+     * 账户类型：PASSWORD-仅密码, SOCIAL-仅第三方, BOTH-两者都有
+     */
+    @TableField("account_type")
+    private String accountType;
 
     /**
      * 邮箱

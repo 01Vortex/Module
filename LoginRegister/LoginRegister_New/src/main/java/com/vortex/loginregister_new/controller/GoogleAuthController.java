@@ -6,6 +6,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vortex.loginregister_new.config.GoogleOAuthProperties;
 import com.vortex.loginregister_new.entity.User;
+import com.vortex.loginregister_new.service.SocialLoginService;
 import com.vortex.loginregister_new.service.UserService;
 import com.vortex.loginregister_new.util.JwtUtil;
 import com.vortex.loginregister_new.util.WebUtils;
@@ -15,7 +16,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -41,8 +41,8 @@ public class GoogleAuthController {
 
     private final GoogleOAuthProperties props;
     private final UserService userService;
+    private final SocialLoginService socialLoginService;
     private final JwtUtil jwtUtil;
-    private final PasswordEncoder passwordEncoder;
     private final RestTemplate restTemplate;
     
     // 配置 ObjectMapper 支持 Java 8 时间类型
@@ -144,55 +144,20 @@ public class GoogleAuthController {
             String name = userInfo.get("name");
             String picture = userInfo.get("picture");
 
-            // 3. 查找或创建用户
-            String generatedAccount = "google_" + sub;
-            User user = userService.findByAccount(generatedAccount);
+            // 3. 使用统一的第三方登录服务处理登录或注册
+            User user = socialLoginService.loginOrRegister(
+                    "google",
+                    sub,
+                    null, // Google 没有 unionid
+                    email,
+                    name,
+                    picture,
+                    clientIp // 传入登录IP
+            );
             
             if (user == null) {
-                // 新用户，创建账户
-                log.info("创建新的Google用户 - account: {}, email: {}", generatedAccount, email);
-                user = new User();
-                user.setAccount(generatedAccount);
-                user.setEmail(email != null ? email.toLowerCase() : null);
-                user.setNickname(name != null && !name.isBlank() ? name : generatedAccount);
-                user.setAvatar(picture);
-                user.setStatus(1); // 默认启用
-                
-                // OAuth 用户不需要密码登录，但数据库要求必须有密码字段
-                // 生成一个随机密码（OAuth用户不会使用密码登录）
-                String randomPassword = UUID.randomUUID().toString() + System.currentTimeMillis();
-                user.setPassword(passwordEncoder.encode(randomPassword));
-                
-                boolean registered = userService.register(user);
-                if (!registered) {
-                    log.error("Google用户注册失败 - account: {}", generatedAccount);
-                    return popupResultHtml("error", Map.of("message", "用户注册失败，请重试"));
-                }
-                
-                // 重新查询用户以获取ID
-                user = userService.findByAccount(generatedAccount);
-                if (user == null) {
-                    log.error("Google用户注册后查询失败 - account: {}", generatedAccount);
-                    return popupResultHtml("error", Map.of("message", "用户注册失败，请重试"));
-                }
-            } else {
-                // 已存在用户，更新信息（可选）
-                boolean needUpdate = false;
-                if (email != null && !email.equals(user.getEmail())) {
-                    user.setEmail(email.toLowerCase());
-                    needUpdate = true;
-                }
-                if (name != null && !name.isBlank() && !name.equals(user.getNickname())) {
-                    user.setNickname(name);
-                    needUpdate = true;
-                }
-                if (picture != null && !picture.equals(user.getAvatar())) {
-                    user.setAvatar(picture);
-                    needUpdate = true;
-                }
-                if (needUpdate) {
-                    userService.updateById(user);
-                }
+                log.error("Google用户登录/注册失败");
+                return popupResultHtml("error", Map.of("message", "用户登录失败，请重试"));
             }
 
             // 4. 检查用户状态
@@ -201,8 +166,7 @@ public class GoogleAuthController {
                 return popupResultHtml("error", Map.of("message", "账号已被禁用"));
             }
 
-            // 5. 更新登录信息
-            userService.updateLastLoginInfo(user.getId(), clientIp);
+            // 登录信息已在 loginOrRegister 方法中更新，无需再次更新
 
             // 6. 获取用户角色
             List<String> roles = userService.getUserRoles(user.getId());

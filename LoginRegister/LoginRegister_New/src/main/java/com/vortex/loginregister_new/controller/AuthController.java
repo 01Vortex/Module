@@ -114,9 +114,18 @@ public class AuthController {
                 user = userService.findByEmail(identifier);
             }
             
+            // 检查用户是否设置了密码
+            if (user != null && (user.getPassword() == null || user.getPassword().trim().isEmpty())) {
+                // 用户没有设置密码，只能通过第三方登录
+                log.warn("用户尝试使用密码登录，但该用户未设置密码 - account: {}", identifier);
+                result.put("code", 400);
+                result.put("message", "该账号未设置密码，请使用第三方登录");
+                return result;
+            }
+            
             // 无论用户是否存在，都进行密码验证（防止用户枚举攻击）
             boolean passwordValid = false;
-            if (user != null) {
+            if (user != null && user.getPassword() != null) {
                 passwordValid = passwordEncoder.matches(password, user.getPassword());
             }
             

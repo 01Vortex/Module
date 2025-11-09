@@ -5,27 +5,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vortex.loginregister_new.entity.User;
-import com.vortex.loginregister_new.entity.UserSocial;
+import com.vortex.loginregister_new.service.SocialLoginService;
 import com.vortex.loginregister_new.service.UserService;
-import com.vortex.loginregister_new.service.UserSocialService;
+import com.vortex.loginregister_new.util.JwtUtil;
+import com.vortex.loginregister_new.util.WebUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.client.RestTemplate;
 
+import jakarta.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -34,8 +34,8 @@ import java.util.UUID;
 public class WeChatOAuthController {
 
     private final UserService userService;
-    private final UserSocialService userSocialService;
-    private final PasswordEncoder passwordEncoder;
+    private final SocialLoginService socialLoginService;
+    private final JwtUtil jwtUtil;
 
     @Value("${wechat.oauth.app-id}")
     private String appId;
@@ -73,11 +73,12 @@ public class WeChatOAuthController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<String> callback(String code, String state) {
+    public ResponseEntity<String> callback(String code, String state, HttpServletRequest request) {
         if (code == null || code.isEmpty()) {
             return buildPostMessageHtml("wechat_auth", 400, null, "缺少code");
         }
         try {
+            String clientIp = WebUtils.getClientIp(request);
             RestTemplate restTemplate = new RestTemplate();
             String tokenUrl = "https://api.weixin.qq.com/sns/oauth2/access_token" +
                     "?appid=" + appId +
@@ -108,16 +109,52 @@ public class WeChatOAuthController {
 
             String nickname = userJson.path("nickname").asText("微信用户");
             String avatar = userJson.path("headimgurl").asText("");
+            String email = null; // 微信通常不提供邮箱
 
-            // 绑定或创建用户
-            User user = resolveOrCreateUser(openid, unionid, nickname, avatar);
+            // 使用统一的第三方登录服务处理登录或注册
+            User user = socialLoginService.loginOrRegister(
+                    "wechat",
+                    openid,
+                    unionid,
+                    email, // 微信通常不提供邮箱
+                    nickname,
+                    avatar,
+                    clientIp // 传入登录IP
+            );
+            
+            if (user == null) {
+                log.error("微信用户登录/注册失败");
+                return buildPostMessageHtml("wechat_auth", 500, null, "用户登录失败，请重试");
+            }
+
+            // 检查用户状态
+            if (user.getStatus() == 0) {
+                log.warn("微信用户账号已被禁用 - account: {}", user.getAccount());
+                return buildPostMessageHtml("wechat_auth", 403, null, "账号已被禁用");
+            }
+
+            // 登录信息已在 loginOrRegister 方法中更新，无需再次更新
+
+            // 获取用户角色
+            List<String> roles = userService.getUserRoles(user.getId());
+            String role = roles != null && !roles.isEmpty() ? roles.get(0) : "ROLE_USER";
+
+            // 生成JWT token
+            String jwtAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount(), role);
+            String jwtRefreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount(), role);
+
+            // 清除敏感信息
             user.setPassword(null);
 
+            // 构建返回数据
             Map<String, Object> payload = new HashMap<>();
             payload.put("code", 200);
             payload.put("message", "登录成功");
             payload.put("data", user);
-            return buildPostMessageHtml("wechat_auth", 200, user, null);
+            payload.put("accessToken", jwtAccessToken);
+            payload.put("refreshToken", jwtRefreshToken);
+            payload.put("tokenType", "Bearer");
+            return buildPostMessageHtml("wechat_auth", 200, user, null, payload);
 
         } catch (Exception e) {
             log.error("WeChat callback error", e);
@@ -125,96 +162,48 @@ public class WeChatOAuthController {
         }
     }
 
-    private User resolveOrCreateUser(String openid, String unionid, String nickname, String avatar) {
-        UserSocial bind = null;
-        if (unionid != null && !unionid.isEmpty()) {
-            bind = userSocialService.findByProviderAndUnionId("wechat", unionid);
-        }
-        if (bind == null) {
-            bind = userSocialService.findByProviderAndOpenId("wechat", openid);
-        }
-        if (bind != null) {
-            User user = userService.getById(bind.getUserId());
-            if (user != null) {
-                // 同步最新的头像昵称（可选）
-                bind.setNickname(nickname).setAvatar(avatar);
-                userSocialService.updateById(bind);
-                return user;
-            }
-        }
-
-        // 创建新用户：用户名10位随机数字，昵称取三方昵称
-        User user = new User();
-        user.setAccount(generateUniqueAccount(10));
-        
-        // OAuth 用户不需要密码登录，但数据库要求必须有密码字段
-        // 生成一个随机密码（OAuth用户不会使用密码登录）
-        String randomPassword = UUID.randomUUID().toString() + System.currentTimeMillis();
-        user.setPassword(passwordEncoder.encode(randomPassword));
-        
-        user.setNickname(nickname);
-        user.setAvatar(avatar);
-        user.setStatus(1);
-        userService.save(user);
-
-        UserSocial social = new UserSocial();
-        social.setUserId(user.getId())
-                .setProvider("wechat")
-                .setOpenid(openid)
-                .setUnionid(unionid)
-                .setNickname(nickname)
-                .setAvatar(avatar);
-        userSocialService.save(social);
-        return user;
-    }
-
-    private String generateUniqueAccount(int length) {
-        String candidate;
-        int attempts = 0;
-        do {
-            candidate = generateRandomDigits(length);
-            attempts++;
-            if (attempts > 10) {
-                candidate = generateRandomDigits(length + 1);
-            }
-        } while (userService.isAccountExists(candidate));
-        return candidate;
-    }
-
-    private String generateRandomDigits(int length) {
-        Random random = new Random();
-        StringBuilder sb = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            sb.append(random.nextInt(10));
-        }
-        return sb.toString();
-    }
-
-    private ResponseEntity<String> buildPostMessageHtml(String type, int code, User user, String message) {
+    private ResponseEntity<String> buildPostMessageHtml(String type, int code, User user, String message, Map<String, Object> customPayload) {
         try {
             ObjectMapper mapper = objectMapper;
-            Map<String, Object> payload = new HashMap<>();
-            payload.put("code", code);
-            if (message != null) payload.put("message", message);
-            if (user != null) payload.put("data", user);
+            Map<String, Object> payload = customPayload != null ? customPayload : new HashMap<>();
+            if (payload.isEmpty()) {
+                payload.put("code", code);
+                if (message != null) payload.put("message", message);
+                if (user != null) payload.put("data", user);
+            }
             String json = mapper.writeValueAsString(payload);
+            // 转义JSON字符串中的特殊字符
+            String escaped = json
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
             String html = "<!DOCTYPE html>\n" +
                     "<html><head><meta charset=\"utf-8\"><title>WeChat Login</title></head>" +
                     "<body><script>\n" +
                     "(function(){\n" +
                     "  try {\n" +
-                    "    var payload = " + json + ";\n" +
+                    "    var data = JSON.parse(\"" + escaped + "\");\n" +
                     "    if (window.opener) {\n" +
-                    "      window.opener.postMessage({ type: '" + type + "', payload: payload }, '*');\n" +
+                    "      window.opener.postMessage({ type: '" + type + "', payload: data }, '*');\n" +
                     "    }\n" +
-                    "  } catch(e){}\n" +
-                    "  window.close();\n" +
+                    "  } catch(e){\n" +
+                    "    console.error('Parse error:', e);\n" +
+                    "  }\n" +
+                    "  setTimeout(function(){window.close();}, 100);\n" +
                     "})();\n" +
-                    "</script></body></html>";
+                    "</script>" +
+                    "<p>正在处理登录，请稍候...</p>" +
+                    "</body></html>";
             return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html);
         } catch (Exception e) {
             return ResponseEntity.ok().contentType(MediaType.TEXT_PLAIN).body("WeChat login finished.");
         }
+    }
+    
+    private ResponseEntity<String> buildPostMessageHtml(String type, int code, User user, String message) {
+        return buildPostMessageHtml(type, code, user, message, null);
     }
 }
 

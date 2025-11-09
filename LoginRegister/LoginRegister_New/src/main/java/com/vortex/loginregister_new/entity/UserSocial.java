@@ -38,8 +38,11 @@ public class UserSocial implements Serializable {
     @TableField("unionid")
     private String unionid;
 
-    @TableField("nickname")
-    private String nickname;
+    /**
+     * 第三方昵称
+     */
+    @TableField("social_name")
+    private String socialName;
 
     @TableField("avatar")
     private String avatar;

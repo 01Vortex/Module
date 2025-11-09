@@ -6,11 +6,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vortex.loginregister_new.config.QqOAuthProperties;
 import com.vortex.loginregister_new.entity.User;
+import com.vortex.loginregister_new.service.SocialLoginService;
 import com.vortex.loginregister_new.service.UserService;
+import com.vortex.loginregister_new.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +23,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -33,7 +36,8 @@ public class QqAuthController {
 
     private final QqOAuthProperties props;
     private final UserService userService;
-    private final PasswordEncoder passwordEncoder;
+    private final SocialLoginService socialLoginService;
+    private final JwtUtil jwtUtil;
     
     // 配置 ObjectMapper 支持 Java 8 时间类型
     private final ObjectMapper objectMapper = createObjectMapper();
@@ -97,6 +101,7 @@ public class QqAuthController {
             }
             JsonNode meNode = objectMapper.readTree(json);
             String openId = meNode.get("openid").asText();
+            String unionId = meNode.has("unionid") ? meNode.get("unionid").asText() : null;
 
             // Optional: fetch user info
             String infoUrl = "https://graph.qq.com/user/get_user_info?access_token=" + accessToken +
@@ -105,6 +110,7 @@ public class QqAuthController {
             String infoResp = rest.getForObject(infoUrl, String.class);
             String nickname = null;
             String avatar = null;
+            String email = null; // QQ 通常不提供邮箱
             try {
                 JsonNode infoNode = objectMapper.readTree(infoResp);
                 if (infoNode.has("nickname")) nickname = infoNode.get("nickname").asText();
@@ -115,33 +121,54 @@ public class QqAuthController {
                 }
             } catch (Exception ignored) { }
 
-            // Find or create user by qq openid
-            String generatedAccount = "qq_" + openId;
-            User user = userService.findByAccount(generatedAccount);
+            String clientIp = getClientIp(request);
+            
+            // 使用统一的第三方登录服务处理登录或注册
+            User user = socialLoginService.loginOrRegister(
+                    "qq",
+                    openId,
+                    unionId,
+                    email, // QQ 通常不提供邮箱
+                    nickname,
+                    avatar,
+                    clientIp // 传入登录IP
+            );
+            
             if (user == null) {
-                user = new User();
-                user.setAccount(generatedAccount);
-                user.setNickname(nickname != null ? nickname : generatedAccount);
-                user.setAvatar(avatar);
-                user.setStatus(1);
-                
-                // OAuth 用户不需要密码登录，但数据库要求必须有密码字段
-                // 生成一个随机密码（OAuth用户不会使用密码登录）
-                String randomPassword = UUID.randomUUID().toString() + System.currentTimeMillis();
-                user.setPassword(passwordEncoder.encode(randomPassword));
-                
-                userService.register(user);
+                log.error("QQ用户登录/注册失败");
+                return popupResultHtml("error", Map.of("message", "用户登录失败，请重试"));
             }
 
-            String clientIp = getClientIp(request);
-            userService.updateLastLoginInfo(user.getId(), clientIp);
+            // 检查用户状态
+            if (user.getStatus() == 0) {
+                log.warn("QQ用户账号已被禁用 - account: {}", user.getAccount());
+                return popupResultHtml("error", Map.of("message", "账号已被禁用"));
+            }
+
+            // 登录信息已在 loginOrRegister 方法中更新，无需再次更新
+
+            // 获取用户角色
+            List<String> roles = userService.getUserRoles(user.getId());
+            String role = roles != null && !roles.isEmpty() ? roles.get(0) : "ROLE_USER";
+
+            // 生成JWT token
+            String jwtAccessToken = jwtUtil.generateAccessToken(user.getId(), user.getAccount(), role);
+            String jwtRefreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getAccount(), role);
+
+            // 清除敏感信息
             user.setPassword(null);
 
-            String userJson = objectMapper.writeValueAsString(Map.of(
-                    "code", 200,
-                    "message", "登录成功",
-                    "data", user
-            ));
+            // 构建返回数据
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("code", 200);
+            responseData.put("message", "登录成功");
+            responseData.put("data", user);
+            responseData.put("accessToken", jwtAccessToken);
+            responseData.put("refreshToken", jwtRefreshToken);
+            responseData.put("tokenType", "Bearer");
+
+            String userJson = objectMapper.writeValueAsString(responseData);
+            log.info("QQ登录成功 - account: {}, IP: {}", user.getAccount(), clientIp);
             return popupPostMessageHtml(userJson);
         } catch (Exception e) {
             log.error("QQ 回调处理失败", e);

@@ -7,6 +7,7 @@
         <id column="id" property="id"/>
         <result column="account" property="account"/>
         <result column="password" property="password"/>
+        <result column="account_type" property="accountType"/>
         <result column="email" property="email"/>
         <result column="phone" property="phone"/>
         <result column="nickname" property="nickname"/>
@@ -21,7 +22,7 @@
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, account, password, email, phone, nickname, avatar, status,
+        id, account, password, account_type, email, phone, nickname, avatar, status,
         last_login_time, last_login_ip, create_time, update_time, deleted
     </sql>
 

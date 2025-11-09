@@ -70,11 +70,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user.getStatus() == null) {
             user.setStatus(1); // 默认状态为正常
         }
+        
+        // 设置账户类型（如果未设置）
+        if (user.getAccountType() == null || user.getAccountType().isEmpty()) {
+            // 如果密码为空，默认为 SOCIAL；否则为 PASSWORD
+            if (user.getPassword() == null || user.getPassword().trim().isEmpty()) {
+                user.setAccountType("SOCIAL");
+            } else {
+                user.setAccountType("PASSWORD");
+            }
+        }
 
         // 保存用户
         boolean saved = this.save(user);
         if (saved) {
-            log.info("用户注册成功: {}", user.getAccount());
+            log.info("用户注册成功: {}, accountType: {}", user.getAccount(), user.getAccountType());
         }
         return saved;
     }

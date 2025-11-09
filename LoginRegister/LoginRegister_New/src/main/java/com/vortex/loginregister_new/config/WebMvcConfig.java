@@ -55,7 +55,8 @@ public class WebMvcConfig implements WebMvcConfigurer, Ordered {
         // 只处理 /uploads/** 路径，避免拦截其他路径（如 /oauth/**）
         registry.addResourceHandler(uploadUrl)
                 .addResourceLocations(uploadDir)
-                .setCachePeriod(3600); // 缓存1小时
+                .setCachePeriod(3600) // 缓存1小时
+                .resourceChain(false); // 禁用资源链，避免拦截控制器路径
         
         log.debug("静态资源处理器已配置 - URL: {}, 目录: {}", uploadUrl, uploadDir);
     }

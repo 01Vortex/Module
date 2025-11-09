@@ -53,6 +53,12 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
+  
+  # 禁用默认的静态资源处理，确保控制器路径优先
+  web:
+    resources:
+      add-mappings: false  # 禁用默认的静态资源映射（/static/**, /public/**, /resources/**）
+      static-locations: []  # 清空默认的静态资源位置
 
 
 

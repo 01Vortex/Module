@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vortex.loginregister_new.config.MinIOConfig;
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.service.MinIOService;
+import com.vortex.loginregister_new.service.SocialLoginService;
 import com.vortex.loginregister_new.service.UserService;
 import com.vortex.loginregister_new.util.ValidationUtils;
 import com.vortex.loginregister_new.util.WebUtils;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.coobird.thumbnailator.Thumbnails;
@@ -39,6 +41,8 @@ public class UserController {
     private final UserService userService;
     private final MinIOService minIOService;
     private final MinIOConfig minIOConfig;
+    private final PasswordEncoder passwordEncoder;
+    private final SocialLoginService socialLoginService;
     
 
     /**
@@ -357,6 +361,95 @@ public class UserController {
             result.put("message", "更新用户信息失败");
             return result;
         }
+    }
+    
+    /**
+     * 设置密码（用于第三方登录用户设置密码）
+     */
+    @PostMapping("/set-password")
+    public Map<String, Object> setPassword(@RequestBody Map<String, String> passwordData, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 从SecurityContext获取当前用户账号
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                result.put("code", 401);
+                result.put("message", "未登录");
+                return result;
+            }
+            
+            String account = authentication.getName();
+            User user = userService.findByAccount(account);
+            
+            if (user == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                return result;
+            }
+            
+            String password = passwordData.get("password");
+            if (password == null || password.trim().isEmpty()) {
+                result.put("code", 400);
+                result.put("message", "密码不能为空");
+                return result;
+            }
+            
+            // 验证密码强度
+            String passwordError = ValidationUtils.getPasswordValidationError(password);
+            if (passwordError != null) {
+                result.put("code", 400);
+                result.put("message", passwordError);
+                return result;
+            }
+            
+            // 如果用户已经设置过密码，需要提供旧密码
+            if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
+                String oldPassword = passwordData.get("oldPassword");
+                if (oldPassword == null || oldPassword.trim().isEmpty()) {
+                    result.put("code", 400);
+                    result.put("message", "修改密码需要提供旧密码");
+                    return result;
+                }
+                
+                // 验证旧密码
+                if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                    result.put("code", 400);
+                    result.put("message", "旧密码错误");
+                    return result;
+                }
+            }
+            
+            // 加密新密码
+            user.setPassword(passwordEncoder.encode(password));
+            boolean updated = userService.updateById(user);
+            
+            if (updated) {
+                // 更新账户类型
+                socialLoginService.updateAccountType(user.getId());
+                
+                String clientIp = WebUtils.getClientIp(request);
+                boolean wasPasswordSet = user.getPassword() != null && !user.getPassword().trim().isEmpty();
+                log.info("用户设置/修改密码成功 - account: {}, IP: {}, wasPasswordSet: {}", account, clientIp, wasPasswordSet);
+                
+                // 重新查询用户以获取最新的账户类型
+                user = userService.getById(user.getId());
+                
+                result.put("code", 200);
+                result.put("message", "密码设置成功");
+                result.put("data", Map.of("accountType", user != null ? user.getAccountType() : "UNKNOWN"));
+            } else {
+                result.put("code", 500);
+                result.put("message", "设置密码失败");
+            }
+            
+        } catch (Exception e) {
+            log.error("设置密码失败: ", e);
+            result.put("code", 500);
+            result.put("message", "设置密码失败");
+        }
+        
+        return result;
     }
     
     /**
