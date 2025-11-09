@@ -39,7 +39,6 @@
         <!-- 右侧：用户功能区 -->
         <div class="header-right">
           <template v-if="isLoggedIn">
-            <button class="header-btn">大会员</button>
             <button class="header-btn icon-btn">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
@@ -51,13 +50,87 @@
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
               </svg>
             </button>
-            <div class="user-avatar" @click="showUserMenu = !showUserMenu">
-              <img :src="userAvatar" :alt="userInfo?.nickname || '用户'" />
-            </div>
-            <div v-if="showUserMenu" class="user-menu">
-              <div class="user-menu-item" @click="goToProfile">个人中心</div>
-              <div class="user-menu-item" @click="goToSettings">设置</div>
-              <div class="user-menu-item" @click="handleLogout">退出登录</div>
+            <div 
+              class="user-avatar-wrapper"
+              @mouseenter="showUserMenu = true"
+              @mouseleave="handleMouseLeave"
+            >
+              <div class="user-avatar">
+                <img :src="userAvatar" :alt="userInfo?.nickname || '用户'" />
+              </div>
+              <div v-if="showUserMenu" class="user-profile-popup" @mouseenter="handlePopupEnter" @mouseleave="handlePopupLeave">
+                <!-- 用户信息区域 -->
+                <div class="popup-header">
+                  <div class="popup-avatar">
+                    <img :src="userAvatar" :alt="userInfo?.nickname || '用户'" />
+                  </div>
+                  <div class="popup-user-info">
+                    <h3 class="popup-username">{{ userInfo?.nickname || userInfo?.account || '用户' }}</h3>
+                    <div class="popup-account">账号：{{ userInfo?.account || '' }}</div>
+                  </div>
+                </div>
+                
+                <!-- 社交数据区域 -->
+                <div class="popup-stats">
+                  <div class="stat-item">
+                    <span class="stat-value">{{ userStats.following }}</span>
+                    <span class="stat-label">关注</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-value">{{ userStats.fans }}</span>
+                    <span class="stat-label">粉丝</span>
+                  </div>
+                  <div class="stat-item">
+                    <span class="stat-value">{{ userStats.dynamics }}</span>
+                    <span class="stat-label">动态</span>
+                  </div>
+                </div>
+                
+                <!-- 导航菜单 -->
+                <div class="popup-menu">
+                  <div class="popup-menu-item" @click="goToProfile">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    <span>个人中心</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                      <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                  <div class="popup-menu-item" @click="goToSubmission">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                      <line x1="8" y1="21" x2="16" y2="21"></line>
+                      <line x1="12" y1="17" x2="12" y2="21"></line>
+                    </svg>
+                    <span>投稿管理</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                      <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                  <div class="popup-menu-item" @click="goToRecommended">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <span>推荐服务</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                      <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                  <div class="popup-menu-item logout-item" @click="handleLogout">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>退出登录</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+                      <path d="M5 12h14M12 5l7 7-7 7"></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
           </template>
           <template v-else>
@@ -185,11 +258,25 @@ export default {
       isLoggedIn: false,
       userInfo: null,
       userAvatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCAxMDAgMTAwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgZmlsbD0iIzY2N2VlYSIvPgo8cGF0aCBkPSJNNTAgMzVDNDAgMzUgNDAgNDAgMzUgNDVDMjUuNSA0NSAyMCA1MC41IDIwIDYwQzIwIDcwIDI1IDc1IDMwIDgwQzMwIDg1IDQwIDkwIDUwIDkwQzYwIDkwIDcwIDg1IDcwIDgwQzc1IDc1IDgwIDcwIDgwIDYwQzgwIDUwLjUgNzQuNSA0NSA2NSA0NUM2MCA0MCA2MCAzNSA1MCAzNVoiIGZpbGw9IndoaXRlIi8+Cjwvc3ZnPg==',
-      showUserMenu: false
+      showUserMenu: false,
+      menuTimer: null,
+      userStats: {
+        following: 0,
+        fans: 0,
+        dynamics: 0
+      }
     }
   },
   mounted() {
     this.checkLoginStatus()
+    this.loadUserStats()
+  },
+  beforeUnmount() {
+    // 清除定时器，避免内存泄漏
+    if (this.menuTimer) {
+      clearTimeout(this.menuTimer)
+      this.menuTimer = null
+    }
   },
   methods: {
     checkLoginStatus() {
@@ -209,6 +296,36 @@ export default {
           }
         }
       }
+    },
+    loadUserStats() {
+      // 加载用户统计数据（关注、粉丝、动态）
+      // 这里可以使用API获取，暂时使用模拟数据
+      // TODO: 如果后端有相关API，可以调用获取真实数据
+      this.userStats = {
+        following: 0,
+        fans: 0,
+        dynamics: 0
+      }
+    },
+    handleMouseLeave() {
+      // 延迟隐藏，以便用户可以从头像移动到弹窗
+      if (this.menuTimer) {
+        clearTimeout(this.menuTimer)
+      }
+      this.menuTimer = setTimeout(() => {
+        this.showUserMenu = false
+      }, 300)
+    },
+    handlePopupEnter() {
+      // 鼠标进入弹窗时，清除隐藏定时器
+      if (this.menuTimer) {
+        clearTimeout(this.menuTimer)
+        this.menuTimer = null
+      }
+    },
+    handlePopupLeave() {
+      // 鼠标离开弹窗时，隐藏菜单
+      this.showUserMenu = false
     },
     handleLogin() {
       window.location.hash = '#login'
@@ -231,10 +348,17 @@ export default {
       // 跳转到个人中心
       window.location.hash = '#profile'
     },
-    goToSettings() {
+    goToSubmission() {
       this.showUserMenu = false
-      // 跳转到设置
-      console.log('跳转到设置')
+      // 跳转到投稿管理
+      console.log('跳转到投稿管理')
+      // TODO: 实现投稿管理页面路由
+    },
+    goToRecommended() {
+      this.showUserMenu = false
+      // 跳转到推荐服务
+      console.log('跳转到推荐服务')
+      // TODO: 实现推荐服务页面路由
     }
   }
 }
@@ -385,6 +509,11 @@ export default {
   background: #ff4d8a;
 }
 
+.user-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .user-avatar {
   width: 40px;
   height: 40px;
@@ -395,7 +524,7 @@ export default {
   transition: border-color 0.3s;
 }
 
-.user-avatar:hover {
+.user-avatar-wrapper:hover .user-avatar {
   border-color: white;
 }
 
@@ -405,28 +534,146 @@ export default {
   object-fit: cover;
 }
 
-.user-menu {
+.user-profile-popup {
   position: absolute;
-  top: 60px;
-  right: 20px;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 150px;
-  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
   z-index: 1001;
+  overflow: hidden;
+  animation: slideDown 0.2s ease-out;
 }
 
-.user-menu-item {
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.popup-header {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.popup-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid #f0f0f0;
+}
+
+.popup-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.popup-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.popup-username {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 4px 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popup-account {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+.popup-stats {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-around;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.stat-value {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #999;
+}
+
+.popup-menu {
+  padding: 8px 0;
+}
+
+.popup-menu-item {
   padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   cursor: pointer;
   font-size: 14px;
   color: #333;
   transition: background 0.2s;
+  position: relative;
 }
 
-.user-menu-item:hover {
+.popup-menu-item:hover {
   background: #f5f5f5;
+}
+
+.popup-menu-item svg:first-child {
+  flex-shrink: 0;
+  color: #666;
+}
+
+.popup-menu-item span {
+  flex: 1;
+}
+
+.popup-menu-item .arrow-icon {
+  flex-shrink: 0;
+  opacity: 0.3;
+}
+
+.popup-menu-item.logout-item {
+  border-top: 1px solid #f0f0f0;
+  margin-top: 4px;
+}
+
+.popup-menu-item.logout-item:hover {
+  background: #fff5f5;
+}
+
+.popup-menu-item.logout-item svg:first-child {
+  color: #ff6699;
 }
 
 /* 副导航栏 */
