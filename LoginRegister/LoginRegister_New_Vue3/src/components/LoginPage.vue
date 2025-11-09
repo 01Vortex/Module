@@ -394,13 +394,21 @@ const handleSocialLogin = (platform) => {
             }
             tokenManager.setUser(user)
             showMessage('Google登录成功！', 'success')
+            setTimeout(() => {
+              window.location.href = '/dashboard'
+            }, 1000)
           } else {
             showMessage(payload.message || 'Google登录失败', 'error')
           }
           window.removeEventListener('message', qqMessageHandler)
           qqMessageHandler = null
         }
-      } catch (e) {}
+      } catch (e) {
+        console.error('Google登录处理错误:', e)
+        showMessage('Google登录处理失败', 'error')
+        window.removeEventListener('message', qqMessageHandler)
+        qqMessageHandler = null
+      }
     }
     window.addEventListener('message', qqMessageHandler)
     return

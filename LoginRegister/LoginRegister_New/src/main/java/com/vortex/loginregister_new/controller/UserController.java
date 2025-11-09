@@ -140,17 +140,67 @@ public class UserController {
      */
     @DeleteMapping("/{id}")
     public Map<String, Object> delete(@PathVariable Long id) {
-        boolean deleted = userService.removeById(id);
-        
         Map<String, Object> result = new HashMap<>();
-        if (deleted) {
-            result.put("code", 200);
-            result.put("message", "删除成功");
-        } else {
+        
+        try {
+            // 获取用户信息
+            User user = userService.getById(id);
+            if (user == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                return result;
+            }
+            
+            // 删除用户头像（如果存在）
+            deleteUserAvatar(user);
+            
+            // 逻辑删除
+            boolean deleted = userService.removeById(id);
+            if (deleted) {
+                result.put("code", 200);
+                result.put("message", "删除成功");
+                log.info("用户 {} 删除成功 - 用户ID: {}", user.getAccount(), id);
+            } else {
+                result.put("code", 500);
+                result.put("message", "删除失败");
+            }
+        } catch (Exception e) {
+            log.error("删除用户失败 - 用户ID: {}", id, e);
             result.put("code", 500);
-            result.put("message", "删除失败");
+            result.put("message", "删除失败: " + e.getMessage());
         }
+        
         return result;
+    }
+    
+    /**
+     * 删除用户头像（从MinIO中删除）
+     */
+    private void deleteUserAvatar(User user) {
+        if (user == null || user.getAvatar() == null || user.getAvatar().trim().isEmpty()) {
+            return;
+        }
+        
+        String avatarUrl = user.getAvatar();
+        try {
+            // 检查是否是MinIO中的文件
+            if (avatarUrl.contains(minIOConfig.getBucketName()) || avatarUrl.contains("avatars/")) {
+                // 从URL中提取objectName
+                String objectName = extractObjectNameFromUrl(avatarUrl);
+                if (objectName != null && !objectName.trim().isEmpty()) {
+                    minIOService.deleteFile(minIOConfig.getBucketName(), objectName);
+                    log.info("删除用户头像成功 - 用户ID: {}, objectName: {}", user.getId(), objectName);
+                } else {
+                    log.warn("无法从URL中提取objectName - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
+                }
+            } else {
+                log.debug("用户头像不是MinIO文件，跳过删除 - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
+            }
+        } catch (Exception e) {
+            // 删除头像失败不影响用户删除操作，只记录警告
+            log.warn("删除用户头像失败 - 用户ID: {}, avatarUrl: {}, 错误: {}", 
+                    user.getId(), avatarUrl, e.getMessage());
+        }
     }
 
     /**
@@ -400,16 +450,20 @@ public class UserController {
             
             if (updated) {
                 // 删除旧头像（如果存在且是MinIO中的文件）
-                if (oldAvatarUrl != null && oldAvatarUrl.contains(minIOConfig.getBucketName())) {
+                if (oldAvatarUrl != null && 
+                    (oldAvatarUrl.contains(minIOConfig.getBucketName()) || oldAvatarUrl.contains("avatars/"))) {
                     try {
                         // 从URL中提取objectName
                         String oldObjectName = extractObjectNameFromUrl(oldAvatarUrl);
-                        if (oldObjectName != null) {
+                        if (oldObjectName != null && !oldObjectName.trim().isEmpty()) {
                             minIOService.deleteFile(minIOConfig.getBucketName(), oldObjectName);
-                            log.info("删除旧头像: {}", oldObjectName);
+                            log.info("删除旧头像成功: {}", oldObjectName);
+                        } else {
+                            log.warn("无法从URL中提取objectName - avatarUrl: {}", oldAvatarUrl);
                         }
                     } catch (Exception e) {
-                        log.warn("删除旧头像失败: {}", oldAvatarUrl, e);
+                        // 删除旧头像失败不影响新头像上传，只记录警告
+                        log.warn("删除旧头像失败: {}, 错误: {}", oldAvatarUrl, e.getMessage());
                     }
                 }
                 
@@ -441,11 +495,26 @@ public class UserController {
      */
     private String extractObjectNameFromUrl(String url) {
         try {
-            // URL格式: http://localhost:9000/avatar/avatars/filename.jpg
-            if (url.contains("/" + minIOConfig.getBucketName() + "/")) {
-                int index = url.indexOf("/" + minIOConfig.getBucketName() + "/");
-                return url.substring(index + minIOConfig.getBucketName().length() + 2);
+            // URL格式: http://localhost:9000/bucket-name/avatars/filename.jpg
+            // 或者: http://localhost:9000/avatar/avatars/filename.jpg
+            if (url == null || url.trim().isEmpty()) {
+                return null;
             }
+            
+            // 检查是否包含存储桶名称
+            String bucketName = minIOConfig.getBucketName();
+            if (url.contains("/" + bucketName + "/")) {
+                int index = url.indexOf("/" + bucketName + "/");
+                return url.substring(index + bucketName.length() + 2);
+            }
+            
+            // 如果没有包含存储桶名称，尝试从路径中提取（可能是相对路径）
+            // 例如：/avatars/filename.jpg 或 avatars/filename.jpg
+            if (url.contains("avatars/")) {
+                int index = url.indexOf("avatars/");
+                return url.substring(index);
+            }
+            
         } catch (Exception e) {
             log.warn("提取objectName失败: {}", url, e);
         }

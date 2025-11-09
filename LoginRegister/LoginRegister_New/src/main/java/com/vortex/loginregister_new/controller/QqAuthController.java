@@ -2,12 +2,15 @@ package com.vortex.loginregister_new.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vortex.loginregister_new.config.QqOAuthProperties;
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,7 +33,17 @@ public class QqAuthController {
 
     private final QqOAuthProperties props;
     private final UserService userService;
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final PasswordEncoder passwordEncoder;
+    
+    // 配置 ObjectMapper 支持 Java 8 时间类型
+    private final ObjectMapper objectMapper = createObjectMapper();
+    
+    private ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
+    }
 
     @GetMapping("/authorize")
     public String authorize(@RequestParam(value = "state", required = false) String state) throws UnsupportedEncodingException {
@@ -111,6 +124,12 @@ public class QqAuthController {
                 user.setNickname(nickname != null ? nickname : generatedAccount);
                 user.setAvatar(avatar);
                 user.setStatus(1);
+                
+                // OAuth 用户不需要密码登录，但数据库要求必须有密码字段
+                // 生成一个随机密码（OAuth用户不会使用密码登录）
+                String randomPassword = UUID.randomUUID().toString() + System.currentTimeMillis();
+                user.setPassword(passwordEncoder.encode(randomPassword));
+                
                 userService.register(user);
             }
 

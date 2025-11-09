@@ -2,6 +2,8 @@ package com.vortex.loginregister_new.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.entity.UserSocial;
 import com.vortex.loginregister_new.service.UserService;
@@ -12,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -31,6 +35,7 @@ public class WeChatOAuthController {
 
     private final UserService userService;
     private final UserSocialService userSocialService;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${wechat.oauth.app-id}")
     private String appId;
@@ -41,7 +46,15 @@ public class WeChatOAuthController {
     @Value("${wechat.oauth.redirect-uri}")
     private String redirectUri;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    // 配置 ObjectMapper 支持 Java 8 时间类型
+    private final ObjectMapper objectMapper = createObjectMapper();
+    
+    private ObjectMapper createObjectMapper() {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        return mapper;
+    }
 
     @GetMapping("/authorize")
     public ResponseEntity<Void> authorize() {
@@ -133,7 +146,12 @@ public class WeChatOAuthController {
         // 创建新用户：用户名10位随机数字，昵称取三方昵称
         User user = new User();
         user.setAccount(generateUniqueAccount(10));
-        user.setPassword("");
+        
+        // OAuth 用户不需要密码登录，但数据库要求必须有密码字段
+        // 生成一个随机密码（OAuth用户不会使用密码登录）
+        String randomPassword = UUID.randomUUID().toString() + System.currentTimeMillis();
+        user.setPassword(passwordEncoder.encode(randomPassword));
+        
         user.setNickname(nickname);
         user.setAvatar(avatar);
         user.setStatus(1);

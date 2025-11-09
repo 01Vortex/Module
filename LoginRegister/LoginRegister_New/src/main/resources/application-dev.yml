@@ -86,9 +86,21 @@ qq:
 
 google:
   oauth:
-    client-id: YOUR_GOOGLE_CLIENT_ID
-    client-secret: YOUR_GOOGLE_CLIENT_SECRET
-    redirect-uri: http://localhost:8080/api/oauth/google/callback
+    client-id: 140741879689-1tlrt6a7qlcaad769uvofcrh8ldt7nkm.apps.googleusercontent.com
+    client-secret: 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
+    redirect-uri: https://shari-subspheric-nonpurulently.ngrok-free.dev/api/oauth/google/callback
+
+# RestTemplate 配置（用于 OAuth 等外部 API 调用）
+rest:
+  template:
+    connect-timeout: 10000  # 连接超时时间（毫秒）
+    read-timeout: 30000     # 读取超时时间（毫秒）
+    proxy:
+      enabled: true         # 是否启用代理（如果需要访问 Google 等服务，在中国大陆需要配置代理）
+      use-system-proxy: false  # 是否使用系统代理（从系统环境变量读取，优先级高于手动配置）
+      host: 127.0.0.1       # 代理服务器地址（例如: 127.0.0.1）
+      port: 7897            # 代理服务器端口（例如: 7897，常见端口: Clash 7890, V2Ray 10808）
+      type: HTTP            # 代理类型: HTTP 或 SOCKS
 
 wechat:
   oauth:

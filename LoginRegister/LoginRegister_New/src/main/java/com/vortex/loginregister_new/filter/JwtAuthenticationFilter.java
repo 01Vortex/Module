@@ -50,6 +50,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         String requestURI = request.getRequestURI();
         
+        // 跳过 OAuth 相关路径
+        if (requestURI.contains("/oauth/")) {
+            return true;
+        }
+        
         // 跳过 Swagger UI 相关的静态资源和 API 文档路径
         // 支持带或不带 context-path 的路径
         return requestURI.contains("/swagger-ui") 

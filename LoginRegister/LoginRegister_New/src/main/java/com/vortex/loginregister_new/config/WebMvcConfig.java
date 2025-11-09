@@ -1,7 +1,9 @@
 package com.vortex.loginregister_new.config;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -15,8 +17,9 @@ import java.nio.file.Paths;
  * @author Vortex
  * @since 2024
  */
+@Slf4j
 @Configuration
-public class WebMvcConfig implements WebMvcConfigurer {
+public class WebMvcConfig implements WebMvcConfigurer, Ordered {
 
     @Value("${file.upload.path:uploads}")
     private String uploadPath;
@@ -28,6 +31,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
         // 配置上传文件的静态资源访问
         // urlPrefix格式: /api/uploads，需要映射到 /uploads/**
+        // 注意：这里使用的是去掉 context-path 后的路径
         String uploadUrl = urlPrefix.replace("/api", "") + "/**";
         
         // 获取上传目录的绝对路径（与UserController中的逻辑保持一致）
@@ -48,9 +52,20 @@ public class WebMvcConfig implements WebMvcConfigurer {
         }
         uploadDir = "file:" + uploadDir;
         
+        // 只处理 /uploads/** 路径，避免拦截其他路径（如 /oauth/**）
         registry.addResourceHandler(uploadUrl)
                 .addResourceLocations(uploadDir)
                 .setCachePeriod(3600); // 缓存1小时
+        
+        log.debug("静态资源处理器已配置 - URL: {}, 目录: {}", uploadUrl, uploadDir);
+    }
+    
+    /**
+     * 设置配置优先级，确保 Controller 路径优先于静态资源处理
+     */
+    @Override
+    public int getOrder() {
+        return Ordered.LOWEST_PRECEDENCE; // 最低优先级，确保 Controller 路径优先
     }
 }
 

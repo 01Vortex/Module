@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vortex.loginregister_new.common.Constants;
 import com.vortex.loginregister_new.common.Result;
 import com.vortex.loginregister_new.common.ResultCode;
+import com.vortex.loginregister_new.config.MinIOConfig;
 import com.vortex.loginregister_new.entity.User;
 import com.vortex.loginregister_new.exception.BusinessException;
 import com.vortex.loginregister_new.service.JwtBlacklistService;
+import com.vortex.loginregister_new.service.MinIOService;
 import com.vortex.loginregister_new.service.UserService;
 import com.vortex.loginregister_new.util.ValidationUtils;
 import com.vortex.loginregister_new.util.WebUtils;
@@ -44,6 +46,8 @@ public class AdminController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtBlacklistService jwtBlacklistService;
+    private final MinIOService minIOService;
+    private final MinIOConfig minIOConfig;
 
     /**
      * 用户统计图表数据
@@ -389,6 +393,9 @@ public class AdminController {
                 return Result.fail(ResultCode.NOT_FOUND);
             }
             
+            // 删除用户头像（如果存在）
+            deleteUserAvatar(user);
+            
             // 逻辑删除
             boolean deleted = userService.removeById(id);
             if (!deleted) {
@@ -404,6 +411,67 @@ public class AdminController {
             log.error("删除用户失败: ", e);
             throw new BusinessException(ResultCode.INTERNAL_SERVER_ERROR, "删除用户失败");
         }
+    }
+    
+    /**
+     * 删除用户头像（从MinIO中删除）
+     */
+    private void deleteUserAvatar(User user) {
+        if (user == null || user.getAvatar() == null || user.getAvatar().trim().isEmpty()) {
+            return;
+        }
+        
+        String avatarUrl = user.getAvatar();
+        try {
+            // 检查是否是MinIO中的文件
+            if (avatarUrl.contains(minIOConfig.getBucketName()) || avatarUrl.contains("avatars/")) {
+                // 从URL中提取objectName
+                String objectName = extractObjectNameFromUrl(avatarUrl);
+                if (objectName != null && !objectName.trim().isEmpty()) {
+                    minIOService.deleteFile(minIOConfig.getBucketName(), objectName);
+                    log.info("删除用户头像成功 - 用户ID: {}, objectName: {}", user.getId(), objectName);
+                } else {
+                    log.warn("无法从URL中提取objectName - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
+                }
+            } else {
+                log.debug("用户头像不是MinIO文件，跳过删除 - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
+            }
+        } catch (Exception e) {
+            // 删除头像失败不影响用户删除操作，只记录警告
+            log.warn("删除用户头像失败 - 用户ID: {}, avatarUrl: {}, 错误: {}", 
+                    user.getId(), avatarUrl, e.getMessage());
+        }
+    }
+    
+    /**
+     * 从URL中提取objectName
+     */
+    private String extractObjectNameFromUrl(String url) {
+        try {
+            // URL格式: http://localhost:9000/bucket-name/avatars/filename.jpg
+            // 或者: http://localhost:9000/avatar/avatars/filename.jpg
+            if (url == null || url.trim().isEmpty()) {
+                return null;
+            }
+            
+            // 检查是否包含存储桶名称
+            String bucketName = minIOConfig.getBucketName();
+            if (url.contains("/" + bucketName + "/")) {
+                int index = url.indexOf("/" + bucketName + "/");
+                return url.substring(index + bucketName.length() + 2);
+            }
+            
+            // 如果没有包含存储桶名称，尝试从路径中提取（可能是相对路径）
+            // 例如：/avatars/filename.jpg 或 avatars/filename.jpg
+            if (url.contains("avatars/")) {
+                int index = url.indexOf("avatars/");
+                return url.substring(index);
+            }
+            
+        } catch (Exception e) {
+            log.warn("提取objectName失败: {}", url, e);
+        }
+        return null;
     }
 
     /**
