@@ -42,6 +42,17 @@
           <nav class="sidebar-nav">
           <div 
             class="nav-item"
+            :class="{ active: activeMenu === 'security' }"
+            @click="switchMenu('security')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+            <span>账户安全</span>
+          </div>
+          <div 
+            class="nav-item"
             :class="{ active: activeMenu === 'posts' }"
             @click="switchMenu('posts')"
           >
@@ -136,8 +147,73 @@
       <div class="content-area">
         <h2 class="content-title">{{ currentMenuLabel }}</h2>
         
+        <!-- 账户安全 -->
+        <div v-if="activeMenu === 'security'" class="security-section">
+          <div class="security-item">
+            <div class="security-item-header">
+              <div class="security-item-info">
+                <h3 class="security-item-title">绑定手机号</h3>
+                <p class="security-item-desc">绑定手机号后，可以使用手机号登录和找回密码</p>
+              </div>
+              <div class="security-item-status">
+                <span v-if="userInfo.phone" class="status-badge bound">已绑定</span>
+                <span v-else class="status-badge unbound">未绑定</span>
+              </div>
+            </div>
+            <div class="security-item-content">
+              <div v-if="userInfo.phone" class="security-item-value">
+                <span>{{ maskPhone(userInfo.phone) }}</span>
+                <button class="change-btn" @click="openBindPhoneDialog">更换</button>
+              </div>
+              <div v-else class="security-item-action">
+                <button class="bind-btn" @click="openBindPhoneDialog">绑定手机号</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="security-item-header">
+              <div class="security-item-info">
+                <h3 class="security-item-title">绑定邮箱</h3>
+                <p class="security-item-desc">绑定邮箱后，可以使用邮箱登录和找回密码</p>
+              </div>
+              <div class="security-item-status">
+                <span v-if="userInfo.email" class="status-badge bound">已绑定</span>
+                <span v-else class="status-badge unbound">未绑定</span>
+              </div>
+            </div>
+            <div class="security-item-content">
+              <div v-if="userInfo.email" class="security-item-value">
+                <span>{{ maskEmail(userInfo.email) }}</span>
+                <button class="change-btn" @click="openBindEmailDialog">更换</button>
+              </div>
+              <div v-else class="security-item-action">
+                <button class="bind-btn" @click="openBindEmailDialog">绑定邮箱</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="security-item">
+            <div class="security-item-header">
+              <div class="security-item-info">
+                <h3 class="security-item-title">{{ hasPassword ? '重置密码' : '设置密码' }}</h3>
+                <p class="security-item-desc">{{ hasPassword ? '定期更改密码可以让账户更安全' : '设置密码后，可以使用账号和密码登录' }}</p>
+              </div>
+              <div class="security-item-status">
+                <span v-if="hasPassword" class="status-badge bound">已设置</span>
+                <span v-else class="status-badge unbound danger">未设置</span>
+              </div>
+            </div>
+            <div class="security-item-content">
+              <button class="bind-btn" @click="openPasswordDialog">
+                {{ hasPassword ? '重置密码' : '设置密码' }}
+        </button>
+            </div>
+          </div>
+        </div>
+        
         <!-- 我的发帖 -->
-        <div v-if="activeMenu === 'posts'" class="posts-section">
+        <div v-else-if="activeMenu === 'posts'" class="posts-section">
           <div v-if="posts.length === 0" class="empty-state">
             <p>没有更多数据了</p>
           </div>
@@ -154,7 +230,7 @@
               <p class="post-content">{{ post.content }}</p>
               <div v-if="post.image" class="post-image">
                 <img :src="post.image" :alt="post.title" />
-              </div>
+            </div>
               <div v-if="post.tag" class="post-tag">{{ post.tag }}</div>
               <div class="post-stats">
                 <div class="post-stat-item">
@@ -194,6 +270,102 @@
       </div>
     </div>
 
+    <!-- 绑定手机号对话框 -->
+    <div v-if="showBindPhoneDialog" class="dialog-overlay" @click="showBindPhoneDialog = false">
+      <div class="dialog" @click.stop>
+        <div class="dialog-header">
+          <h3>{{ userInfo.phone ? '更换手机号' : '绑定手机号' }}</h3>
+          <button class="close-btn" @click="showBindPhoneDialog = false">×</button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-group">
+            <label>手机号</label>
+            <input 
+              type="tel" 
+              v-model="bindPhoneForm.phone" 
+              placeholder="请输入手机号"
+              maxlength="11"
+            />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="cancel-btn" @click="showBindPhoneDialog = false">取消</button>
+          <button class="confirm-btn" @click="handleBindPhone" :disabled="bindingPhone">
+            {{ bindingPhone ? '绑定中...' : '确定' }}
+          </button>
+        </div>
+      </div>
+          </div>
+
+    <!-- 绑定邮箱对话框 -->
+    <div v-if="showBindEmailDialog" class="dialog-overlay" @click="showBindEmailDialog = false">
+      <div class="dialog" @click.stop>
+        <div class="dialog-header">
+          <h3>{{ userInfo.email ? '更换邮箱' : '绑定邮箱' }}</h3>
+          <button class="close-btn" @click="showBindEmailDialog = false">×</button>
+        </div>
+        <div class="dialog-content">
+          <div class="form-group">
+            <label>邮箱</label>
+            <input 
+              type="email" 
+              v-model="bindEmailForm.email" 
+              placeholder="请输入邮箱"
+            />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="cancel-btn" @click="showBindEmailDialog = false">取消</button>
+          <button class="confirm-btn" @click="handleBindEmail" :disabled="bindingEmail">
+            {{ bindingEmail ? '绑定中...' : '确定' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 设置/重置密码对话框 -->
+    <div v-if="showPasswordDialog" class="dialog-overlay" @click="showPasswordDialog = false">
+      <div class="dialog" @click.stop>
+        <div class="dialog-header">
+          <h3>{{ hasPassword ? '重置密码' : '设置密码' }}</h3>
+          <button class="close-btn" @click="showPasswordDialog = false">×</button>
+        </div>
+        <div class="dialog-content">
+          <div v-if="hasPassword" class="form-group">
+            <label>旧密码</label>
+            <input 
+              type="password" 
+              v-model="passwordForm.oldPassword" 
+              placeholder="请输入旧密码"
+            />
+          </div>
+          <div class="form-group">
+            <label>新密码</label>
+            <input 
+              type="password" 
+              v-model="passwordForm.newPassword" 
+              placeholder="请输入新密码"
+            />
+            <span class="form-hint">密码长度8-20位，包含字母和数字</span>
+          </div>
+          <div class="form-group">
+            <label>确认新密码</label>
+            <input 
+              type="password" 
+              v-model="passwordForm.confirmPassword" 
+              placeholder="请再次输入新密码"
+            />
+          </div>
+        </div>
+        <div class="dialog-actions">
+          <button class="cancel-btn" @click="showPasswordDialog = false">取消</button>
+          <button class="confirm-btn" @click="handleSetPassword" :disabled="settingPassword">
+            {{ settingPassword ? '设置中...' : '确定' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 编辑对话框 -->
     <div v-if="showEditDialog" class="edit-dialog-overlay" @click="closeEditDialog">
       <div class="edit-dialog" @click.stop>
@@ -202,36 +374,36 @@
           <button class="close-btn" @click="closeEditDialog">×</button>
         </div>
         <div class="edit-dialog-content">
-          <div class="form-group">
-            <label>昵称</label>
-            <input 
-              type="text" 
-              v-model="formData.nickname" 
-              placeholder="请输入昵称"
-              maxlength="50"
-            />
-          </div>
-          <div class="form-group">
-            <label>邮箱</label>
-            <input 
-              type="email" 
-              v-model="formData.email" 
-              placeholder="请输入邮箱"
-              :disabled="!userInfo.email"
-            />
-            <span class="form-hint" v-if="!userInfo.email">未绑定邮箱</span>
-          </div>
-          <div class="form-group">
-            <label>手机号</label>
-            <input 
-              type="tel" 
-              v-model="formData.phone" 
-              placeholder="请输入手机号"
-              :disabled="!userInfo.phone"
-            />
-            <span class="form-hint" v-if="!userInfo.phone">未绑定手机号</span>
-          </div>
-        </div>
+            <div class="form-group">
+              <label>昵称</label>
+              <input 
+                type="text" 
+                v-model="formData.nickname" 
+                placeholder="请输入昵称"
+                maxlength="50"
+              />
+            </div>
+            <div class="form-group">
+              <label>邮箱</label>
+              <input 
+                type="email" 
+                v-model="formData.email" 
+                placeholder="请输入邮箱"
+                :disabled="!userInfo.email"
+              />
+              <span class="form-hint" v-if="!userInfo.email">未绑定邮箱</span>
+            </div>
+            <div class="form-group">
+              <label>手机号</label>
+              <input 
+                type="tel" 
+                v-model="formData.phone" 
+                placeholder="请输入手机号"
+                :disabled="!userInfo.phone"
+              />
+              <span class="form-hint" v-if="!userInfo.phone">未绑定手机号</span>
+            </div>
+            </div>
         <div class="edit-dialog-actions">
           <button class="cancel-btn" @click="closeEditDialog">取消</button>
           <button class="save-btn" @click="handleSave" :disabled="saving">
@@ -253,7 +425,7 @@
 
 <script>
 import { tokenManager } from '../api/auth.js'
-import { getCurrentUser, updateUserProfile } from '../api/user.js'
+import { getCurrentUser, updateUserProfile, setPassword } from '../api/user.js'
 import MessageBox from './MessageBox.vue'
 
 export default {
@@ -270,8 +442,9 @@ export default {
         following: 0,
         likes: 0
       },
-      activeMenu: 'posts',
+      activeMenu: 'security',
       menuItems: [
+        { key: 'security', label: '账户安全' },
         { key: 'posts', label: '我的发帖' },
         { key: 'comments', label: '我的评论' },
         { key: 'collections', label: '我的合集' },
@@ -304,18 +477,50 @@ export default {
       showMessageBox: false,
       messageText: '',
       messageType: 'info',
-      defaultAvatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+CjxwYXRoIGQ9Ik01MCAzNUM0MCAzNSA0MCA0MCAzNSA0NUMyNS41IDQ1IDIwIDUwLjUgMjAgNjBDMjAgNzAgMjUgNzUgMzAgODBDMzAgODUgNDAgOTAgNTAgOTBDNjAgOTAgNzAgODUgNzAgODBDNzUgNzUgODAgNzAgODAgNjBDODAgNTAuNSA3NC41IDQ1IDY1IDQ1QzYwIDQwIDYwIDM1IDUwIDM1WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'
+      defaultAvatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+CjxwYXRoIGQ9Ik01MCAzNUM0MCAzNSA0MCA0MCAzNSA0NUMyNS41IDQ1IDIwIDUwLjUgMjAgNjBDMjAgNzAgMjUgNzUgMzAgODBDMzAgODUgNDAgOTAgNTAgOTBDNjAgOTAgNzAgODUgNzAgODBDNzUgNzUgODAgNzAgODAgNjBDODAgNTAuNSA3NC41IDQ1IDY1IDQ1QzYwIDQwIDYwIDM1IDUwIDM1WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+',
+      showBindPhoneDialog: false,
+      showBindEmailDialog: false,
+      showPasswordDialog: false,
+      bindingPhone: false,
+      bindingEmail: false,
+      settingPassword: false,
+      bindPhoneForm: {
+        phone: ''
+      },
+      bindEmailForm: {
+        email: ''
+      },
+      passwordForm: {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
     }
   },
   computed: {
     currentMenuLabel() {
       const menu = this.menuItems.find(item => item.key === this.activeMenu)
       return menu ? menu.label : '个人中心'
+    },
+    hasPassword() {
+      // 根据accountType判断，如果为SOCIAL或password为空，则没有密码
+      if (!this.userInfo.accountType) {
+        return false
+      }
+      // 如果accountType为PASSWORD或BOTH，说明有密码
+      return this.userInfo.accountType === 'PASSWORD' || this.userInfo.accountType === 'BOTH'
     }
   },
   mounted() {
     this.loadUserInfo()
     this.loadUserStats()
+    
+    // 检查URL参数，如果是从退出登录跳转过来的，自动打开账户安全
+    const hash = window.location.hash
+    if (hash.includes('security') || sessionStorage.getItem('openSecurity') === 'true') {
+      this.activeMenu = 'security'
+      sessionStorage.removeItem('openSecurity')
+    }
   },
   methods: {
     getAvatarUrl() {
@@ -371,6 +576,128 @@ export default {
     switchMenu(menuKey) {
       this.activeMenu = menuKey
       // TODO: 根据菜单项加载不同的数据
+    },
+    openBindPhoneDialog() {
+      this.bindPhoneForm.phone = this.userInfo.phone || ''
+      this.showBindPhoneDialog = true
+    },
+    openBindEmailDialog() {
+      this.bindEmailForm.email = this.userInfo.email || ''
+      this.showBindEmailDialog = true
+    },
+    openPasswordDialog() {
+      this.passwordForm = {
+        oldPassword: '',
+        newPassword: '',
+        confirmPassword: ''
+      }
+      this.showPasswordDialog = true
+    },
+    maskPhone(phone) {
+      if (!phone || phone.length < 11) return phone
+      return phone.substring(0, 3) + '****' + phone.substring(7)
+    },
+    maskEmail(email) {
+      if (!email || !email.includes('@')) return email
+      const [name, domain] = email.split('@')
+      if (name.length <= 2) {
+        return name[0] + '***@' + domain
+      }
+      return name.substring(0, 2) + '***@' + domain
+    },
+    async handleBindPhone() {
+      if (!this.bindPhoneForm.phone || this.bindPhoneForm.phone.trim().length !== 11) {
+        this.showMessage('请输入正确的手机号', 'error')
+        return
+      }
+
+      this.bindingPhone = true
+      try {
+        const response = await updateUserProfile({ phone: this.bindPhoneForm.phone.trim() })
+        if (response.code === 200) {
+          this.userInfo = { ...this.userInfo, phone: this.bindPhoneForm.phone.trim() }
+          tokenManager.setUser(this.userInfo)
+          this.showMessage('手机号绑定成功', 'success')
+          this.showBindPhoneDialog = false
+          this.bindPhoneForm.phone = ''
+        } else {
+          this.showMessage(response.message || '绑定失败', 'error')
+        }
+      } catch (error) {
+        this.showMessage(error.message || '绑定失败', 'error')
+      } finally {
+        this.bindingPhone = false
+      }
+    },
+    async handleBindEmail() {
+      if (!this.bindEmailForm.email || !this.bindEmailForm.email.includes('@')) {
+        this.showMessage('请输入正确的邮箱', 'error')
+        return
+      }
+
+      this.bindingEmail = true
+      try {
+        const response = await updateUserProfile({ email: this.bindEmailForm.email.trim() })
+        if (response.code === 200) {
+          this.userInfo = { ...this.userInfo, email: this.bindEmailForm.email.trim() }
+          tokenManager.setUser(this.userInfo)
+          this.showMessage('邮箱绑定成功', 'success')
+          this.showBindEmailDialog = false
+          this.bindEmailForm.email = ''
+        } else {
+          this.showMessage(response.message || '绑定失败', 'error')
+        }
+      } catch (error) {
+        this.showMessage(error.message || '绑定失败', 'error')
+      } finally {
+        this.bindingEmail = false
+      }
+    },
+    async handleSetPassword() {
+      if (!this.passwordForm.newPassword) {
+        this.showMessage('请输入新密码', 'error')
+        return
+      }
+
+      if (this.passwordForm.newPassword.length < 8 || this.passwordForm.newPassword.length > 20) {
+        this.showMessage('密码长度应为8-20位', 'error')
+        return
+      }
+
+      if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(this.passwordForm.newPassword)) {
+        this.showMessage('密码必须包含字母和数字', 'error')
+        return
+      }
+
+      if (this.passwordForm.newPassword !== this.passwordForm.confirmPassword) {
+        this.showMessage('两次输入的密码不一致', 'error')
+        return
+      }
+
+      this.settingPassword = true
+      try {
+        const response = await setPassword(
+          this.passwordForm.newPassword,
+          this.hasPassword ? this.passwordForm.oldPassword : null
+        )
+        if (response.code === 200) {
+          this.showMessage('密码设置成功', 'success')
+          this.showPasswordDialog = false
+          this.passwordForm = {
+            oldPassword: '',
+            newPassword: '',
+            confirmPassword: ''
+          }
+          // 重新加载用户信息以更新accountType
+          await this.loadUserInfo()
+            } else {
+          this.showMessage(response.message || '设置失败', 'error')
+            }
+          } catch (error) {
+        this.showMessage(error.message || '设置失败', 'error')
+          } finally {
+        this.settingPassword = false
+      }
     },
     handleEdit() {
       this.showEditDialog = true
@@ -625,6 +952,220 @@ export default {
   margin-bottom: 20px;
 }
 
+/* 账户安全 */
+.security-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.security-item {
+  background: white;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.security-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.security-item-info {
+  flex: 1;
+}
+
+.security-item-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.security-item-desc {
+  font-size: 12px;
+  color: #999;
+  margin: 0;
+}
+
+.security-item-status {
+  flex-shrink: 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.status-badge.bound {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-badge.unbound {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.status-badge.unbound.danger {
+  background: #ffebee;
+  color: #c62828;
+}
+
+.security-item-content {
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.security-item-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.security-item-value span {
+  font-size: 14px;
+  color: #666;
+}
+
+.change-btn {
+  background: #f5f5f5;
+  color: #666;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.change-btn:hover {
+  background: #e8e8e8;
+}
+
+.bind-btn {
+  background: #4a9eff;
+  color: white;
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.bind-btn:hover {
+  background: #3a8eef;
+}
+
+.bind-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 对话框样式 */
+.dialog-overlay,
+.edit-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.dialog,
+.edit-dialog {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dialog-header,
+.edit-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.dialog-header h3,
+.edit-dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.dialog-content,
+.edit-dialog-content {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.dialog-actions,
+.edit-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.cancel-btn,
+.confirm-btn,
+.save-btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.3s;
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.cancel-btn:hover {
+  background: #e8e8e8;
+}
+
+.confirm-btn,
+.save-btn {
+  background: #4a9eff;
+  color: white;
+}
+
+.confirm-btn:hover:not(:disabled),
+.save-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.confirm-btn:disabled,
+.save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* 帖子列表 */
 .posts-section {
   display: flex;
@@ -727,46 +1268,6 @@ export default {
   font-size: 14px;
 }
 
-/* 编辑对话框 */
-.edit-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-}
-
-.edit-dialog {
-  background: white;
-  border-radius: 8px;
-  width: 90%;
-  max-width: 500px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.edit-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid #e5e5e5;
-}
-
-.edit-dialog-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-}
-
 .close-btn {
   background: none;
   border: none;
@@ -786,12 +1287,6 @@ export default {
 
 .close-btn:hover {
   background: #f5f5f5;
-}
-
-.edit-dialog-content {
-  padding: 20px;
-  flex: 1;
-  overflow-y: auto;
 }
 
 .form-group {
@@ -832,47 +1327,6 @@ export default {
   margin-top: 4px;
 }
 
-.edit-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px;
-  border-top: 1px solid #e5e5e5;
-}
-
-.cancel-btn,
-.save-btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.3s;
-}
-
-.cancel-btn {
-  background: #f5f5f5;
-  color: #666;
-}
-
-.cancel-btn:hover {
-  background: #e8e8e8;
-}
-
-.save-btn {
-  background: #4a9eff;
-  color: white;
-}
-
-.save-btn:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.save-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
 
 /* 响应式设计 */
 @media (max-width: 768px) {

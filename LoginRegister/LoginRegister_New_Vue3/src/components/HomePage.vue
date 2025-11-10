@@ -244,6 +244,26 @@
         </div>
       </div>
     </main>
+
+    <!-- 确认对话框 -->
+    <div v-if="showConfirmDialog" class="confirm-dialog-overlay" @click="handleConfirmCancel">
+      <div class="confirm-dialog" @click.stop>
+        <div class="confirm-dialog-header">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="confirm-icon">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
+          </svg>
+          <h3 class="confirm-title">安全提示</h3>
+        </div>
+        <div class="confirm-content">
+          <p>{{ confirmMessage }}</p>
+        </div>
+        <div class="confirm-actions">
+          <button class="confirm-cancel-btn" @click="handleConfirmCancel">取消</button>
+          <button class="confirm-logout-btn" @click="handleConfirmLogout">仍然退出</button>
+          <button class="confirm-ok-btn" @click="handleConfirmOk">前往设置</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -264,7 +284,10 @@ export default {
         following: 0,
         fans: 0,
         dynamics: 0
-      }
+      },
+      showConfirmDialog: false,
+      confirmMessage: '',
+      confirmCallback: null
     }
   },
   mounted() {
@@ -331,10 +354,50 @@ export default {
       window.location.hash = '#login'
     },
     handleLogout() {
+      // 检查用户是否有密码
+      const user = tokenManager.getUser()
+      const hasPassword = user && user.accountType && 
+        (user.accountType === 'PASSWORD' || user.accountType === 'BOTH')
+      
+      if (!hasPassword) {
+        // 如果没有密码，显示确认对话框
+        this.showUserMenu = false
+        this.confirmMessage = '您还没有设置密码，建议先设置密码以保护账户安全。\n\n是否前往设置密码？'
+        this.confirmCallback = () => {
+          // 设置标记，让个人中心页面自动打开账户安全
+          sessionStorage.setItem('openSecurity', 'true')
+          window.location.hash = '#profile'
+        }
+        this.showConfirmDialog = true
+        return
+      }
+      
+      // 执行退出登录
+      this.doLogout()
+    },
+    doLogout() {
       tokenManager.clearTokens()
       this.isLoggedIn = false
       this.userInfo = null
       this.showUserMenu = false
+    },
+    handleConfirmOk() {
+      this.showConfirmDialog = false
+      if (this.confirmCallback) {
+        this.confirmCallback()
+        this.confirmCallback = null
+      }
+    },
+    handleConfirmCancel() {
+      this.showConfirmDialog = false
+      this.confirmCallback = null
+      // 取消后不执行退出登录，只是关闭对话框
+    },
+    handleConfirmLogout() {
+      this.showConfirmDialog = false
+      this.confirmCallback = null
+      // 仍然退出登录
+      this.doLogout()
     },
     goHome() {
       window.location.hash = '#home'
@@ -674,6 +737,124 @@ export default {
 
 .popup-menu-item.logout-item svg:first-child {
   color: #ff6699;
+}
+
+/* 确认对话框 */
+.confirm-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  backdrop-filter: blur(2px);
+}
+
+.confirm-dialog {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  animation: confirmSlideDown 0.3s ease-out;
+}
+
+@keyframes confirmSlideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.confirm-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 20px 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.confirm-icon {
+  color: #ff9800;
+  flex-shrink: 0;
+}
+
+.confirm-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.confirm-content {
+  padding: 20px;
+}
+
+.confirm-content p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+.confirm-cancel-btn,
+.confirm-logout-btn,
+.confirm-ok-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-cancel-btn {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.confirm-cancel-btn:hover {
+  background: #e8e8e8;
+}
+
+.confirm-logout-btn {
+  background: #fff;
+  color: #666;
+  border: 1px solid #e0e0e0;
+}
+
+.confirm-logout-btn:hover {
+  background: #f5f5f5;
+  border-color: #d0d0d0;
+}
+
+.confirm-ok-btn {
+  background: #4a9eff;
+  color: white;
+}
+
+.confirm-ok-btn:hover {
+  background: #3a8eef;
 }
 
 /* 副导航栏 */

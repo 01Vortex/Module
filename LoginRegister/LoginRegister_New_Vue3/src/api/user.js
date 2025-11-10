@@ -31,6 +31,22 @@ export async function updateUserProfile(userData) {
 }
 
 /**
+ * 设置/重置密码
+ * @param {string} password - 新密码
+ * @param {string} oldPassword - 旧密码（重置密码时需要，设置密码时可以为空）
+ */
+export async function setPassword(password, oldPassword) {
+  const data = { password }
+  if (oldPassword) {
+    data.oldPassword = oldPassword
+  }
+  return request('/user/set-password', {
+    method: 'POST',
+    body: JSON.stringify(data)
+  })
+}
+
+/**
  * 上传头像
  * @param {File} file - 图片文件
  * @param {number} x - 裁剪区域的x坐标（可选）
