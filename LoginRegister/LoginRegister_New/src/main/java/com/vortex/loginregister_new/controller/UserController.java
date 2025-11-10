@@ -4,9 +4,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.vortex.loginregister_new.config.MinIOConfig;
 import com.vortex.loginregister_new.entity.User;
+import com.vortex.loginregister_new.common.Constants;
+import com.vortex.loginregister_new.entity.UserSocial;
 import com.vortex.loginregister_new.service.MinIOService;
+import com.vortex.loginregister_new.service.RedisService;
 import com.vortex.loginregister_new.service.SocialLoginService;
 import com.vortex.loginregister_new.service.UserService;
+import com.vortex.loginregister_new.service.UserSocialService;
 import com.vortex.loginregister_new.util.ValidationUtils;
 import com.vortex.loginregister_new.util.WebUtils;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,6 +27,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -43,6 +48,12 @@ public class UserController {
     private final MinIOConfig minIOConfig;
     private final PasswordEncoder passwordEncoder;
     private final SocialLoginService socialLoginService;
+    private final RedisService redisService;
+    private final UserSocialService userSocialService;
+    
+    // Redis Key 前缀
+    private static final String VERIFICATION_CODE_PREFIX = Constants.RedisKey.VERIFICATION_CODE_PREFIX;
+    private static final String CODE_ATTEMPT_PREFIX = Constants.RedisKey.CODE_ATTEMPT_PREFIX;
     
 
     /**
@@ -310,7 +321,7 @@ public class UserController {
                 }
             }
             
-            // 更新邮箱（如果允许）
+            // 更新邮箱（如果允许）- 需要验证码
             if (userData.containsKey("email")) {
                 String email = userData.get("email");
                 if (email != null && !email.trim().isEmpty()) {
@@ -320,6 +331,7 @@ public class UserController {
                         result.put("message", "邮箱格式不正确");
                         return result;
                     }
+                    
                     // 检查邮箱是否被其他用户使用
                     User emailUser = userService.findByEmail(email);
                     if (emailUser != null && !emailUser.getId().equals(user.getId())) {
@@ -327,7 +339,38 @@ public class UserController {
                         result.put("message", "邮箱已被使用");
                         return result;
                     }
+                    
+                    // 验证邮箱验证码
+                    String code = userData.get("code");
+                    if (code == null || code.trim().isEmpty()) {
+                        result.put("code", 400);
+                        result.put("message", "请输入邮箱验证码");
+                        return result;
+                    }
+                    
+                    // 从 Redis 验证验证码（邮箱统一小写）
+                    String identifier = email.toLowerCase();
+                    String redisKey = VERIFICATION_CODE_PREFIX + identifier;
+                    String storedCode = redisService.get(redisKey);
+                    
+                    if (storedCode == null) {
+                        result.put("code", 400);
+                        result.put("message", "验证码已过期或不存在，请重新获取");
+                        return result;
+                    }
+                    
+                    if (!storedCode.equals(code.trim())) {
+                        result.put("code", 400);
+                        result.put("message", "验证码错误");
+                        return result;
+                    }
+                    
+                    // 验证码正确，清除验证码
+                    redisService.delete(redisKey);
+                    redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
+                    
                     user.setEmail(email);
+                    log.info("用户 {} 绑定/更换邮箱成功: {}, IP: {}", account, email, WebUtils.getClientIp(request));
                 }
             }
             
@@ -403,21 +446,89 @@ public class UserController {
                 return result;
             }
             
-            // 如果用户已经设置过密码，需要提供旧密码
-            if (user.getPassword() != null && !user.getPassword().trim().isEmpty()) {
-                String oldPassword = passwordData.get("oldPassword");
-                if (oldPassword == null || oldPassword.trim().isEmpty()) {
+            // 判断是设置密码还是重置密码
+            boolean hasPassword = user.getPassword() != null && !user.getPassword().trim().isEmpty();
+            String oldPassword = passwordData.get("oldPassword");
+            String code = passwordData.get("code");
+            
+            if (hasPassword) {
+                // 重置密码：有两种方式
+                if (oldPassword != null && !oldPassword.trim().isEmpty()) {
+                    // 方式一：使用旧密码重置（不需要验证码）
+                    if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                        result.put("code", 400);
+                        result.put("message", "旧密码错误");
+                        return result;
+                    }
+                    // 旧密码验证通过，直接重置密码
+                } else if (code != null && !code.trim().isEmpty()) {
+                    // 方式二：使用邮箱验证码重置（不需要旧密码）
+                    if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+                        result.put("code", 400);
+                        result.put("message", "您尚未绑定邮箱，无法使用验证码方式重置密码");
+                        return result;
+                    }
+                    
+                    // 从 Redis 验证验证码（使用用户邮箱）
+                    String identifier = user.getEmail().toLowerCase();
+                    String redisKey = VERIFICATION_CODE_PREFIX + identifier;
+                    String storedCode = redisService.get(redisKey);
+                    
+                    if (storedCode == null) {
+                        result.put("code", 400);
+                        result.put("message", "验证码已过期或不存在，请重新获取");
+                        return result;
+                    }
+                    
+                    if (!storedCode.equals(code.trim())) {
+                        result.put("code", 400);
+                        result.put("message", "验证码错误");
+                        return result;
+                    }
+                    
+                    // 验证码正确，清除验证码
+                    redisService.delete(redisKey);
+                    redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
+                } else {
+                    // 两种方式都没有提供
                     result.put("code", 400);
-                    result.put("message", "修改密码需要提供旧密码");
+                    result.put("message", "重置密码需要提供旧密码或邮箱验证码");
+                    return result;
+                }
+            } else {
+                // 设置密码：需要邮箱验证码
+                if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+                    result.put("code", 400);
+                    result.put("message", "设置密码需要先绑定邮箱，请先绑定邮箱");
                     return result;
                 }
                 
-                // 验证旧密码
-                if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                if (code == null || code.trim().isEmpty()) {
                     result.put("code", 400);
-                    result.put("message", "旧密码错误");
+                    result.put("message", "请输入邮箱验证码");
                     return result;
                 }
+                
+                // 从 Redis 验证验证码（使用用户邮箱）
+                String identifier = user.getEmail().toLowerCase();
+                String redisKey = VERIFICATION_CODE_PREFIX + identifier;
+                String storedCode = redisService.get(redisKey);
+                
+                if (storedCode == null) {
+                    result.put("code", 400);
+                    result.put("message", "验证码已过期或不存在，请重新获取");
+                    return result;
+                }
+                
+                if (!storedCode.equals(code.trim())) {
+                    result.put("code", 400);
+                    result.put("message", "验证码错误");
+                    return result;
+                }
+                
+                // 验证码正确，清除验证码
+                redisService.delete(redisKey);
+                redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
             }
             
             // 加密新密码
@@ -612,6 +723,123 @@ public class UserController {
             log.warn("提取objectName失败: {}", url, e);
         }
         return null;
+    }
+    
+    /**
+     * 获取当前用户的第三方账号列表
+     */
+    @GetMapping("/social-accounts")
+    public Map<String, Object> getCurrentUserSocialAccounts() {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 从SecurityContext获取当前用户账号
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                result.put("code", 401);
+                result.put("message", "未登录");
+                return result;
+            }
+            
+            String account = authentication.getName();
+            User user = userService.findByAccount(account);
+            
+            if (user == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                return result;
+            }
+            
+            // 查询用户的第三方账号列表
+            List<UserSocial> socialAccounts = userSocialService.lambdaQuery()
+                    .eq(UserSocial::getUserId, user.getId())
+                    .list();
+            
+            result.put("code", 200);
+            result.put("data", socialAccounts);
+            return result;
+            
+        } catch (Exception e) {
+            log.error("获取第三方账号列表失败: ", e);
+            result.put("code", 500);
+            result.put("message", "获取第三方账号列表失败");
+            return result;
+        }
+    }
+    
+    /**
+     * 解绑第三方账号
+     */
+    @DeleteMapping("/social-accounts/{provider}")
+    public Map<String, Object> unbindSocialAccount(@PathVariable String provider, HttpServletRequest request) {
+        Map<String, Object> result = new HashMap<>();
+        
+        try {
+            // 从SecurityContext获取当前用户账号
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || authentication.getName() == null) {
+                result.put("code", 401);
+                result.put("message", "未登录");
+                return result;
+            }
+            
+            String account = authentication.getName();
+            User user = userService.findByAccount(account);
+            
+            if (user == null) {
+                result.put("code", 404);
+                result.put("message", "用户不存在");
+                return result;
+            }
+            
+            // 查询要解绑的第三方账号
+            UserSocial userSocial = userSocialService.lambdaQuery()
+                    .eq(UserSocial::getUserId, user.getId())
+                    .eq(UserSocial::getProvider, provider)
+                    .one();
+            
+            if (userSocial == null) {
+                result.put("code", 404);
+                result.put("message", "未绑定该第三方账号");
+                return result;
+            }
+            
+            // 检查是否还有其他登录方式（密码或其他第三方账号）
+            boolean hasPassword = user.getPassword() != null && !user.getPassword().trim().isEmpty();
+            long otherSocialCount = userSocialService.lambdaQuery()
+                    .eq(UserSocial::getUserId, user.getId())
+                    .ne(UserSocial::getProvider, provider)
+                    .count();
+            
+            if (!hasPassword && otherSocialCount == 0) {
+                result.put("code", 400);
+                result.put("message", "至少需要保留一种登录方式，无法解绑最后一个第三方账号");
+                return result;
+            }
+            
+            // 删除第三方账号绑定
+            boolean deleted = userSocialService.removeById(userSocial.getId());
+            
+            if (deleted) {
+                // 更新账户类型
+                socialLoginService.updateAccountType(user.getId());
+                
+                result.put("code", 200);
+                result.put("message", "解绑成功");
+                log.info("用户 {} 解绑第三方账号成功 - provider: {}, IP: {}", account, provider, WebUtils.getClientIp(request));
+            } else {
+                result.put("code", 500);
+                result.put("message", "解绑失败");
+            }
+            
+            return result;
+            
+        } catch (Exception e) {
+            log.error("解绑第三方账号失败: ", e);
+            result.put("code", 500);
+            result.put("message", "解绑第三方账号失败");
+            return result;
+        }
     }
 }
 

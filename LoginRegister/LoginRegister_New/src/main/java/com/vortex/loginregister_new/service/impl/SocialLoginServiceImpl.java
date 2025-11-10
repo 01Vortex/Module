@@ -259,5 +259,79 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
         return fallback;
     }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean bindSocialAccount(Long userId, String provider, String providerUserId,
+                                    String unionId, String nickname, String avatar) {
+        log.info("绑定第三方账号开始 - userId: {}, provider: {}, providerUserId: {}", 
+                userId, provider, providerUserId);
+
+        // 检查用户是否存在
+        User user = userService.getById(userId);
+        if (user == null) {
+            log.error("用户不存在 - userId: {}", userId);
+            return false;
+        }
+
+        // 检查该第三方账号是否已被其他用户绑定
+        UserSocial existingSocial = null;
+        if (unionId != null && !unionId.trim().isEmpty()) {
+            existingSocial = userSocialService.findByProviderAndUnionId(provider, unionId);
+        }
+        if (existingSocial == null) {
+            existingSocial = userSocialService.findByProviderAndOpenId(provider, providerUserId);
+        }
+
+        if (existingSocial != null) {
+            // 如果已绑定到当前用户，直接返回成功
+            if (existingSocial.getUserId().equals(userId)) {
+                log.info("第三方账号已绑定到当前用户 - userId: {}, provider: {}", userId, provider);
+                // 更新第三方账号信息
+                boolean needUpdate = false;
+                if (nickname != null && !nickname.equals(existingSocial.getSocialName())) {
+                    existingSocial.setSocialName(nickname);
+                    needUpdate = true;
+                }
+                if (avatar != null && !avatar.equals(existingSocial.getAvatar())) {
+                    existingSocial.setAvatar(avatar);
+                    needUpdate = true;
+                }
+                if (needUpdate) {
+                    userSocialService.updateById(existingSocial);
+                }
+                // 更新账户类型
+                updateAccountType(userId);
+                return true;
+            } else {
+                // 已绑定到其他用户
+                log.warn("第三方账号已被其他用户绑定 - provider: {}, providerUserId: {}, existingUserId: {}", 
+                        provider, providerUserId, existingSocial.getUserId());
+                return false;
+            }
+        }
+
+        // 创建新的绑定记录
+        UserSocial newUserSocial = new UserSocial();
+        newUserSocial.setUserId(userId);
+        newUserSocial.setProvider(provider);
+        newUserSocial.setOpenid(providerUserId);
+        if (unionId != null && !unionId.trim().isEmpty()) {
+            newUserSocial.setUnionid(unionId);
+        }
+        newUserSocial.setSocialName(nickname);
+        newUserSocial.setAvatar(avatar);
+        
+        boolean saved = userSocialService.save(newUserSocial);
+        if (saved) {
+            // 更新账户类型
+            updateAccountType(userId);
+            log.info("第三方账号绑定成功 - userId: {}, provider: {}", userId, provider);
+            return true;
+        } else {
+            log.error("第三方账号绑定失败 - userId: {}, provider: {}", userId, provider);
+            return false;
+        }
+    }
 }
 

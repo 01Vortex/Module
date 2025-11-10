@@ -39,5 +39,19 @@ public interface SocialLoginService {
      * @return 是否已设置密码
      */
     boolean hasPassword(Long userId);
+
+    /**
+     * 将第三方账号绑定到指定用户
+     *
+     * @param userId 用户ID
+     * @param provider 第三方提供商（google/qq/wechat）
+     * @param providerUserId 第三方用户ID（openid/sub等）
+     * @param unionId 第三方unionid（可选）
+     * @param nickname 昵称（可选）
+     * @param avatar 头像URL（可选）
+     * @return 是否绑定成功
+     */
+    boolean bindSocialAccount(Long userId, String provider, String providerUserId, 
+                             String unionId, String nickname, String avatar);
 }
 

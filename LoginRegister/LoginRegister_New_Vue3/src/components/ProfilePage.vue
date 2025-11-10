@@ -210,6 +210,121 @@
         </button>
             </div>
           </div>
+
+          <!-- 第三方账号绑定 -->
+          <div class="security-item">
+            <div class="security-item-header">
+              <div class="security-item-info">
+                <h3 class="security-item-title">第三方账号</h3>
+                <p class="security-item-desc">绑定第三方账号后，可以使用第三方账号快速登录</p>
+              </div>
+            </div>
+            <div class="security-item-content">
+              <div class="social-accounts-list">
+                <!-- QQ -->
+                <div class="social-account-item">
+                  <div class="social-account-info">
+                    <div class="social-account-icon qq-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                      </svg>
+                    </div>
+                    <div class="social-account-details">
+                      <span class="social-account-name">QQ</span>
+                      <span v-if="getSocialAccount('qq')" class="social-account-nickname">{{ getSocialAccount('qq').socialName || '已绑定' }}</span>
+                      <span v-else class="social-account-status">未绑定</span>
+                    </div>
+                  </div>
+                  <div class="social-account-action">
+                    <button 
+                      v-if="getSocialAccount('qq')" 
+                      class="unbind-btn" 
+                      @click="handleUnbindSocial('qq')"
+                      :disabled="unbindingSocial === 'qq'"
+                    >
+                      {{ unbindingSocial === 'qq' ? '解绑中...' : '解绑' }}
+                    </button>
+                    <button 
+                      v-else 
+                      class="bind-btn" 
+                      @click="handleBindSocial('qq')"
+                    >
+                      绑定
+                    </button>
+                  </div>
+                </div>
+
+                <!-- 微信 -->
+                <div class="social-account-item">
+                  <div class="social-account-info">
+                    <div class="social-account-icon wechat-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.598-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 3.405c-1.693-.103-3.686.388-5.22 1.63-1.846 1.51-2.754 3.756-1.898 6.22.078.223.177.435.29.633.458.816 1.113 1.465 1.896 1.872.198.105.41.19.63.253.276.08.558.13.842.15a7.17 7.17 0 0 0 2.006-.278.59.59 0 0 1 .49.033l1.624.949a.295.295 0 0 0 .29 0 .312.312 0 0 0 .135-.213l.38-1.478a.59.59 0 0 1 .24-.656c1.655-1.182 2.733-2.89 2.733-4.784.001-2.278-2.416-4.12-5.337-4.12zm-2.67 2.99c.519 0 .94.427.94.953a.948.948 0 0 1-.94.951.948.948 0 0 1-.94-.951c0-.526.421-.953.94-.953zm4.806 0c.519 0 .94.427.94.953a.948.948 0 0 1-.94.951.948.948 0 0 1-.94-.951c0-.526.421-.953.94-.953z"/>
+                      </svg>
+                    </div>
+                    <div class="social-account-details">
+                      <span class="social-account-name">微信</span>
+                      <span v-if="getSocialAccount('wechat')" class="social-account-nickname">{{ getSocialAccount('wechat').socialName || '已绑定' }}</span>
+                      <span v-else class="social-account-status">未绑定</span>
+                    </div>
+                  </div>
+                  <div class="social-account-action">
+                    <button 
+                      v-if="getSocialAccount('wechat')" 
+                      class="unbind-btn" 
+                      @click="handleUnbindSocial('wechat')"
+                      :disabled="unbindingSocial === 'wechat'"
+                    >
+                      {{ unbindingSocial === 'wechat' ? '解绑中...' : '解绑' }}
+                    </button>
+                    <button 
+                      v-else 
+                      class="bind-btn" 
+                      @click="handleBindSocial('wechat')"
+                    >
+                      绑定
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Google -->
+                <div class="social-account-item">
+                  <div class="social-account-info">
+                    <div class="social-account-icon google-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                      </svg>
+                    </div>
+                    <div class="social-account-details">
+                      <span class="social-account-name">Google</span>
+                      <span v-if="getSocialAccount('google')" class="social-account-nickname">{{ getSocialAccount('google').socialName || '已绑定' }}</span>
+                      <span v-else class="social-account-status">未绑定</span>
+                    </div>
+                  </div>
+                  <div class="social-account-action">
+                    <button 
+                      v-if="getSocialAccount('google')" 
+                      class="unbind-btn" 
+                      @click="handleUnbindSocial('google')"
+                      :disabled="unbindingSocial === 'google'"
+                    >
+                      {{ unbindingSocial === 'google' ? '解绑中...' : '解绑' }}
+                    </button>
+                    <button 
+                      v-else 
+                      class="bind-btn" 
+                      @click="handleBindSocial('google')"
+                    >
+                      绑定
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <!-- 我的发帖 -->
@@ -313,6 +428,26 @@
               placeholder="请输入邮箱"
             />
           </div>
+          <div class="form-group">
+            <label>邮箱验证码</label>
+            <div class="code-input-group">
+              <input 
+                type="text" 
+                v-model="bindEmailForm.verifyCode" 
+                placeholder="请输入验证码"
+                maxlength="6"
+                class="code-input"
+              />
+              <button 
+                class="send-code-btn" 
+                @click="sendEmailCode('bind')"
+                :disabled="emailCodeCountdown > 0 || sendingEmailCode || !bindEmailForm.email || !bindEmailForm.email.includes('@')"
+              >
+                {{ emailCodeCountdown > 0 ? `${emailCodeCountdown}秒` : '发送验证码' }}
+              </button>
+            </div>
+            <span class="form-hint">验证码将发送到您输入的邮箱</span>
+          </div>
         </div>
         <div class="dialog-actions">
           <button class="cancel-btn" @click="showBindEmailDialog = false">取消</button>
@@ -331,35 +466,187 @@
           <button class="close-btn" @click="showPasswordDialog = false">×</button>
         </div>
         <div class="dialog-content">
-          <div v-if="hasPassword" class="form-group">
-            <label>旧密码</label>
-            <input 
-              type="password" 
-              v-model="passwordForm.oldPassword" 
-              placeholder="请输入旧密码"
-            />
-          </div>
-          <div class="form-group">
-            <label>新密码</label>
-            <input 
-              type="password" 
-              v-model="passwordForm.newPassword" 
-              placeholder="请输入新密码"
-            />
-            <span class="form-hint">密码长度8-20位，包含字母和数字</span>
-          </div>
-          <div class="form-group">
-            <label>确认新密码</label>
-            <input 
-              type="password" 
-              v-model="passwordForm.confirmPassword" 
-              placeholder="请再次输入新密码"
-            />
-          </div>
+          <!-- 设置密码时，直接显示表单 -->
+          <template v-if="!hasPassword">
+            <div v-if="!userInfo.email" class="form-group">
+              <div class="warning-message">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+                <span>您尚未绑定邮箱，请先绑定邮箱后再设置密码</span>
+              </div>
+            </div>
+            <template v-else>
+              <div class="form-group">
+                <label>新密码</label>
+                <input 
+                  type="password" 
+                  v-model="passwordForm.newPassword" 
+                  placeholder="请输入新密码"
+                />
+                <span class="form-hint">密码长度8-20位，包含字母和数字</span>
+              </div>
+              <div class="form-group">
+                <label>确认新密码</label>
+                <input 
+                  type="password" 
+                  v-model="passwordForm.confirmPassword" 
+                  placeholder="请再次输入新密码"
+                />
+              </div>
+              <div class="form-group">
+                <label>邮箱验证码</label>
+                <div class="code-input-group">
+                  <input 
+                    type="text" 
+                    v-model="passwordForm.verifyCode" 
+                    placeholder="请输入验证码"
+                    maxlength="6"
+                    class="code-input"
+                  />
+                  <button 
+                    class="send-code-btn" 
+                    @click="sendEmailCode('password')"
+                    :disabled="passwordCodeCountdown > 0 || sendingPasswordCode"
+                  >
+                    {{ passwordCodeCountdown > 0 ? `${passwordCodeCountdown}秒` : '发送验证码' }}
+                  </button>
+                </div>
+                <span class="form-hint">验证码将发送到您的邮箱: {{ maskEmail(userInfo.email) }}</span>
+              </div>
+            </template>
+          </template>
+          
+          <!-- 重置密码时，提供两种方式选择 -->
+          <template v-else>
+            <div class="form-group">
+              <label class="reset-method-label">重置方式</label>
+              <div class="reset-method-options">
+                <label class="radio-option">
+                  <input 
+                    type="radio" 
+                    name="resetMethod" 
+                    value="oldPassword" 
+                    v-model="passwordForm.resetMethod"
+                    @change="onResetMethodChange"
+                  />
+                  <span>方式一：使用旧密码</span>
+                </label>
+                <label class="radio-option">
+                  <input 
+                    type="radio" 
+                    name="resetMethod" 
+                    value="emailCode" 
+                    v-model="passwordForm.resetMethod"
+                    @change="onResetMethodChange"
+                  />
+                  <span>方式二：使用邮箱验证码</span>
+                </label>
+              </div>
+            </div>
+            
+            <!-- 方式一：使用旧密码 -->
+            <template v-if="passwordForm.resetMethod === 'oldPassword'">
+              <div class="form-group">
+                <label>旧密码</label>
+                <input 
+                  type="password" 
+                  v-model="passwordForm.oldPassword" 
+                  placeholder="请输入旧密码"
+                />
+              </div>
+              <div class="form-group">
+                <label>新密码</label>
+                <input 
+                  type="password" 
+                  v-model="passwordForm.newPassword" 
+                  placeholder="请输入新密码"
+                />
+                <span class="form-hint">密码长度8-20位，包含字母和数字</span>
+              </div>
+              <div class="form-group">
+                <label>确认新密码</label>
+                <input 
+                  type="password" 
+                  v-model="passwordForm.confirmPassword" 
+                  placeholder="请再次输入新密码"
+                />
+              </div>
+            </template>
+            
+            <!-- 方式二：使用邮箱验证码 -->
+            <template v-else-if="passwordForm.resetMethod === 'emailCode'">
+              <div v-if="!userInfo.email" class="form-group">
+                <div class="warning-message">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  <span>您尚未绑定邮箱，无法使用此方式重置密码</span>
+                </div>
+              </div>
+              <template v-else>
+                <div class="form-group">
+                  <label>邮箱</label>
+                  <input 
+                    type="email" 
+                    :value="userInfo.email"
+                    placeholder="请输入邮箱"
+                    readonly
+                  />
+                  <span class="form-hint">将向此邮箱发送验证码</span>
+                </div>
+                <div class="form-group">
+                  <label>邮箱验证码</label>
+                  <div class="code-input-group">
+                    <input 
+                      type="text" 
+                      v-model="passwordForm.verifyCode" 
+                      placeholder="请输入验证码"
+                      maxlength="6"
+                      class="code-input"
+                    />
+                    <button 
+                      class="send-code-btn" 
+                      @click="sendEmailCode('password')"
+                      :disabled="passwordCodeCountdown > 0 || sendingPasswordCode"
+                    >
+                      {{ passwordCodeCountdown > 0 ? `${passwordCodeCountdown}秒` : '发送验证码' }}
+                    </button>
+                  </div>
+                  <span class="form-hint">验证码将发送到您的邮箱: {{ maskEmail(userInfo.email) }}</span>
+                </div>
+                <div class="form-group">
+                  <label>新密码</label>
+                  <input 
+                    type="password" 
+                    v-model="passwordForm.newPassword" 
+                    placeholder="请输入新密码"
+                  />
+                  <span class="form-hint">密码长度8-20位，包含字母和数字</span>
+                </div>
+                <div class="form-group">
+                  <label>确认新密码</label>
+                  <input 
+                    type="password" 
+                    v-model="passwordForm.confirmPassword" 
+                    placeholder="请再次输入新密码"
+                  />
+                </div>
+              </template>
+            </template>
+          </template>
         </div>
         <div class="dialog-actions">
           <button class="cancel-btn" @click="showPasswordDialog = false">取消</button>
-          <button class="confirm-btn" @click="handleSetPassword" :disabled="settingPassword">
+          <button 
+            class="confirm-btn" 
+            @click="handleSetPassword" 
+            :disabled="settingPassword || (!hasPassword && !userInfo.email) || (hasPassword && passwordForm.resetMethod === 'emailCode' && !userInfo.email)"
+          >
             {{ settingPassword ? '设置中...' : '确定' }}
           </button>
         </div>
@@ -424,8 +711,8 @@
 </template>
 
 <script>
-import { tokenManager } from '../api/auth.js'
-import { getCurrentUser, updateUserProfile, setPassword } from '../api/user.js'
+import { tokenManager, sendVerificationCode, API_BASE_URL } from '../api/auth.js'
+import { getCurrentUser, updateUserProfile, setPassword, getSocialAccounts, unbindSocialAccount } from '../api/user.js'
 import MessageBox from './MessageBox.vue'
 
 export default {
@@ -488,13 +775,24 @@ export default {
         phone: ''
       },
       bindEmailForm: {
-        email: ''
+        email: '',
+        verifyCode: ''
       },
       passwordForm: {
+        resetMethod: 'oldPassword', // 'oldPassword' 或 'emailCode'
         oldPassword: '',
         newPassword: '',
-        confirmPassword: ''
-      }
+        confirmPassword: '',
+        verifyCode: '',
+        email: ''
+      },
+      emailCodeCountdown: 0,
+      passwordCodeCountdown: 0,
+      sendingEmailCode: false,
+      sendingPasswordCode: false,
+      socialAccounts: [],
+      unbindingSocial: null,
+      socialMessageHandler: null
     }
   },
   computed: {
@@ -514,12 +812,20 @@ export default {
   mounted() {
     this.loadUserInfo()
     this.loadUserStats()
+    this.loadSocialAccounts()
     
     // 检查URL参数，如果是从退出登录跳转过来的，自动打开账户安全
     const hash = window.location.hash
     if (hash.includes('security') || sessionStorage.getItem('openSecurity') === 'true') {
       this.activeMenu = 'security'
       sessionStorage.removeItem('openSecurity')
+    }
+  },
+  beforeUnmount() {
+    // 清理消息监听器
+    if (this.socialMessageHandler) {
+      window.removeEventListener('message', this.socialMessageHandler)
+      this.socialMessageHandler = null
     }
   },
   methods: {
@@ -583,15 +889,83 @@ export default {
     },
     openBindEmailDialog() {
       this.bindEmailForm.email = this.userInfo.email || ''
+      this.bindEmailForm.verifyCode = ''
       this.showBindEmailDialog = true
     },
     openPasswordDialog() {
       this.passwordForm = {
+        resetMethod: 'oldPassword',
         oldPassword: '',
         newPassword: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        verifyCode: '',
+        email: this.userInfo.email || ''
       }
       this.showPasswordDialog = true
+    },
+    onResetMethodChange() {
+      // 切换重置方式时，清空表单
+      this.passwordForm.oldPassword = ''
+      this.passwordForm.verifyCode = ''
+      this.passwordForm.newPassword = ''
+      this.passwordForm.confirmPassword = ''
+    },
+    async sendEmailCode(type) {
+      let email = ''
+      if (type === 'bind') {
+        email = this.bindEmailForm.email
+        if (!email || !email.includes('@')) {
+          this.showMessage('请输入正确的邮箱', 'error')
+          return
+        }
+      } else if (type === 'password') {
+        email = this.userInfo.email
+        if (!email) {
+          this.showMessage('您尚未绑定邮箱', 'error')
+          return
+        }
+      }
+
+      if (type === 'bind') {
+        this.sendingEmailCode = true
+      } else {
+        this.sendingPasswordCode = true
+      }
+
+      try {
+        const response = await sendVerificationCode(email)
+        if (response.code === 200) {
+          this.showMessage('验证码已发送，请查收', 'success')
+          // 开始倒计时
+          if (type === 'bind') {
+            this.emailCodeCountdown = 60
+            const timer = setInterval(() => {
+              this.emailCodeCountdown--
+              if (this.emailCodeCountdown <= 0) {
+                clearInterval(timer)
+              }
+            }, 1000)
+          } else {
+            this.passwordCodeCountdown = 60
+            const timer = setInterval(() => {
+              this.passwordCodeCountdown--
+              if (this.passwordCodeCountdown <= 0) {
+                clearInterval(timer)
+              }
+            }, 1000)
+          }
+        } else {
+          this.showMessage(response.message || '发送验证码失败', 'error')
+        }
+      } catch (error) {
+        this.showMessage(error.message || '发送验证码失败', 'error')
+      } finally {
+        if (type === 'bind') {
+          this.sendingEmailCode = false
+        } else {
+          this.sendingPasswordCode = false
+        }
+      }
     },
     maskPhone(phone) {
       if (!phone || phone.length < 11) return phone
@@ -635,15 +1009,25 @@ export default {
         return
       }
 
+      if (!this.bindEmailForm.verifyCode || this.bindEmailForm.verifyCode.trim().length !== 6) {
+        this.showMessage('请输入6位验证码', 'error')
+        return
+      }
+
       this.bindingEmail = true
       try {
-        const response = await updateUserProfile({ email: this.bindEmailForm.email.trim() })
+        const response = await updateUserProfile({ 
+          email: this.bindEmailForm.email.trim(),
+          code: this.bindEmailForm.verifyCode.trim()
+        })
         if (response.code === 200) {
           this.userInfo = { ...this.userInfo, email: this.bindEmailForm.email.trim() }
           tokenManager.setUser(this.userInfo)
           this.showMessage('邮箱绑定成功', 'success')
           this.showBindEmailDialog = false
           this.bindEmailForm.email = ''
+          this.bindEmailForm.verifyCode = ''
+          await this.loadUserInfo()
         } else {
           this.showMessage(response.message || '绑定失败', 'error')
         }
@@ -654,6 +1038,7 @@ export default {
       }
     },
     async handleSetPassword() {
+      // 验证新密码
       if (!this.passwordForm.newPassword) {
         this.showMessage('请输入新密码', 'error')
         return
@@ -674,29 +1059,125 @@ export default {
         return
       }
 
-      this.settingPassword = true
-      try {
-        const response = await setPassword(
-          this.passwordForm.newPassword,
-          this.hasPassword ? this.passwordForm.oldPassword : null
-        )
-        if (response.code === 200) {
-          this.showMessage('密码设置成功', 'success')
-          this.showPasswordDialog = false
-          this.passwordForm = {
-            oldPassword: '',
-            newPassword: '',
-            confirmPassword: ''
-          }
-          // 重新加载用户信息以更新accountType
-          await this.loadUserInfo()
-            } else {
-          this.showMessage(response.message || '设置失败', 'error')
+      // 设置密码（没有旧密码）
+      if (!this.hasPassword) {
+        if (!this.userInfo.email) {
+          this.showMessage('您尚未绑定邮箱，请先绑定邮箱', 'error')
+          return
+        }
+
+        if (!this.passwordForm.verifyCode || this.passwordForm.verifyCode.trim().length !== 6) {
+          this.showMessage('请输入6位邮箱验证码', 'error')
+          return
+        }
+
+        this.settingPassword = true
+        try {
+          // 设置密码：只需要新密码和验证码
+          const response = await setPassword(
+            this.passwordForm.newPassword,
+            null, // 没有旧密码
+            this.passwordForm.verifyCode.trim()
+          )
+          if (response.code === 200) {
+            this.showMessage('密码设置成功', 'success')
+            this.showPasswordDialog = false
+            this.passwordForm = {
+              resetMethod: 'oldPassword',
+              oldPassword: '',
+              newPassword: '',
+              confirmPassword: '',
+              verifyCode: '',
+              email: ''
             }
-          } catch (error) {
-        this.showMessage(error.message || '设置失败', 'error')
-          } finally {
-        this.settingPassword = false
+            await this.loadUserInfo()
+          } else {
+            this.showMessage(response.message || '设置失败', 'error')
+          }
+        } catch (error) {
+          this.showMessage(error.message || '设置失败', 'error')
+        } finally {
+          this.settingPassword = false
+        }
+        return
+      }
+
+      // 重置密码（有旧密码）
+      if (this.passwordForm.resetMethod === 'oldPassword') {
+        // 方式一：使用旧密码
+        if (!this.passwordForm.oldPassword) {
+          this.showMessage('请输入旧密码', 'error')
+          return
+        }
+
+        this.settingPassword = true
+        try {
+          // 重置密码：需要旧密码和新密码，不需要验证码
+          const response = await setPassword(
+            this.passwordForm.newPassword,
+            this.passwordForm.oldPassword,
+            null // 使用旧密码方式，不需要验证码
+          )
+          if (response.code === 200) {
+            this.showMessage('密码重置成功', 'success')
+            this.showPasswordDialog = false
+            this.passwordForm = {
+              resetMethod: 'oldPassword',
+              oldPassword: '',
+              newPassword: '',
+              confirmPassword: '',
+              verifyCode: '',
+              email: ''
+            }
+            await this.loadUserInfo()
+          } else {
+            this.showMessage(response.message || '重置失败', 'error')
+          }
+        } catch (error) {
+          this.showMessage(error.message || '重置失败', 'error')
+        } finally {
+          this.settingPassword = false
+        }
+      } else if (this.passwordForm.resetMethod === 'emailCode') {
+        // 方式二：使用邮箱验证码
+        if (!this.userInfo.email) {
+          this.showMessage('您尚未绑定邮箱，无法使用此方式重置密码', 'error')
+          return
+        }
+
+        if (!this.passwordForm.verifyCode || this.passwordForm.verifyCode.trim().length !== 6) {
+          this.showMessage('请输入6位邮箱验证码', 'error')
+          return
+        }
+
+        this.settingPassword = true
+        try {
+          // 重置密码：需要验证码和新密码，不需要旧密码
+          const response = await setPassword(
+            this.passwordForm.newPassword,
+            null, // 使用验证码方式，不需要旧密码
+            this.passwordForm.verifyCode.trim()
+          )
+          if (response.code === 200) {
+            this.showMessage('密码重置成功', 'success')
+            this.showPasswordDialog = false
+            this.passwordForm = {
+              resetMethod: 'oldPassword',
+              oldPassword: '',
+              newPassword: '',
+              confirmPassword: '',
+              verifyCode: '',
+              email: ''
+            }
+            await this.loadUserInfo()
+          } else {
+            this.showMessage(response.message || '重置失败', 'error')
+          }
+        } catch (error) {
+          this.showMessage(error.message || '重置失败', 'error')
+        } finally {
+          this.settingPassword = false
+        }
       }
     },
     handleEdit() {
@@ -732,6 +1213,95 @@ export default {
       this.messageText = text
       this.messageType = type
       this.showMessageBox = true
+    },
+    async loadSocialAccounts() {
+      try {
+        const response = await getSocialAccounts()
+        if (response.code === 200 && response.data) {
+          this.socialAccounts = response.data
+        }
+      } catch (error) {
+        console.error('加载第三方账号列表失败:', error)
+      }
+    },
+    getSocialAccount(provider) {
+      return this.socialAccounts.find(account => account.provider === provider)
+    },
+    handleBindSocial(platform) {
+      const w = 520
+      const h = 600
+      const left = window.screenX + Math.max(0, (window.outerWidth - w) / 2)
+      const top = window.screenY + Math.max(0, (window.outerHeight - h) / 3)
+      const features = `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes`
+
+      let url = ''
+      let messageType = ''
+      
+      if (platform === 'qq') {
+        url = `${API_BASE_URL}/oauth/qq/authorize`
+        messageType = 'qq_auth'
+      } else if (platform === 'wechat') {
+        url = `${API_BASE_URL}/oauth/wechat/authorize`
+        messageType = 'wechat_auth'
+      } else if (platform === 'google') {
+        url = `${API_BASE_URL}/oauth/google/authorize`
+        messageType = 'google_auth'
+      } else {
+        this.showMessage('不支持的第三方平台', 'error')
+        return
+      }
+
+      const popup = window.open(url, `${platform}_bind`, features)
+      if (!popup) {
+        this.showMessage(`请允许弹出窗口以完成${platform === 'qq' ? 'QQ' : platform === 'wechat' ? '微信' : 'Google'}绑定`, 'error')
+        return
+      }
+
+      this.socialMessageHandler = (event) => {
+        try {
+          const data = event.data || {}
+          if (data && data.type === messageType) {
+            const payload = data.payload || {}
+            if (payload.code === 200) {
+              this.showMessage(`${platform === 'qq' ? 'QQ' : platform === 'wechat' ? '微信' : 'Google'}绑定成功！`, 'success')
+              // 重新加载第三方账号列表
+              this.loadSocialAccounts()
+              // 重新加载用户信息
+              this.loadUserInfo()
+            } else {
+              this.showMessage(payload.message || `${platform === 'qq' ? 'QQ' : platform === 'wechat' ? '微信' : 'Google'}绑定失败`, 'error')
+            }
+            window.removeEventListener('message', this.socialMessageHandler)
+            this.socialMessageHandler = null
+          }
+        } catch (e) {
+          console.error('处理第三方绑定消息失败:', e)
+        }
+      }
+      window.addEventListener('message', this.socialMessageHandler)
+    },
+    async handleUnbindSocial(provider) {
+      if (!confirm(`确定要解绑${provider === 'qq' ? 'QQ' : provider === 'wechat' ? '微信' : 'Google'}账号吗？`)) {
+        return
+      }
+
+      this.unbindingSocial = provider
+      try {
+        const response = await unbindSocialAccount(provider)
+        if (response.code === 200) {
+          this.showMessage('解绑成功', 'success')
+          // 重新加载第三方账号列表
+          await this.loadSocialAccounts()
+          // 重新加载用户信息
+          await this.loadUserInfo()
+        } else {
+          this.showMessage(response.message || '解绑失败', 'error')
+        }
+      } catch (error) {
+        this.showMessage(error.message || '解绑失败', 'error')
+      } finally {
+        this.unbindingSocial = null
+      }
     }
   }
 }
@@ -1325,6 +1895,161 @@ export default {
   font-size: 12px;
   color: #999;
   margin-top: 4px;
+}
+
+.reset-method-label {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 500;
+  color: #333;
+}
+
+.reset-method-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 10px;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.radio-option:hover {
+  background: #f5f5f5;
+  border-color: #4a9eff;
+}
+
+.radio-option input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #4a9eff;
+}
+
+.radio-option span {
+  font-size: 14px;
+  color: #333;
+  user-select: none;
+}
+
+.radio-option:has(input[type="radio"]:checked) {
+  border-color: #4a9eff;
+  background: #f0f7ff;
+}
+
+.radio-option:has(input[type="radio"]:checked) span {
+  color: #4a9eff;
+  font-weight: 500;
+}
+
+/* 第三方账号列表 */
+.social-accounts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.social-account-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+
+.social-account-item:hover {
+  border-color: #d0d0d0;
+  background: #f5f5f5;
+}
+
+.social-account-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.social-account-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.social-account-icon.qq-icon {
+  background: #12b7f5;
+  color: white;
+}
+
+.social-account-icon.wechat-icon {
+  background: #07c160;
+  color: white;
+}
+
+.social-account-icon.google-icon {
+  background: white;
+  color: #4285f4;
+  border: 1px solid #e5e5e5;
+}
+
+.social-account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.social-account-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.social-account-nickname {
+  font-size: 12px;
+  color: #666;
+}
+
+.social-account-status {
+  font-size: 12px;
+  color: #999;
+}
+
+.social-account-action {
+  flex-shrink: 0;
+}
+
+.unbind-btn {
+  padding: 6px 16px;
+  border: 1px solid #ff4d4f;
+  background: white;
+  color: #ff4d4f;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.unbind-btn:hover:not(:disabled) {
+  background: #fff1f0;
+  border-color: #ff7875;
+}
+
+.unbind-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 

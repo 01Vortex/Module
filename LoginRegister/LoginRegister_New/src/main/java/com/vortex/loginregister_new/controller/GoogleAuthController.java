@@ -19,6 +19,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -144,7 +146,37 @@ public class GoogleAuthController {
             String name = userInfo.get("name");
             String picture = userInfo.get("picture");
 
-            // 3. 使用统一的第三方登录服务处理登录或注册
+            // 检查是否有当前登录用户（绑定模式）
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = null;
+            if (authentication != null && authentication.getName() != null) {
+                currentUser = userService.findByAccount(authentication.getName());
+            }
+            
+            if (currentUser != null) {
+                // 绑定模式：将第三方账号绑定到当前登录用户
+                boolean bound = socialLoginService.bindSocialAccount(
+                        currentUser.getId(),
+                        "google",
+                        sub,
+                        null, // Google 没有 unionid
+                        name,
+                        picture
+                );
+                
+                if (bound) {
+                    // 绑定成功
+                    Map<String, Object> responseData = new HashMap<>();
+                    responseData.put("code", 200);
+                    responseData.put("message", "Google账号绑定成功");
+                    responseData.put("data", currentUser);
+                    return popupResultHtml("google_auth", responseData);
+                } else {
+                    return popupResultHtml("error", Map.of("message", "Google账号已被其他用户绑定"));
+                }
+            }
+
+            // 登录模式：使用统一的第三方登录服务处理登录或注册
             User user = socialLoginService.loginOrRegister(
                     "google",
                     sub,

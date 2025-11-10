@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -111,7 +113,37 @@ public class WeChatOAuthController {
             String avatar = userJson.path("headimgurl").asText("");
             String email = null; // 微信通常不提供邮箱
 
-            // 使用统一的第三方登录服务处理登录或注册
+            // 检查是否有当前登录用户（绑定模式）
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            User currentUser = null;
+            if (authentication != null && authentication.getName() != null) {
+                currentUser = userService.findByAccount(authentication.getName());
+            }
+            
+            if (currentUser != null) {
+                // 绑定模式：将第三方账号绑定到当前登录用户
+                boolean bound = socialLoginService.bindSocialAccount(
+                        currentUser.getId(),
+                        "wechat",
+                        openid,
+                        unionid,
+                        nickname,
+                        avatar
+                );
+                
+                if (bound) {
+                    // 绑定成功
+                    Map<String, Object> payload = new HashMap<>();
+                    payload.put("code", 200);
+                    payload.put("message", "微信账号绑定成功");
+                    payload.put("data", currentUser);
+                    return buildPostMessageHtml("wechat_auth", 200, currentUser, null, payload);
+                } else {
+                    return buildPostMessageHtml("wechat_auth", 400, null, "微信账号已被其他用户绑定");
+                }
+            }
+
+            // 登录模式：使用统一的第三方登录服务处理登录或注册
             User user = socialLoginService.loginOrRegister(
                     "wechat",
                     openid,

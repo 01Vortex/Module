@@ -34,15 +34,35 @@ export async function updateUserProfile(userData) {
  * 设置/重置密码
  * @param {string} password - 新密码
  * @param {string} oldPassword - 旧密码（重置密码时需要，设置密码时可以为空）
+ * @param {string} code - 邮箱验证码（必需）
  */
-export async function setPassword(password, oldPassword) {
-  const data = { password }
+export async function setPassword(password, oldPassword, code) {
+  const data = { password, code }
   if (oldPassword) {
     data.oldPassword = oldPassword
   }
   return request('/user/set-password', {
     method: 'POST',
     body: JSON.stringify(data)
+  })
+}
+
+/**
+ * 获取当前用户的第三方账号列表
+ */
+export async function getSocialAccounts() {
+  return request('/user/social-accounts', {
+    method: 'GET'
+  })
+}
+
+/**
+ * 解绑第三方账号
+ * @param {string} provider - 第三方提供商（qq/wechat/google）
+ */
+export async function unbindSocialAccount(provider) {
+  return request(`/user/social-accounts/${provider}`, {
+    method: 'DELETE'
   })
 }
 
