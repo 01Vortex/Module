@@ -1,114 +1,241 @@
 <template>
   <div class="profile-page">
     <div class="profile-container">
-      <!-- 顶部导航栏 -->
-      <header class="profile-header">
-        <button class="back-btn" @click="goBack">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M19 12H5M12 19l-7-7 7-7"/>
-          </svg>
-          返回
-        </button>
-        <h1 class="page-title">个人中心</h1>
-        <div style="width: 80px;"></div>
-      </header>
-
-      <!-- 主要内容 -->
-      <div class="profile-content">
-        <!-- 用户信息卡片 -->
-        <div class="profile-card">
-          <div class="avatar-section">
-            <div class="avatar-wrapper" @click="triggerAvatarUpload">
-              <img 
-                :src="getAvatarUrl()" 
-                :alt="userInfo.nickname || '用户'" 
-                class="avatar-img"
-              />
-              <div class="avatar-overlay">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
-                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-                <span>更换头像</span>
+      <!-- 顶部头部区域 -->
+      <div class="profile-header">
+        <div class="header-content">
+          <div class="user-info-section">
+            <div class="user-avatar">
+              <img :src="getAvatarUrl()" :alt="userInfo.nickname || '用户'" />
+            </div>
+              <div class="user-details">
+              <div class="username-section">
+                <span class="username">{{ userInfo.nickname || userInfo.account || '用户' }}</span>
+                <span class="level-badge">Lv.{{ userLevel }}</span>
+              </div>
+              <div class="user-id">账号: {{ userInfo.account || '--' }}</div>
+              <div class="user-stats">
+                <div class="stat-item">
+                  <span class="stat-value">{{ userStats.fans }}</span>
+                  <span class="stat-label">粉丝</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ userStats.following }}</span>
+                  <span class="stat-label">关注</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-value">{{ userStats.likes }}</span>
+                  <span class="stat-label">获赞</span>
+                </div>
               </div>
             </div>
-            <input 
-              type="file" 
-              ref="avatarInput" 
-              @change="handleAvatarChange" 
-              accept="image/*"
-              style="display: none;"
-            />
-            <h2 class="username">{{ userInfo.nickname || userInfo.account || '用户' }}</h2>
-            <p class="user-account">账号：{{ userInfo.account }}</p>
           </div>
+          <button class="edit-btn" @click="handleEdit">编辑</button>
+        </div>
+      </div>
 
-          <!-- 用户信息表单 -->
-          <div class="info-section">
-            <h3 class="section-title">个人信息</h3>
-            
-            <div class="form-group">
-              <label>昵称</label>
-              <input 
-                type="text" 
-                v-model="formData.nickname" 
-                placeholder="请输入昵称"
-                maxlength="50"
-              />
+      <!-- 主体内容区域 -->
+      <div class="profile-body">
+        <!-- 左侧导航栏 -->
+        <div class="sidebar">
+          <h3 class="sidebar-title">个人中心</h3>
+          <nav class="sidebar-nav">
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'posts' }"
+            @click="switchMenu('posts')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <line x1="8" y1="6" x2="21" y2="6"></line>
+              <line x1="8" y1="12" x2="21" y2="12"></line>
+              <line x1="8" y1="18" x2="21" y2="18"></line>
+              <line x1="3" y1="6" x2="3.01" y2="6"></line>
+              <line x1="3" y1="12" x2="3.01" y2="12"></line>
+              <line x1="3" y1="18" x2="3.01" y2="18"></line>
+            </svg>
+            <span>我的发帖</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'comments' }"
+            @click="switchMenu('comments')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>我的评论</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'collections' }"
+            @click="switchMenu('collections')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>我的合集</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'favorites' }"
+            @click="switchMenu('favorites')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+            <span>我的收藏</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'fans' }"
+            @click="switchMenu('fans')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <span>我的粉丝</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'following' }"
+            @click="switchMenu('following')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span>我的关注</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'level' }"
+            @click="switchMenu('level')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+            <span>我的等级</span>
+          </div>
+          <div 
+            class="nav-item"
+            :class="{ active: activeMenu === 'coins' }"
+            @click="switchMenu('coins')"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="nav-icon">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M12 6v6l4 2"></path>
+            </svg>
+            <span>我的米游币</span>
+          </div>
+        </nav>
+      </div>
+
+      <!-- 右侧内容区 -->
+      <div class="content-area">
+        <h2 class="content-title">{{ currentMenuLabel }}</h2>
+        
+        <!-- 我的发帖 -->
+        <div v-if="activeMenu === 'posts'" class="posts-section">
+          <div v-if="posts.length === 0" class="empty-state">
+            <p>没有更多数据了</p>
+          </div>
+          <div v-else>
+            <div v-for="post in posts" :key="post.id" class="post-card">
+              <div class="post-date">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="date-icon">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <span>{{ post.date }}</span>
+              </div>
+              <h3 class="post-title">{{ post.title }}</h3>
+              <p class="post-content">{{ post.content }}</p>
+              <div v-if="post.image" class="post-image">
+                <img :src="post.image" :alt="post.title" />
+              </div>
+              <div v-if="post.tag" class="post-tag">{{ post.tag }}</div>
+              <div class="post-stats">
+                <div class="post-stat-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <span>{{ post.views }}</span>
+                </div>
+                <div class="post-stat-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span>{{ post.comments }}</span>
+                </div>
+                <div class="post-stat-item">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 9V5a3 3 0 0 0-6 0v4"></path>
+                    <rect x="2" y="9" width="20" height="11" rx="2" ry="2"></rect>
+                    <path d="M12 14v3"></path>
+                  </svg>
+                  <span>{{ post.likes }}</span>
+                </div>
+              </div>
             </div>
-
-            <div class="form-group">
-              <label>邮箱</label>
-              <input 
-                type="email" 
-                v-model="formData.email" 
-                placeholder="请输入邮箱"
-                :disabled="!userInfo.email"
-              />
-              <span class="form-hint" v-if="!userInfo.email">未绑定邮箱</span>
-            </div>
-
-            <div class="form-group">
-              <label>手机号</label>
-              <input 
-                type="tel" 
-                v-model="formData.phone" 
-                placeholder="请输入手机号"
-                :disabled="!userInfo.phone"
-              />
-              <span class="form-hint" v-if="!userInfo.phone">未绑定手机号</span>
-            </div>
-
-            <div class="form-actions">
-              <button 
-                class="save-btn" 
-                @click="handleSave" 
-                :disabled="saving"
-              >
-                {{ saving ? '保存中...' : '保存修改' }}
-              </button>
+            <div class="empty-state">
+              <p>没有更多数据了</p>
             </div>
           </div>
         </div>
+
+        <!-- 其他菜单内容（暂时显示占位内容） -->
+        <div v-else class="placeholder-content">
+          <p>{{ currentMenuLabel }} 功能开发中...</p>
+        </div>
+      </div>
       </div>
     </div>
 
-    <!-- 图片裁剪对话框 -->
-    <div v-if="showCropDialog" class="crop-dialog-overlay" @click="closeCropDialog">
-      <div class="crop-dialog" @click.stop>
-        <div class="crop-dialog-header">
-          <h3>裁剪头像</h3>
-          <button class="close-btn" @click="closeCropDialog">×</button>
+    <!-- 编辑对话框 -->
+    <div v-if="showEditDialog" class="edit-dialog-overlay" @click="closeEditDialog">
+      <div class="edit-dialog" @click.stop>
+        <div class="edit-dialog-header">
+          <h3>编辑个人信息</h3>
+          <button class="close-btn" @click="closeEditDialog">×</button>
         </div>
-        <div class="crop-dialog-content">
-          <div class="crop-container">
-            <img ref="cropImage" :src="cropImageSrc" alt="裁剪图片" />
+        <div class="edit-dialog-content">
+          <div class="form-group">
+            <label>昵称</label>
+            <input 
+              type="text" 
+              v-model="formData.nickname" 
+              placeholder="请输入昵称"
+              maxlength="50"
+            />
+          </div>
+          <div class="form-group">
+            <label>邮箱</label>
+            <input 
+              type="email" 
+              v-model="formData.email" 
+              placeholder="请输入邮箱"
+              :disabled="!userInfo.email"
+            />
+            <span class="form-hint" v-if="!userInfo.email">未绑定邮箱</span>
+          </div>
+          <div class="form-group">
+            <label>手机号</label>
+            <input 
+              type="tel" 
+              v-model="formData.phone" 
+              placeholder="请输入手机号"
+              :disabled="!userInfo.phone"
+            />
+            <span class="form-hint" v-if="!userInfo.phone">未绑定手机号</span>
           </div>
         </div>
-        <div class="crop-dialog-actions">
-          <button class="cancel-btn" @click="closeCropDialog">取消</button>
-          <button class="confirm-btn" @click="confirmCrop" :disabled="cropping">
-            {{ cropping ? '上传中...' : '确定' }}
+        <div class="edit-dialog-actions">
+          <button class="cancel-btn" @click="closeEditDialog">取消</button>
+          <button class="save-btn" @click="handleSave" :disabled="saving">
+            {{ saving ? '保存中...' : '保存' }}
           </button>
         </div>
       </div>
@@ -126,10 +253,8 @@
 
 <script>
 import { tokenManager } from '../api/auth.js'
-import { getCurrentUser, updateUserProfile, uploadAvatar } from '../api/user.js'
+import { getCurrentUser, updateUserProfile } from '../api/user.js'
 import MessageBox from './MessageBox.vue'
-import Cropper from 'cropperjs'
-import 'cropperjs/dist/cropper.min.css'
 
 export default {
   name: 'ProfilePage',
@@ -139,39 +264,63 @@ export default {
   data() {
     return {
       userInfo: {},
+      userLevel: 1,
+      userStats: {
+        fans: 0,
+        following: 0,
+        likes: 0
+      },
+      activeMenu: 'posts',
+      menuItems: [
+        { key: 'posts', label: '我的发帖' },
+        { key: 'comments', label: '我的评论' },
+        { key: 'collections', label: '我的合集' },
+        { key: 'favorites', label: '我的收藏' },
+        { key: 'fans', label: '我的粉丝' },
+        { key: 'following', label: '我的关注' },
+        { key: 'level', label: '我的等级' },
+        { key: 'coins', label: '我的米游币' }
+      ],
+      posts: [
+        {
+          id: 1,
+          date: '2021-09-21',
+          title: '第一发就抽到了',
+          content: '不知是沾了谁欧气_(枫原万叶-偷笑),中秋快乐呀各位_(吃糖葫芦)',
+          image: '',
+          tag: '祈愿分享',
+          views: 46,
+          comments: 2,
+          likes: 3
+        }
+      ],
+      showEditDialog: false,
       formData: {
         nickname: '',
         email: '',
         phone: ''
       },
-      defaultAvatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+CjxwYXRoIGQ9Ik01MCAzNUM0MCAzNSA0MCA0MCAzNSA0NUMyNS41IDQ1IDIwIDUwLjUgMjAgNjBDMjAgNzAgMjUgNzUgMzAgODBDMzAgODUgNDAgOTAgNTAgOTBDNjAgOTAgNzAgODUgNzAgODBDNzUgNzUgODAgNzAgODAgNjBDODAgNTAuNSA3NC41IDQ1IDY1IDQ1QzYwIDQwIDYwIDM1IDUwIDM1WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+',
       saving: false,
-      uploading: false,
       showMessageBox: false,
       messageText: '',
       messageType: 'info',
-      showCropDialog: false,
-      cropImageSrc: '',
-      cropper: null,
-      cropping: false,
-      selectedFile: null
+      defaultAvatar: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNjY3ZWVhIi8+CjxwYXRoIGQ9Ik01MCAzNUM0MCAzNSA0MCA0MCAzNSA0NUMyNS41IDQ1IDIwIDUwLjUgMjAgNjBDMjAgNzAgMjUgNzUgMzAgODBDMzAgODUgNDAgOTAgNTAgOTBDNjAgOTAgNzAgODUgNzAgODBDNzUgNzUgODAgNzAgODAgNjBDODAgNTAuNSA3NC41IDQ1IDY1IDQ1QzYwIDQwIDYwIDM1IDUwIDM1WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'
+    }
+  },
+  computed: {
+    currentMenuLabel() {
+      const menu = this.menuItems.find(item => item.key === this.activeMenu)
+      return menu ? menu.label : '个人中心'
     }
   },
   mounted() {
     this.loadUserInfo()
-  },
-  beforeUnmount() {
-    // 销毁cropper实例
-    if (this.cropper) {
-      this.cropper.destroy()
-      this.cropper = null
-    }
+    this.loadUserStats()
   },
   methods: {
     getAvatarUrl() {
       if (this.userInfo.avatar && this.userInfo.avatar.trim()) {
         const avatar = this.userInfo.avatar
-        // 如果是相对路径，添加API基础URL
         if (avatar.startsWith('/')) {
           return 'http://localhost:8080' + avatar
         } else if (avatar.startsWith('http://') || avatar.startsWith('https://') || avatar.startsWith('data:')) {
@@ -184,7 +333,6 @@ export default {
     },
     async loadUserInfo() {
       try {
-        // 先从本地存储获取
         const localUser = tokenManager.getUser()
         if (localUser) {
           this.userInfo = localUser
@@ -195,7 +343,6 @@ export default {
           }
         }
 
-        // 从服务器获取最新信息
         const response = await getCurrentUser()
         if (response.code === 200 && response.data) {
           this.userInfo = response.data
@@ -204,145 +351,34 @@ export default {
             email: response.data.email || '',
             phone: response.data.phone || ''
           }
-          // 更新本地存储
           tokenManager.setUser(response.data)
         }
       } catch (error) {
         this.showMessage('加载用户信息失败', 'error')
       }
     },
-    triggerAvatarUpload() {
-      this.$refs.avatarInput.click()
+    loadUserStats() {
+      // TODO: 从API获取用户统计数据
+      // 暂时使用模拟数据
+      this.userStats = {
+        fans: 0,
+        following: 10,
+        likes: 8
+      }
+      // 根据用户ID计算等级（示例逻辑）
+      this.userLevel = 5
     },
-    handleAvatarChange(event) {
-      const file = event.target.files[0]
-      if (!file) return
-
-      // 验证文件类型
-      if (!file.type.startsWith('image/')) {
-        this.showMessage('请选择图片文件', 'error')
-        return
-      }
-
-      // 验证文件大小（5MB）
-      if (file.size > 5 * 1024 * 1024) {
-        this.showMessage('图片大小不能超过5MB', 'error')
-        return
-      }
-
-      // 保存文件引用
-      this.selectedFile = file
-
-      // 读取文件并显示裁剪对话框
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        this.cropImageSrc = e.target.result
-        this.showCropDialog = true
-        // 等待DOM更新后初始化cropper
-        this.$nextTick(() => {
-          this.initCropper()
-        })
-      }
-      reader.readAsDataURL(file)
-
-      // 清空input，允许重复选择同一文件
-      event.target.value = ''
+    switchMenu(menuKey) {
+      this.activeMenu = menuKey
+      // TODO: 根据菜单项加载不同的数据
     },
-    initCropper() {
-      if (this.cropper) {
-        this.cropper.destroy()
-      }
-      
-      const image = this.$refs.cropImage
-      if (image) {
-        this.cropper = new Cropper(image, {
-          aspectRatio: 1, // 1:1比例（圆形头像）
-          viewMode: 1, // 限制裁剪框不能超出图片
-          dragMode: 'move', // 拖动模式
-          autoCropArea: 0.8, // 初始裁剪区域
-          restore: false,
-          guides: true,
-          center: true,
-          highlight: false,
-          cropBoxMovable: true,
-          cropBoxResizable: true,
-          toggleDragModeOnDblclick: false,
-          responsive: true,
-          ready: () => {
-            // Cropper初始化完成
-          }
-        })
-      }
+    handleEdit() {
+      this.showEditDialog = true
     },
-    closeCropDialog() {
-      this.showCropDialog = false
-      if (this.cropper) {
-        this.cropper.destroy()
-        this.cropper = null
-      }
-      this.cropImageSrc = ''
-      this.selectedFile = null
-    },
-    async confirmCrop() {
-      if (!this.cropper || !this.selectedFile) {
-        return
-      }
-
-      this.cropping = true
-      try {
-        // 获取裁剪后的canvas
-        const canvas = this.cropper.getCroppedCanvas({
-          width: 400,
-          height: 400,
-          imageSmoothingEnabled: true,
-          imageSmoothingQuality: 'high'
-        })
-
-        // 将canvas转换为blob
-        canvas.toBlob(async (blob) => {
-          if (!blob) {
-            this.showMessage('图片处理失败', 'error')
-            this.cropping = false
-            return
-          }
-
-          // 创建File对象（前端已经裁剪好了，直接上传）
-          const file = new File([blob], this.selectedFile.name, {
-            type: 'image/jpeg',
-            lastModified: Date.now()
-          })
-
-          try {
-            // 上传头像（前端已裁剪，不需要传递裁剪参数）
-            const response = await uploadAvatar(file)
-
-            if (response.code === 200 && response.data) {
-              // 更新头像URL
-              const newAvatarUrl = response.data.avatar
-              if (newAvatarUrl) {
-                this.userInfo = { ...this.userInfo, avatar: newAvatarUrl }
-                tokenManager.setUser(this.userInfo)
-                this.showMessage('头像上传成功', 'success')
-                this.closeCropDialog()
-              } else {
-                this.showMessage('头像上传失败：未返回头像URL', 'error')
-              }
-            } else {
-              this.showMessage(response.message || '头像上传失败', 'error')
-            }
-          } catch (error) {
-            this.showMessage(error.message || '头像上传失败', 'error')
-          } finally {
-            this.cropping = false
-          }
-        }, 'image/jpeg', 0.9) // 质量90%
-      } catch (error) {
-        this.showMessage('图片处理失败', 'error')
-        this.cropping = false
-      }
+    closeEditDialog() {
+      this.showEditDialog = false
     },
     async handleSave() {
-      // 验证昵称
       if (this.formData.nickname && this.formData.nickname.trim().length > 50) {
         this.showMessage('昵称长度不能超过50个字符', 'error')
         return
@@ -355,6 +391,7 @@ export default {
           this.userInfo = { ...this.userInfo, ...this.formData }
           tokenManager.setUser(this.userInfo)
           this.showMessage('保存成功', 'success')
+          this.closeEditDialog()
         } else {
           this.showMessage(response.message || '保存失败', 'error')
         }
@@ -363,10 +400,6 @@ export default {
       } finally {
         this.saving = false
       }
-    },
-    goBack() {
-      // 使用hash路由返回首页
-      window.location.hash = '#home'
     },
     showMessage(text, type = 'info') {
       this.messageText = text
@@ -380,141 +413,389 @@ export default {
 <style scoped>
 .profile-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 20px;
+  background: #f5f5f5;
+  padding: 100px 20px 20px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
 .profile-container {
-  max-width: 800px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
+/* 顶部头部区域 */
 .profile-header {
+  background: #f5f5f5;
+  border-bottom: 1px solid #e5e5e5;
+  padding: 24px 0;
+}
+
+.header-content {
+  padding: 0 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 12px;
 }
 
-.back-btn {
+.user-info-section {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
+  gap: 20px;
+  flex: 1;
 }
 
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.page-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: white;
-  margin: 0;
-}
-
-.profile-content {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.profile-card {
-  padding: 40px;
-}
-
-.avatar-section {
-  text-align: center;
-  padding-bottom: 40px;
-  border-bottom: 1px solid #e5e5e5;
-  margin-bottom: 40px;
-}
-
-.avatar-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 150px;
-  height: 150px;
+.user-avatar {
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
-  cursor: pointer;
-  margin-bottom: 20px;
-  border: 4px solid #667eea;
-  transition: transform 0.3s;
+  border: 2px solid #e5e5e5;
+  flex-shrink: 0;
 }
 
-.avatar-wrapper:hover {
-  transform: scale(1.05);
-}
-
-.avatar-wrapper:hover .avatar-overlay {
-  opacity: 1;
-}
-
-.avatar-img {
+.user-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.avatar-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.username-section {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.3s;
-  color: white;
-  font-size: 14px;
-  gap: 8px;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .username {
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
-  margin: 0 0 8px 0;
-}
-
-.user-account {
-  font-size: 14px;
-  color: #666;
-  margin: 0;
-}
-
-.info-section {
-  max-width: 500px;
-  margin: 0 auto;
-}
-
-.section-title {
   font-size: 20px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 24px;
+}
+
+.level-badge {
+  background: #4a9eff;
+  color: white;
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.user-id {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 12px;
+}
+
+.user-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: row;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.stat-value {
+  font-weight: 500;
+  color: #666;
+  font-size: 12px;
+}
+
+.stat-label {
+  color: #999;
+  font-size: 12px;
+}
+
+.edit-btn {
+  background: #4a9eff;
+  color: white;
+  border: none;
+  padding: 8px 24px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.3s;
+  flex-shrink: 0;
+}
+
+.edit-btn:hover {
+  background: #3a8eef;
+}
+
+/* 主体内容区域 */
+.profile-body {
+  padding: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: #f5f5f5;
+}
+
+/* 左侧导航栏 */
+.sidebar {
+  width: 200px;
+  background: white;
+  border-radius: 8px;
+  padding: 20px 0;
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  padding: 0 20px;
+  margin-bottom: 16px;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.nav-item:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.nav-item.active {
+  color: #4a9eff;
+  background: #f0f7ff;
+}
+
+.nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: #4a9eff;
+}
+
+.nav-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}
+
+/* 右侧内容区 */
+.content-area {
+  flex: 1;
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  min-height: 400px;
+}
+
+.content-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* 帖子列表 */
+.posts-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.post-card {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 16px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+
+.post-card:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.post-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 12px;
+}
+
+.date-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.post-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.post-content {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.post-image {
+  margin: 12px 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.post-tag {
+  font-size: 12px;
+  color: #999;
+  margin-bottom: 12px;
+}
+
+.post-stats {
+  display: flex;
+  gap: 20px;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.post-stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #999;
+}
+
+.post-stat-item svg {
+  width: 14px;
+  height: 14px;
+  opacity: 0.7;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+.placeholder-content {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+  font-size: 14px;
+}
+
+/* 编辑对话框 */
+.edit-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.edit-dialog {
+  background: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.edit-dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.edit-dialog-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.3s;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  background: #f5f5f5;
+}
+
+.edit-dialog-content {
+  padding: 20px;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .form-group {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .form-group label {
@@ -527,17 +808,16 @@ export default {
 
 .form-group input {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 6px;
   font-size: 14px;
-  transition: border-color 0.3s;
   box-sizing: border-box;
 }
 
 .form-group input:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #4a9eff;
 }
 
 .form-group input:disabled {
@@ -552,21 +832,37 @@ export default {
   margin-top: 4px;
 }
 
-.form-actions {
-  margin-top: 32px;
-  text-align: center;
+.edit-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px;
+  border-top: 1px solid #e5e5e5;
 }
 
+.cancel-btn,
 .save-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  padding: 10px 24px;
   border: none;
-  padding: 12px 48px;
-  border-radius: 8px;
-  font-size: 16px;
+  border-radius: 6px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   transition: opacity 0.3s;
+}
+
+.cancel-btn {
+  background: #f5f5f5;
+  color: #666;
+}
+
+.cancel-btn:hover {
+  background: #e8e8e8;
+}
+
+.save-btn {
+  background: #4a9eff;
+  color: white;
 }
 
 .save-btn:hover:not(:disabled) {
@@ -584,146 +880,37 @@ export default {
     padding: 10px;
   }
 
-  .profile-card {
-    padding: 20px;
+  .profile-container {
+    border-radius: 4px;
   }
 
-  .avatar-wrapper {
-    width: 120px;
-    height: 120px;
+  .profile-body {
+    flex-direction: column;
+    padding: 15px;
   }
 
-  .username {
-    font-size: 20px;
+  .sidebar {
+    width: 100%;
   }
-}
 
-/* 裁剪对话框样式 */
-.crop-dialog-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(4px);
-}
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 0 15px;
+  }
 
-.crop-dialog {
-  background: white;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-}
+  .edit-btn {
+    align-self: flex-end;
+  }
 
-.crop-dialog-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid #e5e5e5;
-}
+  .user-stats {
+    flex-wrap: wrap;
+    gap: 16px;
+  }
 
-.crop-dialog-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 32px;
-  color: #666;
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background 0.3s;
-  line-height: 1;
-}
-
-.close-btn:hover {
-  background: #f5f5f5;
-  color: #333;
-}
-
-.crop-dialog-content {
-  padding: 20px;
-  flex: 1;
-  overflow: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  max-height: 60vh;
-}
-
-.crop-container {
-  width: 100%;
-  max-width: 500px;
-  position: relative;
-}
-
-.crop-container img {
-  max-width: 100%;
-  display: block;
-}
-
-.crop-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  padding: 20px;
-  border-top: 1px solid #e5e5e5;
-}
-
-.crop-dialog-actions .cancel-btn,
-.crop-dialog-actions .confirm-btn {
-  padding: 10px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: opacity 0.3s;
-}
-
-.crop-dialog-actions .cancel-btn {
-  background: #f5f5f5;
-  color: #666;
-}
-
-.crop-dialog-actions .cancel-btn:hover {
-  background: #e8e8e8;
-}
-
-.crop-dialog-actions .confirm-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.crop-dialog-actions .confirm-btn:hover:not(:disabled) {
-  opacity: 0.9;
-}
-
-.crop-dialog-actions .confirm-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  .profile-header {
+    padding: 20px 0;
+  }
 }
 </style>
-
