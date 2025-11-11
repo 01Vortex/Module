@@ -62,8 +62,7 @@ public class JwtBlacklistServiceImpl implements JwtBlacklistService {
     @Override
     @Scheduled(fixedRate = 3600000) // 每小时执行一次
     public void cleanExpiredEntries() {
-        // Redis会自动过期，这里主要用于日志记录
-        log.debug("清理过期的黑名单条目（Redis自动过期）");
+        // Redis会自动过期，无需手动清理
     }
     
     private static final String USER_TOKEN_INVALID_PREFIX = "user:token:invalid:";

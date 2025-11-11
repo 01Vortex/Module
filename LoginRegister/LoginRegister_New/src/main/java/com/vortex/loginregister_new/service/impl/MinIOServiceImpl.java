@@ -124,14 +124,13 @@ public class MinIOServiceImpl implements MinIOService {
                             .config(policy)
                             .build()
             );
-            log.info("设置存储桶 {} 为公开读取", bucketName);
+            log.info("✅ 设置存储桶 {} 为公开读取", bucketName);
         } catch (Exception e) {
             // 如果设置策略失败，记录警告但不抛出异常（可能是权限问题）
             log.warn("设置存储桶 {} 公开读取策略失败: {}", bucketName, e.getMessage());
             // 尝试使用旧版本的API（通过设置对象ACL）
             try {
-                // 注意：MinIO的新版本可能不支持设置对象ACL，这里只记录日志
-                log.debug("尝试通过其他方式设置存储桶访问权限");
+                // 注意：MinIO的新版本可能不支持设置对象ACL
             } catch (Exception ex) {
                 log.warn("无法设置存储桶访问权限: {}", ex.getMessage());
             }

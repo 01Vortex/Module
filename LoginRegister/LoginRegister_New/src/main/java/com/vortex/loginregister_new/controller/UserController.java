@@ -208,8 +208,6 @@ public class UserController {
                 } else {
                     log.warn("无法从URL中提取objectName - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
                 }
-            } else {
-                log.debug("用户头像不是MinIO文件，跳过删除 - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
             }
         } catch (Exception e) {
             // 删除头像失败不影响用户删除操作，只记录警告
@@ -332,6 +330,10 @@ public class UserController {
                         return result;
                     }
                     
+					// 如果邮箱没有变化，则不需要验证码，直接跳过
+					String currentEmail = user.getEmail();
+					boolean emailChanged = currentEmail == null ? true : !email.equalsIgnoreCase(currentEmail);
+					if (emailChanged) {
                     // 检查邮箱是否被其他用户使用
                     User emailUser = userService.findByEmail(email);
                     if (emailUser != null && !emailUser.getId().equals(user.getId())) {
@@ -340,7 +342,7 @@ public class UserController {
                         return result;
                     }
                     
-                    // 验证邮箱验证码
+						// 验证邮箱验证码（仅当更换邮箱时需要）
                     String code = userData.get("code");
                     if (code == null || code.trim().isEmpty()) {
                         result.put("code", 400);
@@ -371,6 +373,7 @@ public class UserController {
                     
                     user.setEmail(email);
                     log.info("用户 {} 绑定/更换邮箱成功: {}, IP: {}", account, email, WebUtils.getClientIp(request));
+					} // 未更换邮箱则不做任何修改，也不校验验证码
                 }
             }
             
@@ -496,39 +499,52 @@ public class UserController {
                     return result;
                 }
             } else {
-                // 设置密码：需要邮箱验证码
-                if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
-                    result.put("code", 400);
-                    result.put("message", "设置密码需要先绑定邮箱，请先绑定邮箱");
-                    return result;
+                // 设置密码：判断是否是第三方登录用户
+                boolean isSocialUser = "SOCIAL".equals(user.getAccountType()) || 
+                        userSocialService.lambdaQuery()
+                                .eq(UserSocial::getUserId, user.getId())
+                                .count() > 0;
+                
+                if (isSocialUser) {
+                    // 第三方登录用户第一次设置密码：不需要邮箱验证码
+                    // 直接允许设置密码
+                    log.info("第三方用户首次设置密码，无需验证码 - account: {}, accountType: {}", 
+                            account, user.getAccountType());
+                } else {
+                    // 非第三方用户设置密码：需要邮箱验证码
+                    if (user.getEmail() == null || user.getEmail().trim().isEmpty()) {
+                        result.put("code", 400);
+                        result.put("message", "设置密码需要先绑定邮箱，请先绑定邮箱");
+                        return result;
+                    }
+                    
+                    if (code == null || code.trim().isEmpty()) {
+                        result.put("code", 400);
+                        result.put("message", "请输入邮箱验证码");
+                        return result;
+                    }
+                    
+                    // 从 Redis 验证验证码（使用用户邮箱）
+                    String identifier = user.getEmail().toLowerCase();
+                    String redisKey = VERIFICATION_CODE_PREFIX + identifier;
+                    String storedCode = redisService.get(redisKey);
+                    
+                    if (storedCode == null) {
+                        result.put("code", 400);
+                        result.put("message", "验证码已过期或不存在，请重新获取");
+                        return result;
+                    }
+                    
+                    if (!storedCode.equals(code.trim())) {
+                        result.put("code", 400);
+                        result.put("message", "验证码错误");
+                        return result;
+                    }
+                    
+                    // 验证码正确，清除验证码
+                    redisService.delete(redisKey);
+                    redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
                 }
-                
-                if (code == null || code.trim().isEmpty()) {
-                    result.put("code", 400);
-                    result.put("message", "请输入邮箱验证码");
-                    return result;
-                }
-                
-                // 从 Redis 验证验证码（使用用户邮箱）
-                String identifier = user.getEmail().toLowerCase();
-                String redisKey = VERIFICATION_CODE_PREFIX + identifier;
-                String storedCode = redisService.get(redisKey);
-                
-                if (storedCode == null) {
-                    result.put("code", 400);
-                    result.put("message", "验证码已过期或不存在，请重新获取");
-                    return result;
-                }
-                
-                if (!storedCode.equals(code.trim())) {
-                    result.put("code", 400);
-                    result.put("message", "验证码错误");
-                    return result;
-                }
-                
-                // 验证码正确，清除验证码
-                redisService.delete(redisKey);
-                redisService.delete(CODE_ATTEMPT_PREFIX + identifier);
             }
             
             // 加密新密码

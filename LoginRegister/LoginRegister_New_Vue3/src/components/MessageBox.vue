@@ -75,16 +75,16 @@ const handleClose = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 20vh;
+  background: transparent;
   z-index: 9999;
-  backdrop-filter: blur(2px);
+  pointer-events: none; /* 不拦截页面点击 */
 }
 
 .message-box {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
   background: white;
   border-radius: 12px;
   padding: 24px;
@@ -94,8 +94,9 @@ const handleClose = () => {
   display: flex;
   align-items: flex-start;
   gap: 16px;
-  position: relative;
   animation: slideDown 0.3s ease-out;
+  pointer-events: auto; /* 允许点击关闭按钮 */
+  will-change: opacity, transform;
 }
 
 @keyframes slideDown {

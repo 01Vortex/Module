@@ -7,6 +7,7 @@ import com.vortex.loginregister_new.service.UserService;
 import com.vortex.loginregister_new.service.UserSocialService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,16 +39,10 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         UserSocial userSocial = null;
         if (unionId != null && !unionId.trim().isEmpty()) {
             userSocial = userSocialService.findByProviderAndUnionId(provider, unionId);
-            if (userSocial != null) {
-                log.debug("通过 unionid 找到关联记录 - provider: {}, unionId: {}", provider, unionId);
-            }
         }
         // 如果没有 unionid 或通过 unionid 未找到，则使用 openid 查询
         if (userSocial == null) {
             userSocial = userSocialService.findByProviderAndOpenId(provider, providerUserId);
-            if (userSocial != null) {
-                log.debug("通过 openid 找到关联记录 - provider: {}, openid: {}", provider, providerUserId);
-            }
         }
         
         if (userSocial != null) {
@@ -80,13 +75,11 @@ public class SocialLoginServiceImpl implements SocialLoginService {
                 }
                 if (needUpdate) {
                     userSocialService.updateById(userSocial);
-                    log.debug("更新第三方账号关联信息 - provider: {}, userId: {}", provider, userSocial.getUserId());
                 }
                 
                 // 第二次及以上登录：只更新用户表的最后登录时间和IP，不更新其他字段
                 if (loginIp != null && !loginIp.trim().isEmpty()) {
                     userService.updateLastLoginInfo(user.getId(), loginIp);
-                    log.debug("更新用户登录信息 - userId: {}, loginIp: {}", user.getId(), loginIp);
                 }
                 
                 return user;
@@ -161,7 +154,17 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         }
         newUserSocial.setSocialName(nickname);
         newUserSocial.setAvatar(avatar);
+        
+        try {
         userSocialService.save(newUserSocial);
+        } catch (DuplicateKeyException e) {
+            // 数据库唯一约束违反：第三方账号已被其他用户绑定（理论上不应该发生，因为前面已经检查过）
+            log.error("创建第三方账号关联记录失败：数据库唯一约束违反 - provider: {}, providerUserId: {}, error: {}", 
+                    provider, providerUserId, e.getMessage());
+            // 删除刚创建的用户（回滚）
+            userService.removeById(newUser.getId());
+            throw new RuntimeException("第三方账号已被其他用户绑定，无法创建新用户");
+        }
         
         // 首次注册：更新登录信息
         if (loginIp != null && !loginIp.trim().isEmpty()) {
@@ -322,14 +325,37 @@ public class SocialLoginServiceImpl implements SocialLoginService {
         newUserSocial.setSocialName(nickname);
         newUserSocial.setAvatar(avatar);
         
-        boolean saved = userSocialService.save(newUserSocial);
-        if (saved) {
-            // 更新账户类型
-            updateAccountType(userId);
-            log.info("第三方账号绑定成功 - userId: {}, provider: {}", userId, provider);
-            return true;
-        } else {
-            log.error("第三方账号绑定失败 - userId: {}, provider: {}", userId, provider);
+        try {
+            boolean saved = userSocialService.save(newUserSocial);
+            if (saved) {
+                // 更新账户类型
+                updateAccountType(userId);
+                log.info("第三方账号绑定成功 - userId: {}, provider: {}", userId, provider);
+                return true;
+            } else {
+                log.error("第三方账号绑定失败 - userId: {}, provider: {}", userId, provider);
+                return false;
+            }
+        } catch (DuplicateKeyException e) {
+            // 数据库唯一约束违反：第三方账号已被其他用户绑定
+            log.warn("第三方账号绑定失败：数据库唯一约束违反 - userId: {}, provider: {}, providerUserId: {}, error: {}", 
+                    userId, provider, providerUserId, e.getMessage());
+            // 再次查询确认是否被其他用户绑定（处理并发情况）
+            UserSocial existing = null;
+            if (unionId != null && !unionId.trim().isEmpty()) {
+                existing = userSocialService.findByProviderAndUnionId(provider, unionId);
+            }
+            if (existing == null) {
+                existing = userSocialService.findByProviderAndOpenId(provider, providerUserId);
+            }
+            if (existing != null && !existing.getUserId().equals(userId)) {
+                log.warn("第三方账号已被其他用户绑定 - provider: {}, providerUserId: {}, existingUserId: {}", 
+                        provider, providerUserId, existing.getUserId());
+            }
+            return false;
+        } catch (Exception e) {
+            log.error("第三方账号绑定异常 - userId: {}, provider: {}, providerUserId: {}", 
+                    userId, provider, providerUserId, e);
             return false;
         }
     }

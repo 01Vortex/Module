@@ -404,7 +404,6 @@ export default {
     },
     goToVideo(id) {
       // 跳转到视频详情页
-      console.log('跳转到视频:', id)
     },
     goToProfile() {
       this.showUserMenu = false
@@ -414,13 +413,11 @@ export default {
     goToSubmission() {
       this.showUserMenu = false
       // 跳转到投稿管理
-      console.log('跳转到投稿管理')
       // TODO: 实现投稿管理页面路由
     },
     goToRecommended() {
       this.showUserMenu = false
       // 跳转到推荐服务
-      console.log('跳转到推荐服务')
       // TODO: 实现推荐服务页面路由
     }
   }

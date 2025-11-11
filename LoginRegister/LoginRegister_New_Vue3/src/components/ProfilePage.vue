@@ -147,8 +147,10 @@
       <div class="content-area">
         <h2 class="content-title">{{ currentMenuLabel }}</h2>
         
-        <!-- 账户安全 -->
-        <div v-if="activeMenu === 'security'" class="security-section">
+        <div class="content-wrapper">
+          <!-- 账户安全 -->
+          <transition name="fade" mode="out-in">
+            <div v-if="activeMenu === 'security'" key="security" class="security-section">
           <div class="security-item">
             <div class="security-item-header">
               <div class="security-item-info">
@@ -325,10 +327,10 @@
               </div>
             </div>
           </div>
-        </div>
+            </div>
         
-        <!-- 我的发帖 -->
-        <div v-else-if="activeMenu === 'posts'" class="posts-section">
+            <!-- 我的发帖 -->
+            <div v-else-if="activeMenu === 'posts'" key="posts" class="posts-section">
           <div v-if="posts.length === 0" class="empty-state">
             <p>没有更多数据了</p>
           </div>
@@ -375,11 +377,13 @@
               <p>没有更多数据了</p>
             </div>
           </div>
-        </div>
+            </div>
 
-        <!-- 其他菜单内容（暂时显示占位内容） -->
-        <div v-else class="placeholder-content">
-          <p>{{ currentMenuLabel }} 功能开发中...</p>
+            <!-- 其他菜单内容（暂时显示占位内容） -->
+            <div v-else :key="activeMenu" class="placeholder-content">
+              <p>{{ currentMenuLabel }} 功能开发中...</p>
+            </div>
+          </transition>
         </div>
       </div>
       </div>
@@ -465,59 +469,82 @@
           <h3>{{ hasPassword ? '重置密码' : '设置密码' }}</h3>
           <button class="close-btn" @click="showPasswordDialog = false">×</button>
         </div>
-        <div class="dialog-content">
-          <!-- 设置密码时，直接显示表单 -->
-          <template v-if="!hasPassword">
-            <div v-if="!userInfo.email" class="form-group">
-              <div class="warning-message">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            <div class="dialog-content">
+              <!-- 设置密码时，直接显示表单 -->
+              <template v-if="!hasPassword">
+                <!-- 第三方用户第一次设置密码：不需要邮箱验证码 -->
+                <template v-if="isSocialUser">
+                  <div class="form-group">
+                    <label>新密码</label>
+                    <input 
+                      type="password" 
+                      v-model="passwordForm.newPassword" 
+                      placeholder="请输入新密码"
+                    />
+                    <span class="form-hint">密码长度8-20位，包含字母和数字</span>
+                  </div>
+                  <div class="form-group">
+                    <label>确认新密码</label>
+                    <input 
+                      type="password" 
+                      v-model="passwordForm.confirmPassword" 
+                      placeholder="请再次输入新密码"
+                    />
+                  </div>
+                </template>
+                <!-- 非第三方用户设置密码：需要邮箱验证码 -->
+                <template v-else>
+                  <div v-if="!userInfo.email" class="form-group">
+                    <div class="warning-message">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
                 </svg>
-                <span>您尚未绑定邮箱，请先绑定邮箱后再设置密码</span>
+                      <span>您尚未绑定邮箱，请先绑定邮箱后再设置密码</span>
               </div>
             </div>
-            <template v-else>
-              <div class="form-group">
-                <label>新密码</label>
-                <input 
-                  type="password" 
-                  v-model="passwordForm.newPassword" 
-                  placeholder="请输入新密码"
-                />
-                <span class="form-hint">密码长度8-20位，包含字母和数字</span>
-              </div>
-              <div class="form-group">
-                <label>确认新密码</label>
-                <input 
-                  type="password" 
-                  v-model="passwordForm.confirmPassword" 
-                  placeholder="请再次输入新密码"
-                />
-              </div>
-              <div class="form-group">
-                <label>邮箱验证码</label>
-                <div class="code-input-group">
-                  <input 
-                    type="text" 
-                    v-model="passwordForm.verifyCode" 
-                    placeholder="请输入验证码"
-                    maxlength="6"
-                    class="code-input"
-                  />
-                  <button 
-                    class="send-code-btn" 
-                    @click="sendEmailCode('password')"
-                    :disabled="passwordCodeCountdown > 0 || sendingPasswordCode"
-                  >
-                    {{ passwordCodeCountdown > 0 ? `${passwordCodeCountdown}秒` : '发送验证码' }}
-                  </button>
-                </div>
-                <span class="form-hint">验证码将发送到您的邮箱: {{ maskEmail(userInfo.email) }}</span>
-              </div>
-            </template>
-          </template>
+                  <template v-else>
+                    <div class="form-group">
+                      <label>新密码</label>
+            <input 
+                        type="password" 
+                        v-model="passwordForm.newPassword" 
+                        placeholder="请输入新密码"
+                      />
+                      <span class="form-hint">密码长度8-20位，包含字母和数字</span>
+          </div>
+                    <div class="form-group">
+                      <label>确认新密码</label>
+                      <input 
+                        type="password" 
+                        v-model="passwordForm.confirmPassword" 
+                        placeholder="请再次输入新密码"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label>邮箱验证码</label>
+                      <div class="code-input-group">
+                        <input 
+                          type="text" 
+                          v-model="passwordForm.verifyCode" 
+                          placeholder="请输入验证码"
+                          maxlength="6"
+                          class="code-input"
+                        />
+                        <button 
+                          class="send-code-btn" 
+                          @click="sendEmailCode('password')"
+                          :disabled="passwordCodeCountdown > 0 || sendingPasswordCode"
+                        >
+                          {{ passwordCodeCountdown > 0 ? `${passwordCodeCountdown}秒` : '发送验证码' }}
+                        </button>
+                      </div>
+                      <span class="form-hint">验证码将发送到您的邮箱: {{ maskEmail(userInfo.email) }}</span>
+                    </div>
+                  </template>
+                </template>
+              </template>
           
           <!-- 重置密码时，提供两种方式选择 -->
           <template v-else>
@@ -645,10 +672,10 @@
           <button 
             class="confirm-btn" 
             @click="handleSetPassword" 
-            :disabled="settingPassword || (!hasPassword && !userInfo.email) || (hasPassword && passwordForm.resetMethod === 'emailCode' && !userInfo.email)"
-          >
-            {{ settingPassword ? '设置中...' : '确定' }}
-          </button>
+              :disabled="settingPassword || (!hasPassword && !isSocialUser && !userInfo.email) || (hasPassword && passwordForm.resetMethod === 'emailCode' && !userInfo.email)"
+            >
+              {{ settingPassword ? (hasPassword ? '重置中...' : '设置中...') : '确定' }}
+            </button>
         </div>
       </div>
     </div>
@@ -807,6 +834,14 @@ export default {
       }
       // 如果accountType为PASSWORD或BOTH，说明有密码
       return this.userInfo.accountType === 'PASSWORD' || this.userInfo.accountType === 'BOTH'
+    },
+    isSocialUser() {
+      if (!this.userInfo) {
+        return false
+      }
+      // 如果accountType为SOCIAL，或者是通过第三方登录注册的用户（有第三方账号绑定但accountType可能为null）
+      return this.userInfo.accountType === 'SOCIAL' || 
+             (this.userInfo.accountType !== 'PASSWORD' && this.socialAccounts.length > 0)
     }
   },
   mounted() {
@@ -916,13 +951,13 @@ export default {
         email = this.bindEmailForm.email
         if (!email || !email.includes('@')) {
           this.showMessage('请输入正确的邮箱', 'error')
-          return
-        }
+        return
+      }
       } else if (type === 'password') {
         email = this.userInfo.email
         if (!email) {
           this.showMessage('您尚未绑定邮箱', 'error')
-          return
+        return
         }
       }
 
@@ -1046,8 +1081,8 @@ export default {
 
       if (this.passwordForm.newPassword.length < 8 || this.passwordForm.newPassword.length > 20) {
         this.showMessage('密码长度应为8-20位', 'error')
-        return
-      }
+            return
+          }
 
       if (!/^(?=.*[A-Za-z])(?=.*\d)/.test(this.passwordForm.newPassword)) {
         this.showMessage('密码必须包含字母和数字', 'error')
@@ -1061,6 +1096,40 @@ export default {
 
       // 设置密码（没有旧密码）
       if (!this.hasPassword) {
+        // 第三方用户第一次设置密码：不需要验证码
+        if (this.isSocialUser) {
+          this.settingPassword = true
+          try {
+            // 设置密码：只需要新密码，不需要验证码
+            const response = await setPassword(
+              this.passwordForm.newPassword,
+              null, // 没有旧密码
+              null  // 第三方用户不需要验证码
+            )
+            if (response.code === 200) {
+              this.showMessage('密码设置成功', 'success')
+              this.showPasswordDialog = false
+              this.passwordForm = {
+                resetMethod: 'oldPassword',
+                oldPassword: '',
+                newPassword: '',
+                confirmPassword: '',
+                verifyCode: '',
+                email: ''
+              }
+              await this.loadUserInfo()
+            } else {
+              this.showMessage(response.message || '设置失败', 'error')
+            }
+          } catch (error) {
+            this.showMessage(error.message || '设置失败', 'error')
+          } finally {
+            this.settingPassword = false
+          }
+          return
+        }
+        
+        // 非第三方用户设置密码：需要邮箱验证码
         if (!this.userInfo.email) {
           this.showMessage('您尚未绑定邮箱，请先绑定邮箱', 'error')
           return
@@ -1091,7 +1160,7 @@ export default {
               email: ''
             }
             await this.loadUserInfo()
-          } else {
+              } else {
             this.showMessage(response.message || '设置失败', 'error')
           }
         } catch (error) {
@@ -1130,12 +1199,12 @@ export default {
               email: ''
             }
             await this.loadUserInfo()
-          } else {
+            } else {
             this.showMessage(response.message || '重置失败', 'error')
-          }
-        } catch (error) {
+            }
+          } catch (error) {
           this.showMessage(error.message || '重置失败', 'error')
-        } finally {
+          } finally {
           this.settingPassword = false
         }
       } else if (this.passwordForm.resetMethod === 'emailCode') {
@@ -1173,7 +1242,7 @@ export default {
           } else {
             this.showMessage(response.message || '重置失败', 'error')
           }
-        } catch (error) {
+      } catch (error) {
           this.showMessage(error.message || '重置失败', 'error')
         } finally {
           this.settingPassword = false
@@ -1198,8 +1267,11 @@ export default {
         if (response.code === 200) {
           this.userInfo = { ...this.userInfo, ...this.formData }
           tokenManager.setUser(this.userInfo)
-          this.showMessage('保存成功', 'success')
           this.closeEditDialog()
+          // 等待弹窗完成关闭过渡后再显示提示，避免位置抖动
+          this.$nextTick(() => {
+            setTimeout(() => this.showMessage('保存成功', 'success'), 0)
+          })
         } else {
           this.showMessage(response.message || '保存失败', 'error')
         }
@@ -1221,7 +1293,7 @@ export default {
           this.socialAccounts = response.data
         }
       } catch (error) {
-        console.error('加载第三方账号列表失败:', error)
+        // 静默处理错误，不影响用户体验
       }
     },
     getSocialAccount(provider) {
@@ -1275,7 +1347,7 @@ export default {
             this.socialMessageHandler = null
           }
         } catch (e) {
-          console.error('处理第三方绑定消息失败:', e)
+          // 静默处理错误
         }
       }
       window.addEventListener('message', this.socialMessageHandler)
@@ -1315,6 +1387,10 @@ export default {
   display: flex;
   justify-content: center;
   align-items: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
 }
 
 .profile-container {
@@ -1324,6 +1400,7 @@ export default {
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 /* 顶部头部区域 */
@@ -1444,6 +1521,9 @@ export default {
   gap: 20px;
   align-items: flex-start;
   background: #f5f5f5;
+  box-sizing: border-box;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* 左侧导航栏 */
@@ -1513,6 +1593,9 @@ export default {
   border-radius: 8px;
   padding: 20px;
   min-height: 400px;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: 100%;
 }
 
 .content-title {
@@ -1522,11 +1605,53 @@ export default {
   margin-bottom: 20px;
 }
 
+/* 内容包装器，用于稳定高度和过渡 */
+.content-wrapper {
+  min-height: 500px;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* 过渡动画 - 使用绝对定位避免布局抖动 */
+.content-wrapper > * {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.fade-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  position: relative;
+}
+
+.fade-leave-active {
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.fade-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
 /* 账户安全 */
 .security-section {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .security-item {
@@ -1741,6 +1866,8 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .post-card {

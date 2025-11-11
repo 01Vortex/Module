@@ -374,8 +374,8 @@ public class AuthController {
                         emailService.sendVerificationCode(account, code);
                         result.put("code", 200);
                         result.put("message", "验证码已发送到邮箱，请查收");
-                        // 开发环境：在日志中显示验证码（查看后端日志）
-                        log.info("✅ 验证码邮件已发送到: {}，验证码: {}", account, code);
+                        // 开发环境：在响应中返回验证码
+                        result.put("verificationCode", code);
                     } catch (Exception e) {
                         log.error("❌ 邮件发送失败: ", e);
                         result.put("code", 500);
@@ -550,8 +550,6 @@ public class AuthController {
             // 从admin表查询管理员
             Admin admin = adminService.findByAccount(account);
             
-            log.debug("管理员登录尝试 - 账号: {}, 查询结果: {}", account, admin != null ? "找到" : "未找到");
-            
             if (admin == null) {
                 log.warn("管理员登录失败 - 账号不存在: {}", account);
                 result.put("code", 401);
@@ -559,11 +557,8 @@ public class AuthController {
                 return result;
             }
             
-            log.debug("管理员登录 - 账号: {}, 状态: {}, 密码hash: {}", account, admin.getStatus(), admin.getPassword() != null ? "已设置" : "未设置");
-            
             // 验证密码
             boolean passwordMatches = passwordEncoder.matches(password, admin.getPassword());
-            log.debug("密码验证结果: {}", passwordMatches);
             
             if (!passwordMatches) {
                 log.warn("管理员登录失败 - 密码错误: {}", account);
@@ -888,9 +883,10 @@ public class AuthController {
                         emailService.sendResetPasswordCode(emailOrPhone, code);
                         result.put("code", 200);
                         result.put("message", "验证码已发送到邮箱，请查收");
-                        log.info("✅ 重置密码验证码邮件已发送到: {}，验证码: {}", emailOrPhone, code);
+                        // 开发环境：在响应中返回验证码
+                        result.put("verificationCode", code);
                     } catch (Exception e) {
-                        log.error("❌ 邮件发送失败: ", e);
+                        log.error("邮件发送失败: {}", e.getMessage());
                         result.put("code", 500);
                         result.put("message", "邮件发送失败: " + e.getMessage());
                         // 删除 Redis 中的验证码

@@ -254,7 +254,6 @@ const handleLogin = async () => {
     }
     
     if (result.code === 200) {
-      console.log('登录成功:', result.data)
       showMessage('登录成功！', 'success')
       // token和用户信息已由API客户端自动保存
       // 跳转到主页或其他页面
@@ -270,7 +269,6 @@ const handleLogin = async () => {
       showMessage(errorMsg, 'error')
     }
   } catch (error) {
-    console.error('登录错误:', error)
     showMessage('网络错误，请稍后重试', 'error')
   } finally {
     loading.value = false
@@ -306,7 +304,6 @@ const sendCode = async () => {
     if (result.code === 200) {
       // 开发环境显示验证码
       if (result.verificationCode) {
-        console.log('验证码:', result.verificationCode)
         showMessage(`验证码已发送！验证码: ${result.verificationCode}`, 'success')
       } else {
         showMessage('验证码已发送，请查收', 'success')
@@ -326,7 +323,6 @@ const sendCode = async () => {
       showMessage(result.message || '发送失败', 'error')
     }
   } catch (error) {
-    console.error('发送验证码错误:', error)
     showMessage('网络错误，请稍后重试', 'error')
   }
 }
@@ -404,7 +400,6 @@ const handleSocialLogin = (platform) => {
           qqMessageHandler = null
         }
       } catch (e) {
-        console.error('Google登录处理错误:', e)
         showMessage('Google登录处理失败', 'error')
         window.removeEventListener('message', qqMessageHandler)
         qqMessageHandler = null
@@ -457,12 +452,10 @@ onBeforeUnmount(() => {
 })
 
 const handleTerms = () => {
-  console.log('查看用户协议')
   showMessage('用户协议页面开发中...', 'info')
 }
 
 const handlePrivacy = () => {
-  console.log('查看隐私政策')
   showMessage('隐私政策页面开发中...', 'info')
 }
 

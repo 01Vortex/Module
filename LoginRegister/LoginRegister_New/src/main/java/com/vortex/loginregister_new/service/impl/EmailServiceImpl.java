@@ -65,17 +65,13 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             
-            log.debug("邮件内容已准备，开始发送...");
             mailSender.send(message);
-            log.info("✅ 验证码邮件发送成功，收件人: {}", to);
+            log.info("验证码邮件发送成功，收件人: {}", to);
         } catch (MessagingException e) {
-            log.error("❌ 验证码邮件发送失败 (MessagingException)，收件人: {}, 错误: {}", to, e.getMessage(), e);
-            if (e.getCause() != null) {
-                log.error("   原因: {}", e.getCause().getMessage());
-            }
+            log.error("验证码邮件发送失败，收件人: {}, 错误: {}", to, e.getMessage());
             throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("❌ 验证码邮件发送失败 (Exception)，收件人: {}, 错误: {}", to, e.getMessage(), e);
+            log.error("验证码邮件发送失败，收件人: {}, 错误: {}", to, e.getMessage());
             throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
         }
     }
@@ -112,17 +108,13 @@ public class EmailServiceImpl implements EmailService {
             helper.setSubject(subject);
             helper.setText(htmlContent, true);
             
-            log.debug("邮件内容已准备，开始发送...");
             mailSender.send(message);
-            log.info("✅ 重置密码验证码邮件发送成功，收件人: {}", to);
+            log.info("重置密码验证码邮件发送成功，收件人: {}", to);
         } catch (MessagingException e) {
-            log.error("❌ 重置密码验证码邮件发送失败 (MessagingException)，收件人: {}, 错误: {}", to, e.getMessage(), e);
-            if (e.getCause() != null) {
-                log.error("   原因: {}", e.getCause().getMessage());
-            }
+            log.error("重置密码验证码邮件发送失败，收件人: {}, 错误: {}", to, e.getMessage());
             throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
         } catch (Exception e) {
-            log.error("❌ 重置密码验证码邮件发送失败 (Exception)，收件人: {}, 错误: {}", to, e.getMessage(), e);
+            log.error("重置密码验证码邮件发送失败，收件人: {}, 错误: {}", to, e.getMessage());
             throw new RuntimeException("邮件发送失败: " + e.getMessage(), e);
         }
     }

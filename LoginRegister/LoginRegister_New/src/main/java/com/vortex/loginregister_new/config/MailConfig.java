@@ -42,10 +42,6 @@ public class MailConfig {
     @Bean
     @Primary
     public JavaMailSender javaMailSender() {
-        log.info("📧 开始创建 JavaMailSender Bean...");
-        log.info("   配置信息 - host: {}, port: {}, username: {}, protocol: {}", 
-                host, port, username, protocol);
-        
         // 检查必要配置
         if (host == null || host.trim().isEmpty()) {
             throw new IllegalStateException("邮件配置错误：spring.mail.host 不能为空");
@@ -90,7 +86,7 @@ public class MailConfig {
         // 调试模式（开发环境可以启用）
         // props.put("mail.debug", "true");
         
-        log.info("✅ JavaMailSender Bean 创建成功 (host: {}, port: {}, username: {}, protocol: {})", 
+        log.info("✅ 邮件发送服务配置成功(host: {}, port: {}, username: {}, protocol: {})",
                 host, port, username, protocol);
         
         return mailSender;

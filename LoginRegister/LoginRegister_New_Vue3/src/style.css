@@ -11,6 +11,14 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* 始终预留垂直滚动条空间，避免切换内容时页面左右位移 */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable both-edges;
 }
 
 #app {

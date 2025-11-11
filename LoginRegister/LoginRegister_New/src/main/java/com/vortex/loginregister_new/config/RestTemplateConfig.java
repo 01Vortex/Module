@@ -47,10 +47,7 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate restTemplate() {
         ClientHttpRequestFactory factory = createRequestFactory();
-        RestTemplate restTemplate = new RestTemplate(factory);
-        log.info("RestTemplate 已配置 - 连接超时: {}ms, 读取超时: {}ms, 代理: {}", 
-                connectTimeout, readTimeout, proxyEnabled ? proxyHost + ":" + proxyPort : "未启用");
-        return restTemplate;
+        return new RestTemplate(factory);
     }
 
     private ClientHttpRequestFactory createRequestFactory() {
@@ -103,7 +100,6 @@ public class RestTemplateConfig {
                 }
                 Proxy proxy = new Proxy(type, new InetSocketAddress(proxyHost, proxyPort));
                 factory.setProxy(proxy);
-                log.info("RestTemplate 代理已配置 - 类型: {}, 主机: {}, 端口: {}", type, proxyHost, proxyPort);
                 testProxyConnection(proxyHost, proxyPort);
             } catch (Exception e) {
                 log.error("配置代理失败，将使用直连: {}", e.getMessage());
@@ -125,7 +121,6 @@ public class RestTemplateConfig {
             log.info("✅ 代理连接测试成功 - {}:{}", host, port);
         } catch (Exception e) {
             log.error("❌ 代理连接测试失败 - {}:{} - 错误: {}", host, port, e.getMessage());
-            log.error("请确认: 1) 代理服务器正在运行 2) 端口号正确 3) 防火墙允许连接");
         }
     }
 }

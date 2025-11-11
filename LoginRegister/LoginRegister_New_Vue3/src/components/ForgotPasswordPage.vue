@@ -172,7 +172,6 @@ const sendResetCode = async () => {
       showMessage(result?.message || '发送失败', 'error')
     }
   } catch (error) {
-    console.error('发送验证码失败:', error)
     showMessage('网络错误，请稍后重试', 'error')
   } finally {
     loading.value = false
@@ -234,7 +233,6 @@ const resetPassword = async () => {
       showMessage(result?.message || '重置失败', 'error')
     }
   } catch (error) {
-    console.error('重置密码失败:', error)
     showMessage('网络错误，请稍后重试', 'error')
   } finally {
     loading.value = false

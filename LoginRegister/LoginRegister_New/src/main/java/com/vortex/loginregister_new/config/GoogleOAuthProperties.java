@@ -17,23 +17,14 @@ public class GoogleOAuthProperties {
     
     @PostConstruct
     public void validate() {
-        if (clientId == null || clientId.isBlank()) {
-            log.warn("⚠️ Google OAuth client_id 未配置");
-        } else {
-            log.info("✅ Google OAuth client_id 已配置: {}...", 
-                    clientId.substring(0, Math.min(30, clientId.length())));
+        boolean isValid = true;
+        if (redirectUri == null || redirectUri.isBlank() || clientId.isBlank() || clientSecret.isBlank()) {
+            log.warn("⚠️ Google OAuth服务未配置或配置不完全");
+            isValid = false;
         }
         
-        if (clientSecret == null || clientSecret.isBlank()) {
-            log.warn("⚠️ Google OAuth client_secret 未配置");
-        } else {
-            log.info("✅ Google OAuth client_secret 已配置");
-        }
-        
-        if (redirectUri == null || redirectUri.isBlank()) {
-            log.warn("⚠️ Google OAuth redirect_uri 未配置");
-        } else {
-            log.info("✅ Google OAuth redirect_uri 已配置: {}", redirectUri);
+        if (isValid) {
+            log.info("✅ GoogleOAuth服务正常");
         }
     }
 }

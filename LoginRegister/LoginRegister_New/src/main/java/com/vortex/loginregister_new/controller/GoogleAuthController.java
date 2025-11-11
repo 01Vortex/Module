@@ -247,11 +247,6 @@ public class GoogleAuthController {
             form.add("client_secret", props.getClientSecret());
             form.add("redirect_uri", props.getRedirectUri());
             
-            // 记录请求信息（不记录敏感信息）
-            log.debug("Google token 交换请求 - redirect_uri: {}, client_id: {}", 
-                    props.getRedirectUri(), 
-                    props.getClientId() != null ? props.getClientId().substring(0, Math.min(20, props.getClientId().length())) + "..." : "null");
-            
             HttpEntity<MultiValueMap<String, String>> tokenReq = new HttpEntity<>(form, headers);
             
             String tokenResp;
@@ -285,21 +280,11 @@ public class GoogleAuthController {
                 // 网络错误（连接超时、连接拒绝等）
                 String errorMsg = e.getMessage();
                 if (errorMsg != null && errorMsg.contains("Connection timed out")) {
-                    log.error("❌ Google token 交换连接超时");
-                    log.error("   可能原因: 1) 网络无法访问Google服务 2) 需要配置代理 3) 防火墙阻止连接");
-                    log.error("   解决方案: 如果在中国大陆，请配置代理服务器");
-                    log.error("   配置位置: application-dev.yml -> rest.template.proxy.*");
+                    log.error("Google token 交换连接超时 - 可能原因: 网络无法访问Google服务或需要配置代理");
                 } else if (errorMsg != null && errorMsg.contains("Connection refused")) {
-                    log.error("❌ Google token 交换连接被拒绝");
-                    log.error("   请检查: 1) 代理服务器是否正在运行 (检查应用启动日志中的代理连接测试结果)");
-                    log.error("          2) 代理端口是否正确 (常见端口: Clash 7890, V2Ray 10808)");
-                    log.error("          3) 代理软件是否已启动并监听相应端口");
-                    log.error("          4) 防火墙是否阻止了连接");
-                    log.error("   测试方法: 在命令行执行 'telnet 127.0.0.1 7890' 或使用浏览器访问 Google");
-                    log.error("   配置位置: application-dev.yml -> rest.template.proxy.*");
+                    log.error("Google token 交换连接被拒绝 - 请检查代理服务器配置");
                 } else {
-                    log.error("❌ Google token 交换网络错误: {}", errorMsg);
-                    log.error("   异常详情: {}", e.getClass().getSimpleName());
+                    log.error("Google token 交换网络错误: {}", errorMsg);
                 }
                 return null;
             }
@@ -308,8 +293,6 @@ public class GoogleAuthController {
                 log.error("Google token 响应为空");
                 return null;
             }
-            
-            log.debug("Google token 响应: {}", tokenResp.substring(0, Math.min(200, tokenResp.length())));
             
             JsonNode tokenNode;
             try {
@@ -346,7 +329,6 @@ public class GoogleAuthController {
             
             if (tokenNode.has("access_token")) {
                 String accessToken = tokenNode.get("access_token").asText();
-                log.debug("Google access_token 获取成功");
                 return accessToken;
             }
             

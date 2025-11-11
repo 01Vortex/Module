@@ -37,7 +37,7 @@ public class VirtualThreadConfig {
     @Bean
     public TomcatProtocolHandlerCustomizer<?> protocolHandlerVirtualThreadExecutorCustomizer() {
         return protocolHandler -> {
-            log.info("🚀 配置 Tomcat 使用虚拟线程");
+            log.info("✅ 配置 Tomcat 使用虚拟线程");
             protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
         };
     }
@@ -48,7 +48,6 @@ public class VirtualThreadConfig {
      */
     @Bean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
     public AsyncTaskExecutor asyncTaskExecutor() {
-        log.info("🚀 配置异步任务执行器使用虚拟线程");
         return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
     }
 
@@ -60,7 +59,6 @@ public class VirtualThreadConfig {
         SimpleAsyncTaskExecutorBuilder builder = new SimpleAsyncTaskExecutorBuilder();
         builder = builder.virtualThreads(true);
         builder = builder.threadNamePrefix("vt-");
-        log.info("🚀 配置简单异步任务执行器使用虚拟线程");
         return builder;
     }
 }

@@ -223,7 +223,7 @@ const validateEmailOrPhone = async () => {
         errors.emailOrPhone = '该邮箱已被注册'
       }
     } catch (error) {
-      console.error('检查邮箱失败:', error)
+      // 静默处理错误
     }
   } else {
     // 手机号验证（11位纯数字）
@@ -319,7 +319,6 @@ const sendCode = async () => {
       showMessage(result?.message || '发送失败', 'error')
     }
   } catch (error) {
-    console.error('发送验证码失败:', error)
     showMessage('网络错误，请稍后重试', 'error')
   }
 }
@@ -389,7 +388,6 @@ const handleRegister = async () => {
       showMessage(result.message || '注册失败', 'error')
     }
   } catch (error) {
-    console.error('注册错误:', error)
     showMessage('网络错误，请稍后重试', 'error')
   } finally {
     loading.value = false

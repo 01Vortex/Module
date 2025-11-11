@@ -238,7 +238,7 @@ public class ConnectionCheckConfig {
             );
             
             // 能够执行操作，说明MinIO服务可达
-            log.info("✅ MinIO连接成功 (endpoint: {})", minIOConfig.getEndpoint());
+            log.info("✅ MinIO连接成功 (后台地址: {})", minIOConfig.getEndpoint());
             return true;
         } catch (ErrorResponseException e) {
             // ErrorResponseException通常表示MinIO服务可达，只是存储桶不存在或权限问题

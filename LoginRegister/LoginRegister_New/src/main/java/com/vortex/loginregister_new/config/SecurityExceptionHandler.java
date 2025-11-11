@@ -30,48 +30,11 @@ public class SecurityExceptionHandler implements AccessDeniedHandler {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication != null ? authentication.getName() : "anonymous";
         String authorities = authentication != null ? authentication.getAuthorities().toString() : "none";
-        String authHeader = request.getHeader("Authorization");
         
-        // 详细记录403错误信息
-        String tokenInfo = "无";
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7);
-            try {
-                // 尝试解析token获取信息（这里只是用于日志，不验证）
-                String[] parts = token.split("\\.");
-                if (parts.length == 3) {
-                    String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]));
-                    tokenInfo = payload.length() > 100 ? payload.substring(0, 100) + "..." : payload;
-                }
-            } catch (Exception e) {
-                tokenInfo = "解析失败";
-            }
-        }
-        
-        log.error("========== 403访问被拒绝 ==========");
-        log.error("URI: {}", request.getRequestURI());
-        log.error("请求方法: {}", request.getMethod());
-        log.error("用户: {}", username);
-        log.error("权限: {}", authorities);
-        log.error("是否已认证: {}", authentication != null && authentication.isAuthenticated());
-        log.error("Authorization头存在: {}", authHeader != null);
-        log.error("Token信息: {}", tokenInfo);
-        
-        // 检查SecurityContext中的认证信息
-        org.springframework.security.core.context.SecurityContext securityContext = 
-                org.springframework.security.core.context.SecurityContextHolder.getContext();
-        if (securityContext != null && securityContext.getAuthentication() != null) {
-            org.springframework.security.core.Authentication auth = securityContext.getAuthentication();
-            log.error("SecurityContext中的认证信息:");
-            log.error("  - 用户名: {}", auth.getName());
-            log.error("  - 是否已认证: {}", auth.isAuthenticated());
-            log.error("  - 权限列表: {}", auth.getAuthorities());
-        } else {
-            log.error("SecurityContext中没有认证信息！");
-        }
-        
-        log.error("异常信息: {}", accessDeniedException.getMessage());
-        log.error("===================================");
+        // 记录403错误信息
+        log.warn("403访问被拒绝 - URI: {}, 用户: {}, 权限: {}, 已认证: {}", 
+                request.getRequestURI(), username, authorities, 
+                authentication != null && authentication.isAuthenticated());
         
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
         response.setContentType("application/json;charset=UTF-8");

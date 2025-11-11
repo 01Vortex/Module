@@ -433,8 +433,6 @@ public class AdminController {
                 } else {
                     log.warn("无法从URL中提取objectName - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
                 }
-            } else {
-                log.debug("用户头像不是MinIO文件，跳过删除 - 用户ID: {}, avatarUrl: {}", user.getId(), avatarUrl);
             }
         } catch (Exception e) {
             // 删除头像失败不影响用户删除操作，只记录警告
